@@ -50,7 +50,14 @@ To create a new playlist, create a json file in this directory having a format s
     }
   ],
   "Order": {
-    "Name": "Release Date Ascending"
+    "Name": "ReleaseDate",
+    "Ascending": true,
+    "ThenBy":[
+      {
+        "Name": "OriginalTitle",
+        "Ascending": true
+      }
+    ]
   }
 }
 ```
@@ -71,9 +78,28 @@ To create a new playlist, create a json file in this directory having a format s
 - Target Value: The value to be compared to. Most things are converted into strings, booleans, or numbers. A date in the above example is converted to seconds since epoch.
 
 - Order: Provides the type of sorting you wish for the playlist. The following are a list of valid sorting methods so far.
+- These generally match the property name in the BaseItem object, if it accepts muliple names, they will  be split by |
+  - Album
+  - ChannelId
+  - Container
+  - DateLastRefreshed
+  - DateLastSaved
+  - DateModified
+  - EndDate
+  - ForcedSortName
+  - Height
+  - Id
+  - MediaType
+  - Name
   - NoOrder
-  - Release Date Ascending
-  - Release Date Descending
+  - OriginalTitle
+  - Overview
+  - Path
+  - ProductionYear|Year
+  - Release Date|ReleaseDate|PremiereDate
+  - SortName
+  - Tagline
+  - Width
 
 ## Future work
 

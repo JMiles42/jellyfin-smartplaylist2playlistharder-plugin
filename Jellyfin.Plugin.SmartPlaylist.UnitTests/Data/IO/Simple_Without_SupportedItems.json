@@ -1,0 +1,28 @@
+{
+  "Name": "OP Strats",
+  "FileName": "op_strats",
+  "User": "UnitTest",
+  "ExpressionSets": [
+	{
+	  "Expressions": [
+		{
+		  "MemberName": "Directors",
+		  "Operator": "Contains",
+		  "TargetValue": "The Spiffing Brit",
+		  "InvertResult": false
+		}
+	  ]
+	}
+  ],
+  "MaxItems": 0,
+  "Order": {
+	"Name": "ReleaseDate",
+	"Ascending": true,
+	"ThenBy": [
+	  {
+		"Name": "OriginalTitle",
+		"Ascending": true
+	  }
+	]
+  }
+}
