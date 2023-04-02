@@ -1,10 +1,16 @@
-# Smart Playlist Plugin for Jellyfin
+# Smart Playlist 2 Playlist Harder Plugin for Jellyfin
+
+This is a more recent forked & upgraded version of [ankenyr](https://github.com/ankenyr/jellyfin-smartplaylist-plugin) plugin, which hadn't had updates in quite a while, and I found it a quite useful plugin and wanted to improve it.
+
 
 ## Overview
 
-This is an attempt to make a smart playlist similar to what iTunes, Plex, and other media players have. It is still in early development and has some limitations which will not be able to be resolved until Jellyfin impliments some features.
+This plugin allows you to setup a series of rules to auto generate and update playlists within Jellyfin.
+With the current implimentation these are limited to an individual user.
 
-Note: The playlist json format is still in flux as I figure things out.
+The json format currently in use, may not be the final version while I continue to work on this forked version.
+Currently I am trying to keep backwards compatability in mind. For example with the ordering, instead of changing the base OrderBy to an array I added the nested ThenBy field, to allow old ones to work.
+If I do make breaking changes, for my own sake as well, I will try to allow the older version to be compatable as well, but no guarantees. 
 
 ## How to Install
 
@@ -69,13 +75,17 @@ To create a new playlist, create a json file in this directory having a format s
 - ExpressionSets: This is a list of Expressions. Each expression is OR'ed together.
 - Expressions: This is the meat of the plugin. Expressions are a list of maps containing MemberName, Operator, and TargetValue. I am working on a list of all valid things. Currently there are three sets of expressions:
 
-  - Universal LINQ expression operators: [This link](https://docs.microsoft.com/en-us/dotnet/api/system.linq.expressions.expressiontype?redirectedfrom=MSDN&view=net-5.0) is a list of all valid operators within expression trees but only a subset are valid for a specific operand.
+  - Universal LINQ expression operators: [This link](https://docs.microsoft.com/en-us/dotnet/api/system.linq.expressions.expressiontype?redirectedfrom=MSDN&view=net-6.0) is a list of all valid operators within expression trees but only a subset are valid for a specific operand.
   - String operators: Equals, StartsWith, EndsWith, Contains.
   - Regex operators: MatchRegex, NotMatchRegex.
+  - StringListContainsSubstring: This is basically a string contains, but searches all entries in a list, such as Directors, Genres or Tags.
 
 - MemberName: This is a reference to the properties in [Operand](https://github.com/ankenyr/jellyfin-smartplaylist-plugin/blob/master/Jellyfin.Plugin.SmartPlaylist/QueryEngine/Operand.cs "Operand"). You set this string to one of the property names to reference what you wish to filter on.
 - Operator: An operation used to compare the TargetValue to the property of each piece of media. The above example would match anything with the director set as CGP Grey with a Premiere Date less than 2020/07/01
-- Target Value: The value to be compared to. Most things are converted into strings, booleans, or numbers. A date in the above example is converted to seconds since epoch.
+- TargetValue: The value to be compared to. Most things are converted into strings, booleans, or numbers. A date in the above example is converted to seconds since epoch.
+- InvertResult: This allows you to invert any Expression, reguardless of it's type, name or operator.
+- StringComparison: Only used specifically on string comparisons, this can allow you to ignore case, when using a value such as OrdinalIgnoreCase [Microsoft Docs](https://learn.microsoft.com/en-us/dotnet/api/system.stringcomparer.ordinalignorecase?view=net-6.0)
+
 
 - Order: Provides the type of sorting you wish for the playlist. The following are a list of valid sorting methods so far.
 - These generally match the property name in the BaseItem object, if it accepts muliple names, they will  be split by |
@@ -103,14 +113,17 @@ To create a new playlist, create a json file in this directory having a format s
 
 ## Future work
 
-- Add in more properties to be matched against. Please file aa feature request if you have ideas.
+- More tests
+  - An aim to have tests to test comparing expressions with actual JellyFin library documents.
+  - More parsing and saving checks
+- Add in more properties to be matched against. Please file a feature request if you have ideas.
 - Document all operators that are valid for each property.
 - Explore creating custom property types with custom operators.
 - Once Jellyfin allows for custom web pages beyond the configuration page, explore how to allow configuration from the web interface rather than JSON files.
-- Add more sorting methods.
-- Pretty Print JSON files, possibly this should be done by jellyfin itself.
+- CICD pipeline with automatic updates to latest JellyFin realease if there arn't breaking changes.
 
 ## Credits
 
+Original plugin this fork was based off of [ankenyr](https://github.com/ankenyr/jellyfin-smartplaylist-plugin)
 Rule engine was inspired by [this](https://stackoverflow.com/questions/6488034/how-to-implement-a-rule-engine "this") post in Stack Overflow.
 Initially wanted to convert [ppankiewicz's plugin](https://github.com/ppankiewicz/Emby.SmartPlaylist.Plugin "ppankiewicz's plugin") but found it to be too incompatible and difficult to work with. I did take some bits of code mostly around interfacing with the filesystem.
