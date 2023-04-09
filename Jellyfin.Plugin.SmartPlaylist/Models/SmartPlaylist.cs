@@ -21,7 +21,7 @@ public class SmartPlaylist {
     public int MaxItems { get; set; }
     public bool IsReadonly { get; set; }
 
-    public IReadOnlyList<Order> Order { get; set; }
+    public Order[] Order { get; set; }
 
     public BaseItemKind[] SupportedItems { get; set; }
 
@@ -43,7 +43,7 @@ public class SmartPlaylist {
         SupportedItems = dto.SupportedItems;
     }
 
-    private static List<Order> GenerateOrder(OrderByDto dtoOrder) {
+    private static Order[] GenerateOrder(OrderByDto dtoOrder) {
         var result = new List<Order>(1 + (dtoOrder.ThenBy?.Count ?? 0)) {
                 OrderManager.GetOrder(dtoOrder)
         };
@@ -54,7 +54,7 @@ public class SmartPlaylist {
             }
         }
 
-        return result;
+        return result.ToArray();
     }
 
     internal List<List<Func<Operand, bool>>> CompileRuleSets() {
@@ -67,10 +67,10 @@ public class SmartPlaylist {
         return compiledRuleSets;
     }
 
-    // Returns the ID's of the items, if order is provided the IDs are sorted.
-    public IEnumerable<Guid> FilterPlaylistItems(IEnumerable<BaseItem> items,
-                                                 ILibraryManager libraryManager,
-                                                 User user) {
+    // Returns the BaseItems that match the filter, if order is provided the IDs are sorted.
+    public IEnumerable<BaseItem> FilterPlaylistItems(IEnumerable<BaseItem> items,
+                                                     ILibraryManager libraryManager,
+                                                     User user) {
 
         var results = new List<BaseItem>();
 
@@ -86,11 +86,20 @@ public class SmartPlaylist {
 
         var enumerable = results.AsEnumerable();
 
-        foreach (var order in Order) {
-            enumerable = order.OrderBy(enumerable);
+        if (Order.Any()) {
+            var order = Order.First();
+            var orderedEnumerable = order.OrderBy(enumerable);
+
+            if (Order.Length > 1) {
+                foreach (var orderLoop in Order.Skip(1)) {
+                    orderedEnumerable = orderLoop.ThenBy(orderedEnumerable);
+                }
+            }
+
+            enumerable = orderedEnumerable;
         }
 
-        return enumerable.Select(x => x.Id);
+        return enumerable;
     }
 
     private static void Validate() {

@@ -7,7 +7,8 @@ public abstract class Order {
 
 	protected Order(bool ascending) => Ascending = ascending;
 
-	public virtual IEnumerable<BaseItem> OrderBy(IEnumerable<BaseItem> items) => items;
+	public virtual IOrderedEnumerable<BaseItem> OrderBy(IEnumerable<BaseItem> items) => items.OrderBy(a => a);
+	public virtual IOrderedEnumerable<BaseItem> ThenBy(IOrderedEnumerable<BaseItem> items) => items.ThenBy(a => a);
 
 	public abstract IEnumerable<string> Names();
 }

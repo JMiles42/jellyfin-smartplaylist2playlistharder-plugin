@@ -25,11 +25,6 @@ public class Engine {
 			return ProcessString(r, tProp, left);
 		}
 
-		// is the operator a known .NET operator?
-		if (Enum.TryParse(r.Operator, out ExpressionType tBinary)) {
-			return ProcessEnum(r, tProp, tBinary, left);
-		}
-
 		if (r.Operator is "MatchRegex" or "NotMatchRegex") {
 			if (ProcessRegex(r, tProp, left, out var expression)) {
 				return expression;
@@ -40,6 +35,11 @@ public class Engine {
 			if (ProcessStringListContains(r, tProp, left, out var expression)) {
 				return expression;
 			}
+		}
+
+		// is the operator a known .NET operator?
+		if (Enum.TryParse(r.Operator, out ExpressionType tBinary)) {
+			return ProcessEnum(r, tProp, tBinary, left);
 		}
 
 		return ProcessFallback(r, tProp, left);
@@ -101,7 +101,7 @@ public class Engine {
 	}
 
 	private static bool ProcessRegex(Expression r, Type tProp, MemberExpression left, out linqExpression expression) {
-		RegexOptions options = r.StringComparison switch {
+		var options = r.StringComparison switch {
 			StringComparison.CurrentCulture => RegexOptions.None,
 			StringComparison.InvariantCulture => RegexOptions.None,
 			StringComparison.Ordinal => RegexOptions.None,

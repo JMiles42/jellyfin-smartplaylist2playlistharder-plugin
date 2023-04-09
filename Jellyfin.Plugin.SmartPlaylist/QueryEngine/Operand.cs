@@ -18,11 +18,14 @@ public class Operand {
 
 	public List<string> Writers { get; set; } = new();
 
+	public List<string> Artists { get; set; } = new();
+
 	public float CommunityRating { get; set; } = 0;
 
 	public float CriticRating { get; set; } = 0;
 
 	public bool IsPlayed { get; set; } = false;
+	public bool IsFavoriteOrLiked { get; set; } = false;
 
 	public string Name { get; set; }
 
@@ -74,6 +77,17 @@ public class Operand {
 
 	public bool IsVertical => !IsHorizontal;
 
+	public string Overview { get; set; } = "";
+
+	public string CollectionName { get; set; } = "";
+
+	public double? LastPlayedDate { get; set; } = null;
+
+	public int PlayedCount { get; set; } = 0;
+
+	public double PlayedPercentage { get; set; } = 0;
+
+	public long PlaybackPositionTicks { get; set; } = 0;
 
 	public Operand(string name) {
 		Name = name;
