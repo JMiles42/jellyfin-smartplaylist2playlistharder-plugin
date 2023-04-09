@@ -68,7 +68,7 @@ public class SmartPlaylist {
     }
 
     // Returns the BaseItems that match the filter, if order is provided the IDs are sorted.
-    public IEnumerable<BaseItem> FilterPlaylistItems(IEnumerable<BaseItem> items,
+    public IEnumerable<Guid> FilterPlaylistItems(IEnumerable<BaseItem> items,
                                                      ILibraryManager libraryManager,
                                                      User user) {
 
@@ -99,7 +99,7 @@ public class SmartPlaylist {
             enumerable = orderedEnumerable;
         }
 
-        return enumerable;
+        return enumerable.Select(bi => bi.Id);
     }
 
     private static void Validate() {
