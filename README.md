@@ -110,9 +110,10 @@ To create a new playlist, create a json file in this directory having a format s
   - SortName
   - Tagline
   - Width
+  - RandomOrder|Random|RNG|DiceRoll;
 
 ## Future work
-- Add Top X to limit playlist size
+- Add Top X to limit playlist size (✅ Implimented)
 - Add Library filter to only allow specific libraries in the Playlist
 - Add AND clause to existing ORs, eg any current caluse, AND a new one.
 - Add Dynamic Playlist Generater
@@ -123,7 +124,7 @@ To create a new playlist, create a json file in this directory having a format s
 -Optimize playlist generators by pre grouping libaray query modes, eg user and item types, so it's not retriving the whole library for every playlist.
 
 -Playlist refresh changes
-  - Add IsReadonly
+  - Add IsReadonly (✅ Implimented)
   - Playlist specifc refresh rate (Unsure)
 - More tests
   - An aim to have tests to test comparing expressions with actual JellyFin library documents.
