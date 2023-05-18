@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jellyfin.Controller" Version="10.8.4" />
+    <EmbeddedResource Include="Configuration\configPage.html" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,17 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Configuration\configPage.html" />
+    <PackageReference Include="Jellyfin.Controller" Version="10.8.4" />
+    <PackageReference Include="Jellyfin.Data" Version="10.8.4" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="meta.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

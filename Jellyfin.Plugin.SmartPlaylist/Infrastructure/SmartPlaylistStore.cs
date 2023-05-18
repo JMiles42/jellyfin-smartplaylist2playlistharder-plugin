@@ -60,18 +60,18 @@ public class SmartPlaylistStore : ISmartPlaylistStore
         return deserializeTasks.Select(x => x.Result.Validate()).ToArray();
     }
 
-    public async Task SaveAsync(SmartPlaylistDto dynamickPList)
+    public async Task SaveAsync(SmartPlaylistDto smartPList)
     {
         try
         {
-            Logger.LogInformation("Saving playlistDto: {Name}", dynamickPList.Name);
-            var filePath = _fileSystem.GetSmartPlaylistPath(dynamickPList.Id, dynamickPList.FileName);
+            Logger.LogInformation("Saving playlistDto: {Name}", smartPList.Name);
+            var filePath = _fileSystem.GetSmartPlaylistPath(smartPList.Id, smartPList.FileName);
             await using var writer = File.Create(filePath);
-            await JsonSerializer.SerializeAsync(writer, dynamickPList, _options).ConfigureAwait(false);
+            await JsonSerializer.SerializeAsync(writer, smartPList, _options).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error saving playlistDto: {Name}", dynamickPList.Name);
+            Logger.LogError(ex, "Error saving playlistDto: {Name}", smartPList.Name);
         }
     }
 

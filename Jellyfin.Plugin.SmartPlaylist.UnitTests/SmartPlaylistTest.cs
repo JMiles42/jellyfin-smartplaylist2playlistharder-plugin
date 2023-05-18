@@ -24,7 +24,7 @@ public class SmartPlaylistTest {
 
         var smartPlaylist = new Models.SmartPlaylist(dto);
 
-        smartPlaylist.MaxItems.Should().Be(1000);
+        smartPlaylist.MaxItems.Should().Be(0);
         smartPlaylist.Id.Should().Be("87ccaa10-f801-4a7a-be40-46ede34adb22");
         smartPlaylist.Name.Should().Be("Foo");
         smartPlaylist.User.Should().Be("Rob");
@@ -52,9 +52,9 @@ public class SmartPlaylistTest {
         };
 
         var smartPlaylist = new Models.SmartPlaylist(dto);
-        var compiled = smartPlaylist.CompileRuleSets();
+        var compiled = smartPlaylist.GetCompiledRules();
 
-        smartPlaylist.MaxItems.Should().Be(1000);
+        smartPlaylist.MaxItems.Should().Be(0);
     }
 
     [Fact]
@@ -75,8 +75,8 @@ public class SmartPlaylistTest {
         };
 
         var smartPlaylist = new Models.SmartPlaylist(dto);
-        var compiled = smartPlaylist.CompileRuleSets();
+        var compiled = smartPlaylist.GetCompiledRules();
 
-        smartPlaylist.MaxItems.Should().Be(1000);
+        smartPlaylist.MaxItems.Should().Be(0);
     }
 }

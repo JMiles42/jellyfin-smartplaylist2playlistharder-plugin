@@ -30,13 +30,13 @@ public class Operand {
 
 	public string Name { get; set; }
 
-	public string FolderPath { get; set; } = "";
+	public string FolderPath { get; set; } = string.Empty;
 
 	public double PremiereDate { get; set; } = 0;
 
-	public string MediaType { get; set; } = "";
+	public string MediaType { get; set; } = string.Empty;
 
-	public string Album { get; set; } = "";
+	public string Album { get; set; } = string.Empty;
 
 	public double DateCreated { get; set; } = 0;
 
@@ -48,19 +48,19 @@ public class Operand {
 
 	public int? ProductionYear { get; set; } = null;
 
-	public string OriginalTitle { get; set; } = "";
+	public string OriginalTitle { get; set; } = string.Empty;
 
 	public int Height { get; set; } = 0;
 
 	public int Width { get; set; } = 0;
 
-	public string FileNameWithoutExtension { get; set; } = "";
+	public string FileNameWithoutExtension { get; set; } = string.Empty;
 
-	public string OfficialRating { get; set; } = "";
+	public string OfficialRating { get; set; } = string.Empty;
 
 	public bool HasSubtitles { get; set; } = false;
 
-	public string SortName { get; set; } = "";
+	public string SortName { get; set; } = string.Empty;
 
 	public int DaysSinceCreated { get; set; } = 0;
 
@@ -78,9 +78,9 @@ public class Operand {
 
 	public bool IsVertical => !IsHorizontal;
 
-	public string Overview { get; set; } = "";
+	public string Overview { get; set; } = string.Empty;
 
-	public string CollectionName { get; set; } = "";
+	public string CollectionName { get; set; } = string.Empty;
 
 	public double? LastPlayedDate { get; set; } = null;
 
@@ -94,9 +94,15 @@ public class Operand {
 
 	public int? ParentIndexNumber { get; set; }
 
-	public string SeasonName { get; set; } = "";
+	public string SeasonName { get; set; } = string.Empty;
 
-	public string SeriesName { get; set; } = "";
+	public string SeriesName { get; set; } = string.Empty;
+
+	public string ParentName { get; set; } = string.Empty;
+
+	public string GrandparentName { get; set; } = string.Empty;
+
+	public string Container { get; set; } = string.Empty;
 
 	public Operand(string name) {
 		Name = name;

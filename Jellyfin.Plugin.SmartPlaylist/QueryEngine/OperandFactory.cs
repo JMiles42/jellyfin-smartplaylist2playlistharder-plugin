@@ -16,26 +16,28 @@ internal class OperandFactory {
 
 		var operand = new Operand(baseItem.Name);
 		ProcessPeople(libraryManager, baseItem, operand);
-
+		operand.ParentName      = baseItem.LatestItemsIndexContainer?.Name;
+		operand.GrandparentName = baseItem.LatestItemsIndexContainer?.DisplayParent?.Name;
 		operand.Genres.AddRange(baseItem.Genres);
 		operand.Studios.AddRange(baseItem.Studios);
-		operand.CommunityRating = baseItem.CommunityRating.GetValueOrDefault();
-		operand.CriticRating = baseItem.CriticRating.GetValueOrDefault();
-		operand.MediaType = baseItem.MediaType;
-		operand.Album = baseItem.Album;
-		operand.FolderPath = baseItem.ContainingFolderPath;
-		operand.ProductionYear = baseItem.ProductionYear;
-		operand.OriginalTitle = baseItem.OriginalTitle;
-		operand.Height = baseItem.Height;
-		operand.Width = baseItem.Width;
+		operand.CommunityRating          = baseItem.CommunityRating.GetValueOrDefault();
+		operand.CriticRating             = baseItem.CriticRating.GetValueOrDefault();
+		operand.MediaType                = baseItem.MediaType;
+		operand.Album                    = baseItem.Album;
+		operand.FolderPath               = baseItem.ContainingFolderPath;
+		operand.ProductionYear           = baseItem.ProductionYear;
+		operand.OriginalTitle            = baseItem.OriginalTitle;
+		operand.Height                   = baseItem.Height;
+		operand.Width                    = baseItem.Width;
 		operand.FileNameWithoutExtension = baseItem.FileNameWithoutExtension;
-		operand.OfficialRating = baseItem.OfficialRating;
-		operand.SortName = baseItem.SortName;
-		operand.DaysSinceCreated = GetDaysAgo(baseItem.DateCreated);
-		operand.DaysSinceLastRefreshed = GetDaysAgo(baseItem.DateLastRefreshed);
-		operand.DaysSinceLastSaved = GetDaysAgo(baseItem.DateLastSaved);
-		operand.DaysSinceLastModified = GetDaysAgo(baseItem.DateModified);
-		operand.Overview = baseItem.Overview;
+		operand.OfficialRating           = baseItem.OfficialRating;
+		operand.SortName                 = baseItem.SortName;
+		operand.DaysSinceCreated         = GetDaysAgo(baseItem.DateCreated);
+		operand.DaysSinceLastRefreshed   = GetDaysAgo(baseItem.DateLastRefreshed);
+		operand.DaysSinceLastSaved       = GetDaysAgo(baseItem.DateLastSaved);
+		operand.DaysSinceLastModified    = GetDaysAgo(baseItem.DateModified);
+		operand.Overview                 = baseItem.Overview;
+		operand.Container                = baseItem.Container;
 
 		ProcessPlayedData(userDataManager, operand, baseItem, user);
 

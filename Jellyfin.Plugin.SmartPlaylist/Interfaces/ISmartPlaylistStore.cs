@@ -10,7 +10,7 @@ public interface ISmartPlaylistStore
 
     Task<SmartPlaylistDto[]> GetAllSmartPlaylistAsync();
 
-    Task SaveAsync(SmartPlaylistDto dynamickPList);
+    Task SaveAsync(SmartPlaylistDto smartPList);
 
     void Delete(Guid userId, string smartPlaylistId);
 }

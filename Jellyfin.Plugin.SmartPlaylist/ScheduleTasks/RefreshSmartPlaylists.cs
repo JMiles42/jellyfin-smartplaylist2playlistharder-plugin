@@ -15,29 +15,30 @@ using MediaBrowser.Model.Tasks;
 namespace Jellyfin.Plugin.SmartPlaylist.ScheduleTasks;
 
 public class RefreshSmartPlaylists : IScheduledTask, IConfigurableScheduledTask {
-    private readonly IFileSystem _fileSystem;
-    private readonly ILibraryManager _libraryManager;
+    private readonly IFileSystem                    _fileSystem;
+    private readonly ILibraryManager                _libraryManager;
     private readonly ILogger<RefreshSmartPlaylists> _logger;
-    private readonly IPlaylistManager _playlistManager;
-    private readonly ISmartPlaylistStore _plStore;
-    private readonly IProviderManager _providerManager;
-    private readonly IUserManager _userManager;
+    private readonly IPlaylistManager               _playlistManager;
+    private readonly ISmartPlaylistStore            _plStore;
+    private readonly IProviderManager               _providerManager;
+    private readonly IUserManager                   _userManager;
 
     public RefreshSmartPlaylists(IFileSystem fileSystem,
-                               ILibraryManager libraryManager,
-                               ILogger<RefreshSmartPlaylists> logger,
-                               IPlaylistManager playlistManager,
-                               IProviderManager providerManager,
-                               IServerApplicationPaths serverApplicationPaths,
-                               IUserManager userManager) {
-        _fileSystem = fileSystem;
-        _libraryManager = libraryManager;
-        _logger = logger;
-        _playlistManager = playlistManager;
-        _providerManager = providerManager;
-        _userManager = userManager;
+                                 ILibraryManager libraryManager,
+                                 ILogger<RefreshSmartPlaylists> logger,
+                                 IPlaylistManager playlistManager,
+                                 IProviderManager providerManager,
+                                 IServerApplicationPaths serverApplicationPaths,
+                                 IUserManager userManager,
+                                 ILoggerFactory loggerFactory) {
+        _fileSystem        = fileSystem;
+        _libraryManager    = libraryManager;
+        _logger            = logger;
+        _playlistManager   = playlistManager;
+        _providerManager   = providerManager;
+        _userManager       = userManager;
 
-        ISmartPlaylistFileSystem plFileSystem = new SmartPlaylistFileSystem(serverApplicationPaths);
+        ISmartPlaylistFileSystem plFileSystem = new SmartPlaylistFileSystem(serverApplicationPaths, loggerFactory.CreateLogger<SmartPlaylistFileSystem>());
         _plStore = new SmartPlaylistStore(plFileSystem, logger);
     }
 
@@ -49,7 +50,6 @@ public class RefreshSmartPlaylists : IScheduledTask, IConfigurableScheduledTask 
         };
 
         var foo = _playlistManager.CreatePlaylist(req);
-
         return foo.Result.Id;
     }
 
@@ -80,9 +80,9 @@ public class RefreshSmartPlaylists : IScheduledTask, IConfigurableScheduledTask 
     public IEnumerable<TaskTriggerInfo> GetDefaultTriggers() {
         return new[] {
                 new TaskTriggerInfo {
-                        IntervalTicks = TimeSpan.FromMinutes(30).Ticks,
-                        Type          = TaskTriggerInfo.TriggerInterval
-                }
+                        IntervalTicks = TimeSpan.FromHours(6).Ticks,
+                        Type          = TaskTriggerInfo.TriggerInterval,
+                },
         };
     }
 
@@ -91,7 +91,7 @@ public class RefreshSmartPlaylists : IScheduledTask, IConfigurableScheduledTask 
             var dtos = await _plStore.GetAllSmartPlaylistAsync();
 
             for (var index = 0; index < dtos.Length; index++) {
-                await ProcessPlaylist(progress, dtos[index], percent => progress.ReportPercentage(dtos.Length, index, percent));
+                await ProcessPlaylist(dtos[index], percent => progress.ReportPercentage(dtos.Length, index, percent));
             }
         }
         catch (Exception ex) {
@@ -99,7 +99,7 @@ public class RefreshSmartPlaylists : IScheduledTask, IConfigurableScheduledTask 
         }
     }
 
-    private async Task ProcessPlaylist(IProgress<double> progress, SmartPlaylistDto dto, Action<double> progressCallback) {
+    private async Task ProcessPlaylist(SmartPlaylistDto dto, Action<double> progressCallback) {
         progressCallback(0);
 
         if (dto.IsReadonly) {
@@ -110,13 +110,24 @@ public class RefreshSmartPlaylists : IScheduledTask, IConfigurableScheduledTask 
 
         var smartPlaylist = new Models.SmartPlaylist(dto);
 
+        try {
+            smartPlaylist.CompileRules();
+        }
+        catch (Exception ex) {
+            _logger.LogError(ex, "Error parsing rules for {FileName}", smartPlaylist.FileName);
+
+            return;
+        }
+
         var user = _userManager.GetUserByName(smartPlaylist.User);
         progressCallback(10);
         List<Playlist> p = new();
 
         try {
             var playlists = _playlistManager.GetPlaylists(user.Id);
+
             p.AddRange(playlists.Where(x => x.Id.ToString("N") == dto.Id));
+
             progressCallback(20);
         }
         catch (NullReferenceException ex) {
@@ -177,14 +188,21 @@ public class RefreshSmartPlaylists : IScheduledTask, IConfigurableScheduledTask 
         progressCallback(80);
         dto.Id = plId;
         await _plStore.SaveAsync(dto);
-        progressCallback(100);
+        progressCallback(99);
     }
 
-    private Guid[] GetPlaylistItems(Models.SmartPlaylist smartPlaylist, User user) =>
-            smartPlaylist.FilterPlaylistItems(GetAllUserMedia(user, smartPlaylist.SupportedItems),
-                                              _libraryManager,
-                                              user).ToArray();
+    private Guid[] GetPlaylistItems(Models.SmartPlaylist smartPlaylist, User user) {
 
+        var rst = smartPlaylist.FilterPlaylistItems(GetAllUserMedia(user, smartPlaylist.SupportedItems),
+                                                    _libraryManager,
+                                                    user);
+
+        if (smartPlaylist.MaxItems > 0) {
+            return rst.Take(smartPlaylist.MaxItems).ToArray();
+        }
+
+        return rst.ToArray();
+    }
 
     public void QueueRefresh(Guid playlistId) {
         _providerManager.QueueRefresh(playlistId,

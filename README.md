@@ -112,7 +112,19 @@ To create a new playlist, create a json file in this directory having a format s
   - Width
 
 ## Future work
+- Add Top X to limit playlist size
+- Add Library filter to only allow specific libraries in the Playlist
+- Add AND clause to existing ORs, eg any current caluse, AND a new one.
+- Add Dynamic Playlist Generater
+  - This should allow you to setup rules to generate many playlists automatically.
+  - eg, you want a playlist of the the last 5 days of any {Director}s videos
+    this would generate a playlist for every {Director} that has a video uploaded in the past 5 days.
 
+-Optimize playlist generators by pre grouping libaray query modes, eg user and item types, so it's not retriving the whole library for every playlist.
+
+-Playlist refresh changes
+  - Add IsReadonly
+  - Playlist specifc refresh rate (Unsure)
 - More tests
   - An aim to have tests to test comparing expressions with actual JellyFin library documents.
   - More parsing and saving checks
