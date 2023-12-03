@@ -2,6 +2,7 @@
 
 public enum OperandMember
 {
+	Invalid,
 	Name,
 	Actors,
 	Artists,
@@ -60,4 +61,5 @@ public enum OperandMember
 	LengthMinutes,
 	LengthHours,
 	LengthTicks,
+	Tags,
 }

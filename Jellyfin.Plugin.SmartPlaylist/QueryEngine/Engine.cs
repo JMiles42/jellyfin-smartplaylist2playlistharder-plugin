@@ -61,6 +61,10 @@ public class Engine
 	}
 
 	public static Func<T, bool> CompileRule<T>(SmartPlExpression r) {
+		if (r.IsInValid) {
+			return null;
+		}
+
 		var paramUser = linqExpression.Parameter(typeof(Operand));
 		var expr      = BuildExpr<T>(r, paramUser);
 		// build a lambda function User->bool and compile it

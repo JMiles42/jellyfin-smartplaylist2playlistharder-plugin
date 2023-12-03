@@ -1,7 +1,7 @@
 name: "SmartPlaylist2PlaylistHarder"
 guid: "5A63FE63-765F-43F7-A129-661E839F83D5"
 imageUrl: ""
-version: "1.6.2.0"
+version: "1.6.3.1"
 targetAbi: "10.8.0.0"
 framework: "net6.0"
 owner: "JMiles42"
@@ -14,6 +14,9 @@ category: "Playlist"
 artifacts:
   - "Jellyfin.Plugin.SmartPlaylist.dll"
 changelog: |
+  Removed IsValid from being saved into the json file
+  Fixed removing of OperandMember.Name from saving to json
+  Added Tags to OperandMember
   Re-added progress tracking
   Added Tags
   Fixed Timespan operations

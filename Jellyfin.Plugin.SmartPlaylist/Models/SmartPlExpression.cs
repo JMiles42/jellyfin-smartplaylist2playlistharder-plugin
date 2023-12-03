@@ -7,6 +7,8 @@ public class SmartPlExpression
 {
     public OperandMember MemberName { get; set; }
 
+    [JsonIgnore]
+    [IgnoreDataMember]
     private string @operator;
 
     public string Operator {
@@ -27,13 +29,18 @@ public class SmartPlExpression
 
     public StringComparison StringComparison { get; set; }
 
+    [JsonIgnore]
+    [IgnoreDataMember]
+    public bool IsInValid { get; }
+
     public SmartPlExpression(OperandMember memberName, string @operator, string targetValue, bool invertResult = false, StringComparison stringComparison = StringComparison.CurrentCulture)
     {
-        MemberName = memberName;
-        Operator = @operator;
-        TargetValue = targetValue;
-        InvertResult = invertResult;
+        MemberName       = memberName;
+        Operator         = @operator;
+        TargetValue      = targetValue;
+        InvertResult     = invertResult;
         StringComparison = stringComparison;
+        IsInValid          = MemberName == OperandMember.Invalid;
     }
 
     /// <inheritdoc />

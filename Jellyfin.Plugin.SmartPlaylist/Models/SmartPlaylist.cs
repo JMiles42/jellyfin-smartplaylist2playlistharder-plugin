@@ -66,13 +66,14 @@ public class SmartPlaylist {
         CompiledRule = new ();
 
         foreach (var set in ExpressionSets) {
-            CompiledRule.CompiledRuleSets.Add(set.Expressions.Select(Engine.CompileRule<Operand>).ToList());
+            CompiledRule.CompiledRuleSets.Add(set.Expressions.Where(a => !a.IsInValid).Select(Engine.CompileRule<Operand>).ToList());
         }
     }
 
     internal List<List<Func<Operand, bool>>> GetCompiledRules() {
-        if (CompiledRule is not null)
+        if (CompiledRule is not null) {
             return CompiledRule.CompiledRuleSets;
+        }
 
         CompileRules();
 
