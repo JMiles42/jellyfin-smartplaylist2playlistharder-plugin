@@ -15,6 +15,7 @@ public class Operand {
 	public List<string> Producers                { get; set; } = new();
 	public List<string> Studios                  { get; set; } = new();
 	public List<string> Writers                  { get; set; } = new();
+	public List<string> Tags                     { get; set; } = new();
 	public bool         Exists                   => true;
 	public bool         HasSubtitles             { get; set; } = false;
 	public bool         IsFavoriteOrLiked        { get; set; } = false;

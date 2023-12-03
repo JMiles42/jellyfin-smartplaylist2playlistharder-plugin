@@ -20,6 +20,7 @@ internal class OperandFactory {
 		operand.GrandparentName = baseItem.LatestItemsIndexContainer?.DisplayParent?.Name;
 		operand.Genres.AddRange(baseItem.Genres);
 		operand.Studios.AddRange(baseItem.Studios);
+		operand.Tags.AddRange(baseItem.Tags);
 		operand.CommunityRating          = baseItem.CommunityRating.GetValueOrDefault();
 		operand.CriticRating             = baseItem.CriticRating.GetValueOrDefault();
 		operand.MediaType                = baseItem.MediaType;
