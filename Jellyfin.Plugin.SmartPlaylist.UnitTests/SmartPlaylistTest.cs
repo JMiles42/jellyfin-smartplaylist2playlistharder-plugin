@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Jellyfin.Plugin.SmartPlaylist.Models;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 
 namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;
 
@@ -13,7 +14,7 @@ public class SmartPlaylistTest {
             User = "Rob"
         };
 
-        var es = new ExpressionSet { Expressions = new() { new("foo", "bar", "biz") } };
+        var es = new ExpressionSet { Expressions = new() { new(OperandMember.Name, "bar", "biz") } };
 
         dto.ExpressionSets = new() { es };
 
@@ -28,7 +29,7 @@ public class SmartPlaylistTest {
         smartPlaylist.Id.Should().Be("87ccaa10-f801-4a7a-be40-46ede34adb22");
         smartPlaylist.Name.Should().Be("Foo");
         smartPlaylist.User.Should().Be("Rob");
-        smartPlaylist.ExpressionSets[0].Expressions[0].MemberName.Should().Be("foo");
+        smartPlaylist.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Name);
         smartPlaylist.ExpressionSets[0].Expressions[0].Operator.Should().Be("bar");
         smartPlaylist.ExpressionSets[0].Expressions[0].TargetValue.Should().Be("biz");
         smartPlaylist.Order.Order[0].Names().First().Should().Be("PremiereDate");
@@ -42,7 +43,7 @@ public class SmartPlaylistTest {
             User = "Rob"
         };
 
-        var es = new ExpressionSet { Expressions = new() { new("Directors", "StringListContainsSubstring", "CGP") } };
+        var es = new ExpressionSet { Expressions = new() { new(OperandMember.Directors, "StringListContainsSubstring", "CGP") } };
 
         dto.ExpressionSets = new() { es };
 
@@ -65,7 +66,7 @@ public class SmartPlaylistTest {
             User = "Rob"
         };
 
-        var es = new ExpressionSet { Expressions = new() { new("Name", "Contains", "CGP", false, StringComparison.OrdinalIgnoreCase) } };
+        var es = new ExpressionSet { Expressions = new() { new(OperandMember.Name, "Contains", "CGP", false, StringComparison.OrdinalIgnoreCase) } };
 
         dto.ExpressionSets = new() { es };
 

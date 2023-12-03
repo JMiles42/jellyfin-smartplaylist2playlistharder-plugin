@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using FluentAssertions;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 
 namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;
 
@@ -16,7 +17,7 @@ public class ParsingFileTests
     {
         var dto = await LoadFile();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().BeEquivalentTo("Directors");
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
     }
 
@@ -25,7 +26,7 @@ public class ParsingFileTests
     {
         var dto = await LoadFile();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().BeEquivalentTo("Directors");
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
     }
 
@@ -34,7 +35,7 @@ public class ParsingFileTests
     {
         var dto = await LoadFile();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().BeEquivalentTo("Directors");
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.CurrentCulture);
     }
 
@@ -43,7 +44,7 @@ public class ParsingFileTests
     {
         var dto = await LoadFile();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().BeEquivalentTo("Directors");
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.CurrentCulture);
         dto.SupportedItems.Should().NotBeNullOrEmpty().And.HaveCount(3).And.BeEquivalentTo(SmartPlaylistDto.SupportedItemDefault);
     }

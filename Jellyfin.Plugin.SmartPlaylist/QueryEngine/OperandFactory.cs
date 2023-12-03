@@ -107,21 +107,23 @@ internal class OperandFactory {
 	private static void ProcessTypes(BaseItem baseItem, Operand operand) {
 		switch (baseItem) {
 			case Movie movie:
-				operand.HasSubtitles = movie.HasSubtitles;
+				operand.HasSubtitles   = movie.HasSubtitles;
 				operand.CollectionName = movie.CollectionName;
-
+				operand.LengthTicks    = movie.RunTimeTicks ?? 0;
 				break;
 			case Episode episode:
-				operand.HasSubtitles = episode.HasSubtitles;
+				operand.HasSubtitles      = episode.HasSubtitles;
 				operand.AiredSeasonNumber = episode.AiredSeasonNumber;
 				operand.ParentIndexNumber = episode.ParentIndexNumber;
-				operand.SeasonName = episode.SeasonName;
-				operand.SeriesName = episode.SeriesName;
+				operand.SeasonName        = episode.SeasonName;
+				operand.SeriesName        = episode.SeriesName;
+				operand.LengthTicks       = episode.RunTimeTicks ?? 0;
 
 				break;
 			case MusicVideo musicVideo:
 				operand.HasSubtitles = musicVideo.HasSubtitles;
 				operand.Artists.AddRange(musicVideo.Artists);
+				operand.LengthTicks = musicVideo.RunTimeTicks ?? 0;
 
 				break;
 		}

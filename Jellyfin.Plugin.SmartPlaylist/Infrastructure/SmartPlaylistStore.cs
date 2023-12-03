@@ -28,16 +28,23 @@ public class SmartPlaylistStore : ISmartPlaylistStore
 
     internal static async Task<SmartPlaylistDto> LoadPlaylistAsync(string filePath)
     {
-        await using var reader = File.OpenRead(filePath);
+        try {
+            await using var reader = File.OpenRead(filePath);
+            var rst = await JsonSerializer.DeserializeAsync<SmartPlaylistDto>(reader, _options).ConfigureAwait(false);
+            rst.FileName = Path.GetFileNameWithoutExtension(filePath);
 
-        return (await JsonSerializer.DeserializeAsync<SmartPlaylistDto>(reader, _options).ConfigureAwait(false)).Validate();
+            return rst.Validate();
+        }
+        catch {
+            return null;
+        }
     }
 
     public async Task<SmartPlaylistDto> GetSmartPlaylistAsync(Guid smartPlaylistId)
     {
         var fileName = _fileSystem.GetSmartPlaylistFilePath(smartPlaylistId.ToString());
 
-        return (await LoadPlaylistAsync(fileName).ConfigureAwait(false)).Validate();
+        return await LoadPlaylistAsync(fileName).ConfigureAwait(false);
     }
 
     public async Task<SmartPlaylistDto[]> LoadPlaylistsAsync(Guid userId)
@@ -48,7 +55,7 @@ public class SmartPlaylistStore : ISmartPlaylistStore
 
         await Task.WhenAll(deserializeTasks).ConfigureAwait(false);
 
-        return deserializeTasks.Select(x => x.Result).ToArray();
+        return deserializeTasks.Select(x => x.Result).Where(x => x is not null).ToArray();
     }
 
     public async Task<SmartPlaylistDto[]> GetAllSmartPlaylistAsync()
@@ -57,7 +64,7 @@ public class SmartPlaylistStore : ISmartPlaylistStore
 
         await Task.WhenAll(deserializeTasks).ConfigureAwait(false);
 
-        return deserializeTasks.Select(x => x.Result.Validate()).ToArray();
+        return deserializeTasks.Select(x => x.Result?.Validate()).Where(x => x is not null).ToArray();
     }
 
     public async Task SaveAsync(SmartPlaylistDto smartPList)

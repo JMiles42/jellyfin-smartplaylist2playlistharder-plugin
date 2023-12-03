@@ -1,8 +1,11 @@
-﻿namespace Jellyfin.Plugin.SmartPlaylist.Models;
+﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+
+namespace Jellyfin.Plugin.SmartPlaylist.Models;
 
 public class SmartPlExpression
 {
-    public string MemberName { get; set; }
+    public OperandMember MemberName { get; set; }
 
     private string @operator;
 
@@ -14,7 +17,9 @@ public class SmartPlExpression
         }
     }
 
-    public  string OperatorAsLower { get; private set; }
+    [JsonIgnore]
+    [IgnoreDataMember]
+    public string OperatorAsLower { get; private set; }
 
     public string TargetValue { get; set; }
 
@@ -22,7 +27,7 @@ public class SmartPlExpression
 
     public StringComparison StringComparison { get; set; }
 
-    public SmartPlExpression(string memberName, string @operator, string targetValue, bool invertResult = false, StringComparison stringComparison = StringComparison.CurrentCulture)
+    public SmartPlExpression(OperandMember memberName, string @operator, string targetValue, bool invertResult = false, StringComparison stringComparison = StringComparison.CurrentCulture)
     {
         MemberName = memberName;
         Operator = @operator;
@@ -32,7 +37,5 @@ public class SmartPlExpression
     }
 
     /// <inheritdoc />
-    public override string ToString() {
-        return $"{MemberName} {(InvertResult ? "!" : "")}'{Operator}' {TargetValue}";
-    }
+    public override string ToString() => $"{MemberName} {(InvertResult ? "!" : "")}'{Operator}' {TargetValue}";
 }

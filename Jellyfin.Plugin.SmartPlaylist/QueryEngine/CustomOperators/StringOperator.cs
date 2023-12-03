@@ -1,5 +1,5 @@
-﻿using Jellyfin.Plugin.SmartPlaylist.Models;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using Jellyfin.Plugin.SmartPlaylist.Models;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.CustomOperators;
 

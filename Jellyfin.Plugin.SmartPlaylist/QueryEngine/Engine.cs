@@ -11,13 +11,10 @@ namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 // When first written in https://github.com/ankenyr/jellyfin-smartplaylist-plugin which this repo is a fork of
 public class Engine
 {
-	private static readonly Type[] StringTypeArray              = { typeof(string) };
-	private static readonly Type[] StringAndComparisonTypeArray = { typeof(string), typeof(StringComparison) };
-
 	private static readonly DateTime _origin = new(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-
 	private static readonly IEngineOperator[] engineOperators = {
+			new TimeSpanOperator(),
 			new StringOperator(),
 			new IsNullOperator(),
 			new RegexOperator(),
@@ -32,9 +29,9 @@ public class Engine
 	}
 
 	private static linqExpression GetExpression<T>(SmartPlExpression r, ParameterExpression param) {
-		var left = linqExpression.Property(param, r.MemberName);
+		var left = linqExpression.Property(param, r.MemberName.ToStringFast());
 
-		var tProp = typeof(T).GetProperty(r.MemberName)?.PropertyType;
+		var tProp = typeof(T).GetProperty(r.MemberName.ToStringFast())?.PropertyType;
 		ArgumentNullException.ThrowIfNull(tProp);
 
 
@@ -88,7 +85,7 @@ public class Engine
 
 	private static void FixRulesImplementation(IEnumerable<SmartPlExpression> set) {
 		foreach (var rule in set) {
-			if (rule.MemberName == "PremiereDate") {
+			if (rule.MemberName == OperandMember.PremiereDate) {
 				var date = DateTime.Parse(rule.TargetValue);
 				rule.TargetValue = ConvertToUnixTimestamp(date).ToString(CultureInfo.InvariantCulture);
 			}

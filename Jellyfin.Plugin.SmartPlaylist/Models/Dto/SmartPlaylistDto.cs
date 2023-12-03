@@ -7,7 +7,7 @@ public class SmartPlaylistDto {
 	public static readonly BaseItemKind[] SupportedItemDefault = {
 			BaseItemKind.Audio,
 			BaseItemKind.Episode,
-			BaseItemKind.Movie
+			BaseItemKind.Movie,
 	};
 
 	public string Id { get; set; }
@@ -30,6 +30,7 @@ public class SmartPlaylistDto {
 
 	public SmartPlaylistDto Validate() {
 		SupportedItems ??= SupportedItemDefault;
+		Array.Sort(SupportedItems);
 
 		return this;
 	}
