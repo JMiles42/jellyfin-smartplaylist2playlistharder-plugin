@@ -12,6 +12,7 @@ using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Playlists;
 using MediaBrowser.Model.Tasks;
+using System;
 
 namespace Jellyfin.Plugin.SmartPlaylist.ScheduleTasks;
 
@@ -91,8 +92,10 @@ public class RefreshAllSmartPlaylists : IScheduledTask, IConfigurableScheduledTa
         try {
             var dtos = await _plStore.GetAllSmartPlaylistAsync();
 
-            var groups = dtos.GroupBy(a => new { a.User, a.SupportedItems });
-            var index  = 0;
+            var groups  = dtos.GroupBy(a => new { a.User, a.SupportedItems });
+            var tracker = new ProgressTracker(progress) {
+                Length = 3,
+            };
 
             foreach (var group in groups) {
                 var user   = _userManager.GetUserByName(group.Key.User);
@@ -101,10 +104,11 @@ public class RefreshAllSmartPlaylists : IScheduledTask, IConfigurableScheduledTa
                                                  _libraryManager,
                                                  _playlistManager,
                                                  _plStore,
-                                                 _logger);
+                                                 _logger,
+                                                 tracker);
 
-                await sorter.ProcessPlaylists(group, percent => progress.ReportPercentage(dtos.Length, index, percent));
-                index++;
+                await sorter.ProcessPlaylists(group);
+                tracker.Index++;
             }
         }
         catch (Exception ex) {

@@ -60,9 +60,9 @@ public class Operand {
 	public string       SeriesName               { get; set; } = string.Empty;
 	public string       SortName                 { get; set; } = string.Empty;
 	public TimeSpan     Length                   => TimeSpan.FromTicks(LengthTicks);
-	public double       LengthSeconds            => TimeSpan.FromTicks(LengthTicks).TotalSeconds;
-	public double       LengthMinutes            => TimeSpan.FromTicks(LengthTicks).TotalMinutes;
-	public double       LengthHours              => TimeSpan.FromTicks(LengthTicks).TotalHours;
+	public double       LengthSeconds            => Length.TotalSeconds;
+	public double       LengthMinutes            => Length.TotalMinutes;
+	public double       LengthHours              => Length.TotalHours;
 	public long         LengthTicks              { get; set; } = 0;
 
 	public string AllText {
@@ -79,7 +79,6 @@ public class Operand {
 	public Operand(string name) {
 		Name = name;
 	}
-
 
 	private string GetAllText() {
 		var sb = new StringBuilder();

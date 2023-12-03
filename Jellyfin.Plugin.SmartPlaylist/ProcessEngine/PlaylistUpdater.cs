@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Jellyfin.Data.Entities;
 using Jellyfin.Data.Enums;
+using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
 using Jellyfin.Plugin.SmartPlaylist.Interfaces;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 using MediaBrowser.Controller.Entities;
@@ -18,22 +19,25 @@ public class PlaylistUpdater
 	private readonly ILogger             _logger;
 	private readonly IPlaylistManager    _playlistManager;
 	private readonly ISmartPlaylistStore _plStore;
+	private readonly IProgress<double>   _progress;
 
-	public PlaylistUpdater(User             user,
-						   BaseItemKind[]   supportedItems,
-						   ILibraryManager  libraryManager,
-						   IPlaylistManager playlistManager,
+	public PlaylistUpdater(User                user,
+						   BaseItemKind[]      supportedItems,
+						   ILibraryManager     libraryManager,
+						   IPlaylistManager    playlistManager,
 						   ISmartPlaylistStore plStore,
-						   ILogger          logger) {
+						   ILogger             logger,
+						   IProgress<double>   progress) {
 		_user            = user;
 		_supportedItems  = supportedItems;
 		_libraryManager  = libraryManager;
 		_logger          = logger;
 		_playlistManager = playlistManager;
 		_plStore         = plStore;
+		_progress        = progress;
 	}
 
-	private IEnumerable<BaseItem> GetAllUserMedia() {
+	private IReadOnlyList<BaseItem> GetAllUserMedia() {
 		var query = new InternalItemsQuery(_user) {
 				IncludeItemTypes = _supportedItems,
 				Recursive        = true,
@@ -42,12 +46,19 @@ public class PlaylistUpdater
 		return _libraryManager.GetItemsResult(query).Items;
 	}
 
-	public Task ProcessPlaylists(SmartPlaylistDto playlist, Action<double> progressCallback) =>	ProcessPlaylists(new[] { playlist }, progressCallback);
-	public async Task ProcessPlaylists(IEnumerable<SmartPlaylistDto> playlists, Action<double> progressCallback) {
+	public Task ProcessPlaylists(SmartPlaylistDto playlist) =>	ProcessPlaylists(new[] { playlist });
+
+	public async Task ProcessPlaylists(IEnumerable<SmartPlaylistDto> playlists) {
 		var listsToProcess = GetBuiltPlaylists(playlists);
 		var allItems       = GetAllUserMedia();
+		var progress       = new ProgressTracker(_progress) {
+				Length = allItems.Count
+		};
 
-		foreach (var baseItem in allItems) {
+		for (var index = 0; index < allItems.Count; index++) {
+			var baseItem = allItems[index];
+			progress.Index = index;
+			progress.ReportPercentage(allItems.Count, index, 50);
 			foreach (var list in listsToProcess) {
 				list.Sorter.SortItem(baseItem, _libraryManager, _user);
 			}
