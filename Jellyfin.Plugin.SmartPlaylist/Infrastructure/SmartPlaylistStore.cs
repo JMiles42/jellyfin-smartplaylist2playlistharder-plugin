@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+using Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
 using Jellyfin.Plugin.SmartPlaylist.Interfaces;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 
@@ -6,16 +6,6 @@ namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
 
 public class SmartPlaylistStore : ISmartPlaylistStore
 {
-
-    private static readonly JsonSerializerOptions _options = new()
-    {
-        WriteIndented = true,
-        Converters = {
-                    new JsonStringEnumConverter(allowIntegerValues:true)
-            },
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-    };
-
     private readonly ISmartPlaylistFileSystem _fileSystem;
 
     public ILogger Logger { get; }
@@ -30,13 +20,13 @@ public class SmartPlaylistStore : ISmartPlaylistStore
     {
         try {
             await using var reader = File.OpenRead(filePath);
-            var rst = await JsonSerializer.DeserializeAsync<SmartPlaylistDto>(reader, _options).ConfigureAwait(false);
+            var rst = await JsonSerializer.DeserializeAsync(reader, SmartPlaylistDtoJsonContext.WithConverters.SmartPlaylistDto).ConfigureAwait(false);
             rst.FileName = Path.GetFileNameWithoutExtension(filePath);
 
             return rst.Validate();
         }
-        catch {
-            return null;
+        catch (Exception ex) {
+            throw;
         }
     }
 
@@ -67,6 +57,17 @@ public class SmartPlaylistStore : ISmartPlaylistStore
         return deserializeTasks.Select(x => x.Result?.Validate()).Where(x => x is not null).ToArray();
     }
 
+    public static async Task SaveAsync(SmartPlaylistDto smartPList, string filepath)
+    {
+        try
+        {
+            await using var writer = File.Create(filepath);
+            await JsonSerializer.SerializeAsync(writer, smartPList, SmartPlaylistDtoJsonContext.WithConverters.SmartPlaylistDto).ConfigureAwait(false);
+        }
+        catch (Exception ex) {
+            throw;
+        }
+    }
     public async Task SaveAsync(SmartPlaylistDto smartPList)
     {
         try
@@ -74,7 +75,7 @@ public class SmartPlaylistStore : ISmartPlaylistStore
             Logger.LogInformation("Saving playlistDto: {Name}", smartPList.Name);
             var filePath = _fileSystem.GetSmartPlaylistPath(smartPList.Id, smartPList.FileName);
             await using var writer = File.Create(filePath);
-            await JsonSerializer.SerializeAsync(writer, smartPList, _options).ConfigureAwait(false);
+            await JsonSerializer.SerializeAsync(writer, smartPList, SmartPlaylistDtoJsonContext.WithConverters.SmartPlaylistDto).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

@@ -92,24 +92,32 @@ public class RefreshAllSmartPlaylists : IScheduledTask, IConfigurableScheduledTa
         try {
             var dtos = await _plStore.GetAllSmartPlaylistAsync();
 
-            var groups  = dtos.GroupBy(a => new { a.User, a.SupportedItems });
+            var groups = dtos.GroupBy(a => new { a.User, a.SupportedItems });
+
             var tracker = new ProgressTracker(progress) {
-                Length = 3,
+                    Length = 3,
             };
 
             foreach (var group in groups) {
-                var user   = _userManager.GetUserByName(group.Key.User);
+                cancellationToken.ThrowIfCancellationRequested();
+                var user = _userManager.GetUserByName(group.Key.User);
+
                 var sorter = new PlaylistUpdater(user,
                                                  group.Key.SupportedItems,
+                                                 _fileSystem,
                                                  _libraryManager,
                                                  _playlistManager,
+                                                 _providerManager,
                                                  _plStore,
                                                  _logger,
                                                  tracker);
 
-                await sorter.ProcessPlaylists(group);
+                await sorter.ProcessPlaylists(group).ConfigureAwait(false);
                 tracker.Index++;
             }
+        }
+        catch (OperationCanceledException) {
+            return;
         }
         catch (Exception ex) {
             _logger.LogError(ex, "Error processing playlists");

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Jellyfin.Plugin.SmartPlaylist.Models;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
+using Jellyfin.Plugin.SmartPlaylist.Models.ExpressionValues;
 using Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 
 namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;
@@ -14,7 +15,7 @@ public class SmartPlaylistTest {
             User = "Rob"
         };
 
-        var es = new ExpressionSet { Expressions = new() { new(OperandMember.Name, "bar", "biz") } };
+        var es = new ExpressionSet { Expressions = new() { new(OperandMember.Name, "bar", ExpressionValue.Create("biz")) } };
 
         dto.ExpressionSets = new() { es };
 
@@ -31,7 +32,7 @@ public class SmartPlaylistTest {
         smartPlaylist.User.Should().Be("Rob");
         smartPlaylist.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Name);
         smartPlaylist.ExpressionSets[0].Expressions[0].Operator.Should().Be("bar");
-        smartPlaylist.ExpressionSets[0].Expressions[0].TargetValue.Should().Be("biz");
+        smartPlaylist.ExpressionSets[0].Expressions[0].TargetValue.Should().Be("biz".ToExpressionValue());
         smartPlaylist.Order.Order[0].Names().First().Should().Be("PremiereDate");
     }
 
@@ -43,7 +44,7 @@ public class SmartPlaylistTest {
             User = "Rob"
         };
 
-        var es = new ExpressionSet { Expressions = new() { new(OperandMember.Directors, "StringListContainsSubstring", "CGP") } };
+        var es = new ExpressionSet { Expressions = new() { new(OperandMember.Directors, "StringListContainsSubstring", "CGP".ToExpressionValue()) } };
 
         dto.ExpressionSets = new() { es };
 
@@ -66,7 +67,16 @@ public class SmartPlaylistTest {
             User = "Rob"
         };
 
-        var es = new ExpressionSet { Expressions = new() { new(OperandMember.Name, "Contains", "CGP", false, StringComparison.OrdinalIgnoreCase) } };
+        var es = new ExpressionSet {
+                Expressions = new() {
+                        new(OperandMember.Name,
+                            "Contains",
+                            "CGP".ToExpressionValue(),
+                            MatchMode.All,
+                            false,
+                            StringComparison.OrdinalIgnoreCase)
+                }
+        };
 
         dto.ExpressionSets = new() { es };
 

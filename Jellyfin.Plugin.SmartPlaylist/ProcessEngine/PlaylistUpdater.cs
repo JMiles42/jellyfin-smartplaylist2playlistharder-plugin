@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Linq;
 using Jellyfin.Data.Entities;
 using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
@@ -7,6 +8,8 @@ using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Playlists;
+using MediaBrowser.Controller.Providers;
+using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Playlists;
 
 namespace Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
@@ -15,24 +18,30 @@ public class PlaylistUpdater
 {
 	private readonly User                _user;
 	private readonly BaseItemKind[]      _supportedItems;
+	private readonly IFileSystem         _fileSystem;
 	private readonly ILibraryManager     _libraryManager;
 	private readonly ILogger             _logger;
 	private readonly IPlaylistManager    _playlistManager;
+	private readonly IProviderManager    _providerManager;
 	private readonly ISmartPlaylistStore _plStore;
 	private readonly IProgress<double>   _progress;
 
 	public PlaylistUpdater(User                user,
 						   BaseItemKind[]      supportedItems,
+						   IFileSystem         fileSystem,
 						   ILibraryManager     libraryManager,
 						   IPlaylistManager    playlistManager,
+						   IProviderManager    providerManager,
 						   ISmartPlaylistStore plStore,
 						   ILogger             logger,
 						   IProgress<double>   progress) {
 		_user            = user;
+		_fileSystem      = fileSystem;
 		_supportedItems  = supportedItems;
 		_libraryManager  = libraryManager;
 		_logger          = logger;
 		_playlistManager = playlistManager;
+		_providerManager = providerManager;
 		_plStore         = plStore;
 		_progress        = progress;
 	}
@@ -76,12 +85,29 @@ public class PlaylistUpdater
 
 			if (list.Playlist is null) {
 				CreateNewPlaylist(list.SmartPlaylist.Dto, newItems);
-				await _plStore.SaveAsync(list.SmartPlaylist.Dto);
+				await _plStore.SaveAsync(list.SmartPlaylist.Dto).ConfigureAwait(false);
 			}
 			else {
-				await _playlistManager.AddToPlaylistAsync(list.Playlist.Id, newItems, _user.Id);
+				ClearPlaylist(list.Playlist, _user, newItems);
+                await _playlistManager.AddToPlaylistAsync(list.Playlist.Id, newItems, _user.Id).ConfigureAwait(false);
 			}
 		}
+	}
+
+	private void ClearPlaylist(Playlist playlist, User user, Guid[] newItems) {
+		var children = playlist.GetManageableItems();
+
+		playlist.LinkedChildren = children.Where(a => a.Item1.ItemId is not null && !newItems.Contains(a.Item1.ItemId.Value))
+										  .Select(i => i.Item1)
+										  .ToArray();
+
+		playlist.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, CancellationToken.None);
+
+		_providerManager.QueueRefresh(playlist.Id,
+									  new(new DirectoryService(_fileSystem)) {
+											  ForceSave = true,
+									  },
+									  RefreshPriority.High);
 	}
 
 	private List<PlaylistPair> GetBuiltPlaylists(IEnumerable<SmartPlaylistDto> playlists) {

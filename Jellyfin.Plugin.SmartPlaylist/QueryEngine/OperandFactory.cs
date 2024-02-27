@@ -11,7 +11,7 @@ internal class OperandFactory {
 	public static Operand GetMediaType(ILibraryManager libraryManager,
 									   BaseItem baseItem,
 									   User user,
-									   IUserDataManager userDataManager = null) {
+									   IUserDataManager? userDataManager = null) {
 		userDataManager ??= BaseItem.UserDataManager;
 
 		var operand = new Operand(baseItem.Name);
@@ -57,7 +57,7 @@ internal class OperandFactory {
 		return operand;
 	}
 
-	private static void ProcessPlayedData(IUserDataManager userDataManager, Operand operand, BaseItem baseItem, User user) {
+	private static void ProcessPlayedData(IUserDataManager? userDataManager, Operand operand, BaseItem baseItem, User user) {
 		var data = userDataManager.GetUserData(user, baseItem);
 		operand.IsPlayed = data.Played;
 		operand.PlayedCount = data.PlayCount;

@@ -1,8 +1,7 @@
-﻿using System.Globalization;
-using System.Linq.Expressions;
-using System.Reflection;
+﻿using System.Linq.Expressions;
 using Jellyfin.Plugin.SmartPlaylist.Models;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine.CustomOperators;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine.RuleFixers;
 using linqExpression = System.Linq.Expressions.Expression;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
@@ -11,16 +10,8 @@ namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 // When first written in https://github.com/ankenyr/jellyfin-smartplaylist-plugin which this repo is a fork of
 public class Engine
 {
-	private static readonly DateTime _origin = new(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-	private static readonly IEngineOperator[] engineOperators = {
-			new TimeSpanOperator(),
-			new StringOperator(),
-			new IsNullOperator(),
-			new RegexOperator(),
-			new StringListContainsSubstringOperator(),
-			new ExpressionTypeOperator(),
-	};
+	private static readonly OperatorManager OperatorManager = new ();
 
 	private static linqExpression BuildExpr<T>(SmartPlExpression expression, ParameterExpression param) {
 		var linqExpr = GetExpression<T>(expression, param);
@@ -35,38 +26,25 @@ public class Engine
 		ArgumentNullException.ThrowIfNull(tProp);
 
 
-		foreach (var engineOperator in engineOperators) {
-			if (!engineOperator.IsOperatorFor<T>(r, param, tProp)) {
-				continue;
-			}
+		foreach (var engineOperator in OperatorManager.EngineOperators) {
+			var opper = engineOperator.ValidateOperator<T>(r, left, param, tProp);
 
-			if (engineOperator.GetOperatorFor<T>(r, left, param, tProp, out var resultExpression)) {
-				return resultExpression;
+			if (opper.Kind is EngineOperatorResultKind.Success) {
+				return engineOperator.GetOperator<T>(r, left, param, tProp);
 			}
 		}
 
-		return ProcessFallback(r, tProp, left);
-	}
-
-	private static linqExpression ProcessFallback(SmartPlExpression r, Type tProp, MemberExpression left) {
-		var method = tProp.GetMethod(r.Operator);
-
-		ArgumentNullException.ThrowIfNull(method);
-
-		var tParam = method.GetParameters()[0].ParameterType;
-		var right  = linqExpression.Constant(Convert.ChangeType(r.TargetValue, tParam));
-
-		// use a method call, e.g. 'Contains' -> 'u.Tags.Contains(some_tag)'
-		return linqExpression.Call(left, method, right);
+		return EngineFallbackProcessor.ProcessFallback(r, tProp, left);
 	}
 
 	public static Func<T, bool> CompileRule<T>(SmartPlExpression r) {
 		if (r.IsInValid) {
-			return null;
+			return t => false;
 		}
 
 		var paramUser = linqExpression.Parameter(typeof(Operand));
 		var expr      = BuildExpr<T>(r, paramUser);
+
 		// build a lambda function User->bool and compile it
 		var value = linqExpression.Lambda<Func<T, bool>>(expr, paramUser).Compile(true);
 
@@ -82,36 +60,8 @@ public class Engine
 	}
 
 	public static ExpressionSet FixRules(ExpressionSet rules) {
-		FixRulesImplementation(rules.Expressions);
+		ExpressionFixerManager.FixRules(rules.Expressions);
 
 		return rules;
 	}
-
-	private static void FixRulesImplementation(IEnumerable<SmartPlExpression> set) {
-		foreach (var rule in set) {
-			if (rule.MemberName == OperandMember.PremiereDate) {
-				var date = DateTime.Parse(rule.TargetValue);
-				rule.TargetValue = ConvertToUnixTimestamp(date).ToString(CultureInfo.InvariantCulture);
-			}
-		}
-	}
-
-	public static double ConvertToUnixTimestamp(DateTime date) {
-		var diff = date.ToUniversalTime() - _origin;
-
-		return Math.Floor(diff.TotalSeconds);
-	}
-}
-
-internal static class EngineExtensions {
-
-	public static readonly MethodInfo StringArrayContainsMethodInfo =
-			typeof(EngineExtensions).GetMethod(nameof(StringArrayContains), BindingFlags.Static | BindingFlags.Public);
-
-	public static bool StringArrayContains(this IReadOnlyCollection<string> l, string r, StringComparison stringComparison) {
-		return l.Any(a => a.Contains(r, stringComparison));
-	}
-
-	public static linqExpression InvertIfTrue(this linqExpression expression, bool invert) =>
-			invert ? linqExpression.Not(expression) : expression;
 }

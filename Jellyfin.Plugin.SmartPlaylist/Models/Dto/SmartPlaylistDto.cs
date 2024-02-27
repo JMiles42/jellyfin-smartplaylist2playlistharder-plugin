@@ -1,4 +1,6 @@
-﻿using Jellyfin.Data.Enums;
+﻿using System.Text.Json.Serialization;
+using Jellyfin.Data.Enums;
+using Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 
@@ -14,6 +16,7 @@ public class SmartPlaylistDto {
 
 	public string Name { get; set; }
 
+	[JsonIgnore]
 	public string FileName { get; set; }
 
 	public string User { get; set; }
@@ -22,6 +25,7 @@ public class SmartPlaylistDto {
 
 	public int MaxItems { get; set; }
 
+	[JsonConverter(typeof(OrderByDtoJsonConverter))]
 	public OrderByDto Order { get; set; }
 
 	public BaseItemKind[] SupportedItems { get; set; }
