@@ -2,13 +2,15 @@
 
 public static class PercentageCalculator {
 	public static double GetPercentage(int length, int index, double percentThroughIndex) {
-		if (percentThroughIndex == 0) {
-			return (index * 100) / length;
-		}
 
-		var percent = percentThroughIndex * (index + 1);
 
-		return percent / length;
+
+		double percent = (index + 1);
+		percent /= length;
+		percent =  (percentThroughIndex * percent);
+		percent *= 100;
+
+		return percent;
 	}
 
 	public static void ReportPercentage(this IProgress<double> progress,

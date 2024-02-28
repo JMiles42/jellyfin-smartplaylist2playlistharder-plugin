@@ -12,14 +12,12 @@ public class PercentageCalculatorTests {
 
 
 	[Theory]
-	[InlineData(4, 3, 100, 100)]
-	[InlineData(4, 3, 0, 75)]
-	[InlineData(4, 2, 0, 50)]
-	[InlineData(4, 1, 0, 25)]
-	[InlineData(4, 0, 0, 00)]
-	[InlineData(1, 0, 100, 100)]
-	[InlineData(1, 0, 50, 50)]
 	[InlineData(1, 0, 0, 0)]
+	[InlineData(1, 0, 1, 100)]
+	[InlineData(1, 0, 0.5, 50)]
+	[InlineData(1, 0, 0.25, 25)]
+	[InlineData(1, 0, 0.75, 75)]
+	[InlineData(10, 4, 1, 50)]
 	public void TestCalculation(int length, int index, double percentThroughIndex, double result) {
 		var percent = PercentageCalculator.GetPercentage(length, index, percentThroughIndex);
 		Logger.WriteLine(percent.ToString());
