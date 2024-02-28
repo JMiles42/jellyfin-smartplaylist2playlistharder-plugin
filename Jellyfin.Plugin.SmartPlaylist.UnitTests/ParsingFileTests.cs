@@ -9,52 +9,60 @@ namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;
 
 public class ParsingFileTests
 {
-    private static readonly string _appFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+    private static readonly string _appFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
     private static readonly string _dataPath = Path.Combine(_appFolder, "Data", "IO");
 
-    private static async Task<SmartPlaylistDto> LoadFile([CallerMemberName] string filename = "") {
-        var fullPath = Path.Combine(_dataPath, filename + ".json");
-        var contents = await SmartPlaylistStore.LoadPlaylistAsync(fullPath);
+    private static PlaylistIoData LoadFile([CallerMemberName] string filename = "") {
+        var filename_ext = filename + ".json";
+        var contents     = SmartPlaylistManager.LoadPlaylist(_dataPath, filename_ext);
         contents.Should().NotBeNull();
         return contents!;
     }
 
-    private static async Task SaveFile(SmartPlaylistDto data, [CallerMemberName] string filename = "") {
-        var fullPath = Path.Combine(_dataPath, filename + ".output.json");
-        await SmartPlaylistStore.SaveAsync(data, fullPath);
+    private static void SaveFile(SmartPlaylistDto data, [CallerMemberName] string filename = "") {
+        var file = Path.Combine(_dataPath, filename + ".output.json");
+        SmartPlaylistManager.SavePlaylist(file, data);
     }
 
     [Fact]
-    public async Task Simple_With_StringComparison_AsInt()
+    public void Simple_With_StringComparison_AsInt()
     {
-        var dto = await LoadFile();
+        var io  = LoadFile();
+        var dto = io.SmartPlaylist;
+        dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
         dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task Simple_With_StringComparison_AsString()
+    public void Simple_With_StringComparison_AsString()
     {
-        var dto = await LoadFile();
+        var io  = LoadFile();
+        var dto = io.SmartPlaylist;
+        dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
         dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task Simple_Without_StringComparison()
+    public void Simple_Without_StringComparison()
     {
-        var dto = await LoadFile();
+        var io  = LoadFile();
+        var dto = io.SmartPlaylist;
+        dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
         dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.CurrentCulture);
     }
 
     [Fact]
-    public async Task Simple_Without_SupportedItems()
+    public void Simple_Without_SupportedItems()
     {
-        var dto = await LoadFile();
+        var io  = LoadFile();
+        var dto = io.SmartPlaylist;
+        dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
         dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.CurrentCulture);
@@ -62,8 +70,10 @@ public class ParsingFileTests
     }
 
     [Fact]
-    public async Task TargetValue_AsList() {
-        var dto = await LoadFile();
+    public void TargetValue_AsList() {
+        var io  = LoadFile();
+        var dto = io.SmartPlaylist;
+        dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
         dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
@@ -71,8 +81,10 @@ public class ParsingFileTests
     }
 
     [Fact]
-    public async Task TargetValue_AsString() {
-        var dto = await LoadFile();
+    public void TargetValue_AsString() {
+        var io  = LoadFile();
+        var dto = io.SmartPlaylist;
+        dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
         dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
@@ -80,22 +92,26 @@ public class ParsingFileTests
     }
 
     [Fact]
-    public async Task TargetValue_AsList_SaveIsEqual() {
-        var dto = await LoadFile();
+    public void TargetValue_AsList_SaveIsEqual() {
+        var io  = LoadFile();
+        var dto = io.SmartPlaylist;
+        dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
         dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
         dto.SupportedItems.Should().NotBeNullOrEmpty().And.HaveCount(3).And.BeEquivalentTo(SmartPlaylistDto.SupportedItemDefault);
-        await SaveFile(dto);
+        SaveFile(dto);
     }
 
     [Fact]
-    public async Task TargetValue_AsString_SaveIsEqual() {
-        var dto = await LoadFile();
+    public void TargetValue_AsString_SaveIsEqual() {
+        var io  = LoadFile();
+        var dto = io.SmartPlaylist;
+        dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
         dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
         dto.SupportedItems.Should().NotBeNullOrEmpty().And.HaveCount(3).And.BeEquivalentTo(SmartPlaylistDto.SupportedItemDefault);
-        await SaveFile(dto);
+        SaveFile(dto);
     }
 }
