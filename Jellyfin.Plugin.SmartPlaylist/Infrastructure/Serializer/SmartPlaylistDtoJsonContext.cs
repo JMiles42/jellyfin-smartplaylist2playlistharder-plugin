@@ -7,7 +7,6 @@ namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
 [JsonSerializable(typeof(SmartPlaylistDto))]
 public partial class SmartPlaylistDtoJsonContext : JsonSerializerContext
 {
-
 	public static SmartPlaylistDtoJsonContext WithConverters = new(new() {
 			Converters = {
 					new JsonStringEnumConverter(allowIntegerValues:true),

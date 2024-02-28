@@ -1,6 +1,5 @@
 ﻿using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 using System.Text.Json.Serialization;
-using System.Xml.Linq;
 using static System.Text.Json.JsonSerializer;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
@@ -62,15 +61,9 @@ public class OrderByDtoJsonConverter : JsonConverter<OrderByDto>
            return;
        }
 
-       writer.WriteStartObject();
-       writer.WriteString(nameof(value.Name), value.Name);
-
-       if (!value.Ascending) {
-           writer.WriteBoolean(nameof(value.Ascending), value.Ascending);
-       }
-
-       if (value.ThenBy.Count > 0) {
-           writer.WriteStartArray(nameof(value.ThenBy));
+       if (value.Ascending && value.ThenBy.All(a => a.Ascending)) {
+           writer.WriteStartArray();
+           writer.WriteStringValue(value.Name);
 
            foreach (var element in value.ThenBy) {
                Serialize(writer, element, options);
@@ -78,7 +71,25 @@ public class OrderByDtoJsonConverter : JsonConverter<OrderByDto>
 
            writer.WriteEndArray();
        }
+       else {
+           writer.WriteStartObject();
+           writer.WriteString(nameof(value.Name), value.Name);
 
-       writer.WriteEndObject();
+           if (!value.Ascending) {
+               writer.WriteBoolean(nameof(value.Ascending), value.Ascending);
+           }
+
+           if (value.ThenBy.Count > 0) {
+               writer.WriteStartArray(nameof(value.ThenBy));
+
+               foreach (var element in value.ThenBy) {
+                   Serialize(writer, element, options);
+               }
+
+               writer.WriteEndArray();
+           }
+
+           writer.WriteEndObject();
+        }
    }
 }

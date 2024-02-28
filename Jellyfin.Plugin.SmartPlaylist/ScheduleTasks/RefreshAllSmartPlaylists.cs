@@ -12,36 +12,32 @@ using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Playlists;
 using MediaBrowser.Model.Tasks;
-using System;
 
 namespace Jellyfin.Plugin.SmartPlaylist.ScheduleTasks;
 
 public class RefreshAllSmartPlaylists : IScheduledTask, IConfigurableScheduledTask {
-    private readonly IFileSystem                    _fileSystem;
-    private readonly ILibraryManager                _libraryManager;
-    private readonly ILogger                        _logger;
-    private readonly IPlaylistManager               _playlistManager;
-    private readonly ISmartPlaylistStore            _plStore;
-    private readonly IProviderManager               _providerManager;
-    private readonly IUserManager                   _userManager;
+    private readonly IFileSystem             _fileSystem;
+    private readonly ILibraryManager         _libraryManager;
+    private readonly ILogger                 _logger;
+    private readonly IPlaylistManager        _playlistManager;
+    private readonly IProviderManager        _providerManager;
+    private readonly IUserManager            _userManager;
+    private readonly IServerApplicationPaths _serverApplicationPaths;
 
-    public RefreshAllSmartPlaylists(IFileSystem fileSystem,
-                                 ILibraryManager libraryManager,
-                                 IPlaylistManager playlistManager,
-                                 IProviderManager providerManager,
-                                 IServerApplicationPaths serverApplicationPaths,
-                                 IUserManager userManager,
-                                 ILoggerFactory loggerFactory) {
-        _fileSystem      = fileSystem;
-        _libraryManager  = libraryManager;
-        _logger          = loggerFactory.CreateLogger<RefreshAllSmartPlaylists>();
-        _playlistManager = playlistManager;
-        _providerManager = providerManager;
-        _userManager     = userManager;
-
-        ISmartPlaylistFileSystem plFileSystem = new SmartPlaylistFileSystem(serverApplicationPaths,
-                                                                            loggerFactory.CreateLogger<SmartPlaylistFileSystem>());
-        _plStore = new SmartPlaylistStore(plFileSystem, _logger);
+    public RefreshAllSmartPlaylists(IFileSystem             fileSystem,
+                                    ILibraryManager         libraryManager,
+                                    IPlaylistManager        playlistManager,
+                                    IProviderManager        providerManager,
+                                    IServerApplicationPaths serverApplicationPaths,
+                                    IUserManager            userManager,
+                                    ILoggerFactory          loggerFactory) {
+        _fileSystem             = fileSystem;
+        _libraryManager         = libraryManager;
+        _logger                 = loggerFactory.CreateLogger<RefreshAllSmartPlaylists>();
+        _playlistManager        = playlistManager;
+        _providerManager        = providerManager;
+        _userManager            = userManager;
+        _serverApplicationPaths = serverApplicationPaths;
     }
 
     private string CreateNewPlaylist(SmartPlaylistDto dto, User user, IReadOnlyList<Guid> items) {
@@ -90,12 +86,16 @@ public class RefreshAllSmartPlaylists : IScheduledTask, IConfigurableScheduledTa
 
     public async Task ExecuteAsync(IProgress<double> progress, CancellationToken cancellationToken) {
         try {
-            var dtos = await _plStore.GetAllSmartPlaylistAsync();
+            var folder = Path.Combine(_serverApplicationPaths.DataPath, "smartplaylists");
+            var dtos   = SmartPlaylistManager.GetAllValidPlaylists(folder);
 
-            var groups = dtos.GroupBy(a => new { a.User, a.SupportedItems });
+            var groups = dtos.GroupBy(a => new {
+                    a.SmartPlaylist!.User,
+                    a.SmartPlaylist.SupportedItems,
+            }).ToArray();
 
             var tracker = new ProgressTracker(progress) {
-                    Length = 3,
+                    Length = groups.Length,
             };
 
             foreach (var group in groups) {
@@ -108,8 +108,8 @@ public class RefreshAllSmartPlaylists : IScheduledTask, IConfigurableScheduledTa
                                                  _libraryManager,
                                                  _playlistManager,
                                                  _providerManager,
-                                                 _plStore,
                                                  _logger,
+                                                 cancellationToken,
                                                  tracker);
 
                 await sorter.ProcessPlaylists(group).ConfigureAwait(false);

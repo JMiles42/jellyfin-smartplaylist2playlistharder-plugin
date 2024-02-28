@@ -87,7 +87,8 @@ public class SmartPlaylist {
         var sorter = new Sorter(this);
 
         foreach (var i in items) {
-            sorter.SortItem(i, libraryManager, user);
+            var opp = new Operand(libraryManager, i, BaseItem.UserDataManager, user);
+            sorter.SortItem(opp);
         }
 
         return sorter.GetResults();
@@ -110,13 +111,10 @@ public class SmartPlaylist {
             _rules = _owner.GetCompiledRules();
         }
 
-        public void SortItem(BaseItem item,
-                             ILibraryManager       libraryManager,
-                             User                  user) {
-            var operand = OperandFactory.GetMediaType(libraryManager, item, user);
+        public void SortItem(Operand         item) {
 
-            if (_rules.Any(set => ProcessRule(set, operand))) {
-                Items.Add(item);
+            if (_rules.Any(set => ProcessRule(set, item))) {
+                Items.Add(item.BaseItem);
             }
         }
 
