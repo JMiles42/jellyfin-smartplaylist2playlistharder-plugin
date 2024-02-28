@@ -79,7 +79,9 @@ public class TimeSpanOperator: IOperator {
 														ExpressionType    tBinary,
 														Type              propertyType,
 														object            value) {
-		var rightValue = value.ToConstantExpressionAsType(propertyType);
+		var parsedValue = TimeSpan.Parse(value.ToString());
+
+		var rightValue = parsedValue.ToConstantExpressionAsType(propertyType);
 
 		// use a method call 'u.Tags.Any(a => a.Contains(some_tag))'
 		return Expression.MakeBinary(tBinary, sourceExpression, rightValue);
