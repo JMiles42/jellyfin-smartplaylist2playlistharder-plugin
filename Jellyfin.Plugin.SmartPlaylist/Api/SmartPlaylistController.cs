@@ -1,11 +1,4 @@
-﻿using System.Reflection;
-using Jellyfin.Plugin.SmartPlaylist.Configuration;
-using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
-using MediaBrowser.Common.Configuration;
-using MediaBrowser.Controller.Configuration;
-using MediaBrowser.Controller.Library;
-using MediaBrowser.Controller.MediaEncoding;
-using MediaBrowser.Model.IO;
+﻿using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,47 +12,6 @@ namespace Jellyfin.Plugin.SmartPlaylist.Api;
 [Route("SmartPlaylist")]
 public class SmartPlaylistController: ControllerBase
 {
-	private readonly Assembly _assembly;
-
-	private readonly ILogger<SmartPlaylistController> _logger;
-	private readonly ILibraryManager                  _libraryManager;
-	private readonly IFileSystem                      _fileSystem;
-	private readonly ILoggerFactory                   _loggerFactory;
-	private readonly IApplicationPaths                _appPaths;
-	private readonly ILibraryMonitor                  _libraryMonitor;
-	private readonly IMediaEncoder                    _mediaEncoder;
-	private readonly IServerConfigurationManager      _configurationManager;
-	private readonly EncodingHelper                   _encodingHelper;
-
-	private readonly SmartPlaylistPluginConfiguration _config;
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="SmartPlaylistController"/> class.
-	/// </summary>
-	public SmartPlaylistController(ILibraryManager                  libraryManager,
-								   IFileSystem                      fileSystem,
-								   ILogger<SmartPlaylistController> logger,
-								   ILoggerFactory                   loggerFactory,
-								   IApplicationPaths                appPaths,
-								   ILibraryMonitor                  libraryMonitor,
-								   IMediaEncoder                    mediaEncoder,
-								   IServerConfigurationManager      configurationManager,
-								   EncodingHelper                   encodingHelper) {
-		_assembly = Assembly.GetExecutingAssembly();
-
-		_libraryManager       = libraryManager;
-		_logger               = logger;
-		_fileSystem           = fileSystem;
-		_loggerFactory        = loggerFactory;
-		_appPaths             = appPaths;
-		_libraryMonitor       = libraryMonitor;
-		_mediaEncoder         = mediaEncoder;
-		_configurationManager = configurationManager;
-		_encodingHelper       = encodingHelper;
-
-		_config = SmartPlaylistPlugin.Instance!.Configuration;
-	}
-
 	[Authorize(Policy = "DefaultAuthorization")]
 	[HttpGet(nameof(GetAllPlaylistRunDetails))]
 	[ProducesResponseType(StatusCodes.Status200OK)]
