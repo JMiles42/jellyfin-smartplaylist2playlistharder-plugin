@@ -3,15 +3,20 @@ using Jellyfin.Plugin.SmartPlaylist.Models;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
-public class AllTextOperator: IOperator {
+public class StringListContainsOperator: IOperator {
 
 	/// <inheritdoc />
 	public EngineOperatorResult ValidateOperator<T>(SmartPlExpression   plExpression,
 													MemberExpression    sourceExpression,
 													ParameterExpression parameterExpression,
 													Type                parameterPropertyType) {
-		if (!parameterPropertyType.IsAssignableTo(typeof(HashSet<string>))) {
-			return EngineOperatorResult.NotAValidFor(plExpression.MemberName);
+		if (plExpression.OperatorAsLower is not ("stringlistcontains" or "contains")) {
+			return EngineOperatorResult.NotAValidFor(nameof(StringListContainsOperator));
+		}
+
+		if (!parameterPropertyType.IsAssignableTo(typeof(IReadOnlyCollection<string>))) {
+
+			return EngineOperatorResult.Error($"Selected property {plExpression.MemberName} is not a string list");
 		}
 
 		return EngineOperatorResult.Success();
@@ -36,16 +41,18 @@ public class AllTextOperator: IOperator {
 	}
 
 	private static Expression BuildComparisonExpression(SmartPlExpression expression,
-														MemberExpression  leftValue,
+														MemberExpression  sourceExpression,
 														object            value) {
 		var rightValue = value.ToConstantExpressionAsType<string>();
 		var stringComparison = Expression.Constant(expression.StringComparison);
 
 		// use a method call 'u.Tags.Any(a => a.Contains(some_tag))'
-		return Expression.Call(null,
-							   EngineExtensions.StringArrayContainsSubstringMethodInfo,
-							   leftValue,
-							   rightValue,
-							   stringComparison);
+		var exper = Expression.Call(null,
+									EngineExtensions.StringArrayContainsMethodInfo,
+									sourceExpression,
+									rightValue,
+									stringComparison);
+
+		return exper;
 	}
 }

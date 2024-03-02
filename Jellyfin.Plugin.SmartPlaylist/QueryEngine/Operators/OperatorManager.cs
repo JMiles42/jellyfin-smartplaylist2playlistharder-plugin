@@ -6,8 +6,9 @@ public class OperatorManager
 			new TimeSpanOperator(),
 			new StringOperator(),
 			new IsNullOperator(),
-			new RegexOperator(),
 			new StringListContainsSubstringOperator(),
+			new StringListContainsOperator(),
+			new RegexOperator(),
 			new ExpressionTypeOperator(),
 	};
 }

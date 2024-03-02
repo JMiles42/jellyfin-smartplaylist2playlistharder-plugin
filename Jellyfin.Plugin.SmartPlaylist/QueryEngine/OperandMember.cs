@@ -62,4 +62,5 @@ public enum OperandMember
 	LengthHours,
 	LengthTicks,
 	Tags,
+	PathSegment,
 }

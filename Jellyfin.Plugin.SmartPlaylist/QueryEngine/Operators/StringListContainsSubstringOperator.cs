@@ -48,7 +48,7 @@ public class StringListContainsSubstringOperator: IOperator {
 
 		// use a method call 'u.Tags.Any(a => a.Contains(some_tag))'
 		var exper = Expression.Call(null,
-									EngineExtensions.StringArrayContainsMethodInfo,
+									EngineExtensions.StringArrayContainsSubstringMethodInfo,
 									sourceExpression,
 									rightValue,
 									stringComparison);

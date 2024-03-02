@@ -267,6 +267,19 @@ public class Operand
 		}
 	}
 
+	public List<string> PathSegment {
+		get {
+			if (_pathSegment is not null) {
+				return _pathSegment;
+			}
+
+			_pathSegment = new();
+			_pathSegment.AddRange(BaseItem.Path.Split('\\','/', StringSplitOptions.RemoveEmptyEntries));
+
+			return _pathSegment;
+		}
+	}
+
 	private List<string>? _actors;
 	private List<string>? _artists;
 	private List<string>? _composers;
@@ -277,6 +290,7 @@ public class Operand
 	private List<string>? _genres;
 	private List<string>? _studios;
 	private List<string>? _tags;
+	private List<string>? _pathSegment;
 
 	private List<PersonInfo>? _people;
 

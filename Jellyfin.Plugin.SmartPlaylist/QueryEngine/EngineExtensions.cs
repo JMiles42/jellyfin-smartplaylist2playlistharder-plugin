@@ -4,10 +4,15 @@ using System.Reflection;
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 
 internal static class EngineExtensions {
+	public static readonly MethodInfo StringArrayContainsSubstringMethodInfo = typeof(EngineExtensions)!.GetMethod(nameof(StringArrayContainsSubstring), BindingFlags.Static | BindingFlags.Public);
 	public static readonly MethodInfo StringArrayContainsMethodInfo = typeof(EngineExtensions)!.GetMethod(nameof(StringArrayContains), BindingFlags.Static | BindingFlags.Public);
 
-	public static bool StringArrayContains(this IReadOnlyCollection<string> l, string r, StringComparison stringComparison) {
+	public static bool StringArrayContainsSubstring(this IReadOnlyCollection<string> l, string r, StringComparison stringComparison) {
 		return l.Any(a => a.Contains(r, stringComparison));
+	}
+
+	public static bool StringArrayContains(this IReadOnlyCollection<string> l, string r, StringComparison stringComparison) {
+		return l.Any(a => a.Equals(r, stringComparison));
 	}
 
 	public static Expression InvertIfTrue(this Expression expression, bool invert) => invert ? Expression.Not(expression) : expression;
