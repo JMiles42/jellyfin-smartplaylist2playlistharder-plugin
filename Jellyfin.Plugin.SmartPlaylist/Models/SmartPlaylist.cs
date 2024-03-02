@@ -23,8 +23,8 @@ public class SmartPlaylist {
 
     public BaseItemKind[] SupportedItems { get; set; }
 
-    private CompiledRule     CompiledRule { get; set; }
-    public  SmartPlaylistDto Dto          { get; set; }
+    public CompiledRule?    CompiledRule { get; set; }
+    public SmartPlaylistDto Dto          { get; set; }
 
     public SmartPlaylist(SmartPlaylistDto dto) {
         Dto            = dto;
@@ -48,12 +48,15 @@ public class SmartPlaylist {
         return new(dtoOrder.Select(OrderManager.GetOrder).ToArray());
     }
 
-    internal void CompileRules() {
-        CompiledRule = new ();
+    internal CompiledRule CompileRules() {
+        CompiledRule compiledRule = new ();
 
         foreach (var set in ExpressionSets) {
-            CompiledRule.CompiledRuleSets.Add(set.Expressions.Where(a => !a.IsInValid).Select(Engine.CompileRule<Operand>).ToList());
+            compiledRule.CompiledRuleSets.Add(set.Expressions.Where(a => !a.IsInValid)
+                                                 .Select(Engine.CompileRule<Operand>).ToList());
         }
+
+        return compiledRule;
     }
 
     internal List<List<Func<Operand, bool>>> GetCompiledRules() {
@@ -61,7 +64,7 @@ public class SmartPlaylist {
             return CompiledRule.CompiledRuleSets;
         }
 
-        CompileRules();
+        CompiledRule = CompileRules();
 
         return CompiledRule!.CompiledRuleSets;
     }

@@ -15,7 +15,6 @@ public class StringListContainsOperator: IOperator {
 		}
 
 		if (!parameterPropertyType.IsAssignableTo(typeof(IReadOnlyCollection<string>))) {
-
 			return EngineOperatorResult.Error($"Selected property {plExpression.MemberName} is not a string list");
 		}
 

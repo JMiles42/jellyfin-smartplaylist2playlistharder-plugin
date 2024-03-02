@@ -95,8 +95,8 @@ public class SmartPlaylistsRefreshJob
 		Models.SmartPlaylist pl;
 
 		try {
-			pl = new(SmartPlaylistDto);
-			pl.CompileRules();
+			pl              = new(SmartPlaylistDto);
+			pl.CompiledRule = pl.CompileRules();
 		}
 		catch (Exception ex) {
 			SetError("Playlist failed to compile", ex);
