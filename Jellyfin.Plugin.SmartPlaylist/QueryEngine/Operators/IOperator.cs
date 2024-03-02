@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Jellyfin.Plugin.SmartPlaylist.Models;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Containers;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
@@ -30,8 +31,8 @@ public interface IOperator
 	/// <param name="parameterExpression">The parameters of the T object</param>
 	/// <param name="parameterPropertyType">The property type of the parameter</param>
 	/// <returns>The built expression that calculates the plExpression</returns>
-	Expression GetOperator<T>(SmartPlExpression   plExpression,
-							  MemberExpression    sourceExpression,
-							  ParameterExpression parameterExpression,
-							  Type                parameterPropertyType);
+	ParsedValueExpressions GetOperator<T>(SmartPlExpression   plExpression,
+									  MemberExpression    sourceExpression,
+									  ParameterExpression parameterExpression,
+									  Type                parameterPropertyType);
 }

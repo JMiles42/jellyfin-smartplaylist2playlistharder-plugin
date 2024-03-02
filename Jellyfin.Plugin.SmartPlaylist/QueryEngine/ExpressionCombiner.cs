@@ -41,4 +41,15 @@ public static class ExpressionCombiner
     private static Expression OnlyOne(Span<Expression> array) => throw new NotImplementedException();
 
     private static Expression AllButOne(Span<Expression> array) => throw new NotImplementedException();
+
+    public static bool DoesMatch(this MatchMode mode, int countMatches, int totalChecks) {
+        return mode switch {
+                MatchMode.Any => countMatches                      > 0,
+                MatchMode.All => countMatches                      == totalChecks,
+                MatchMode.OnlyOne or MatchMode.One => countMatches == 1,
+                MatchMode.AllButOne => countMatches                == totalChecks - 1,
+                MatchMode.None or MatchMode.Zero => countMatches   == 0,
+                _ => throw new ArgumentOutOfRangeException()
+        };
+    }
 }

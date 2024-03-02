@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Jellyfin.Plugin.SmartPlaylist.Models;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Containers;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
@@ -22,36 +23,38 @@ public class StringListContainsOperator: IOperator {
 	}
 
 	/// <inheritdoc />
-	public Expression GetOperator<T>(SmartPlExpression   plExpression,
-									 MemberExpression    sourceExpression,
-									 ParameterExpression parameterExpression,
-									 Type                parameterPropertyType) {
+	public ParsedValueExpressions GetOperator<T>(SmartPlExpression   plExpression,
+											 MemberExpression    sourceExpression,
+											 ParameterExpression parameterExpression,
+											 Type                parameterPropertyType) {
 		if (plExpression.TargetValue.IsSingleValue) {
-			return BuildComparisonExpression(plExpression, sourceExpression, plExpression.TargetValue.SingleValue);
+			return new(plExpression.Match, BuildComparisonExpression(plExpression,
+																	 sourceExpression,
+																	 plExpression.TargetValue.SingleValue));
 		}
 
-		return GetAllExpressions(plExpression, sourceExpression).CombineExpressions(plExpression.Match);
+		return new(plExpression.Match, GetAllExpressions(plExpression, sourceExpression));
 	}
 
-	private static IEnumerable<Expression> GetAllExpressions(SmartPlExpression expression, MemberExpression sourceExpression) {
+	private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression expression, MemberExpression sourceExpression) {
 		foreach (var value in expression.TargetValue.GetValues()) {
 			yield return BuildComparisonExpression(expression, sourceExpression, value);
 		}
 	}
 
-	private static Expression BuildComparisonExpression(SmartPlExpression expression,
-														MemberExpression  sourceExpression,
-														object            value) {
+	private static ParsedValueExpressionResult BuildComparisonExpression(SmartPlExpression plExpression,
+																   MemberExpression  sourceExpression,
+																   object            value) {
 		var rightValue = value.ToConstantExpressionAsType<string>();
-		var stringComparison = Expression.Constant(expression.StringComparison);
+		var stringComparison = Expression.Constant(plExpression.StringComparison);
 
 		// use a method call 'u.Tags.Any(a => a.Contains(some_tag))'
-		var exper = Expression.Call(null,
-									EngineExtensions.StringArrayContainsMethodInfo,
-									sourceExpression,
-									rightValue,
-									stringComparison);
+		var builtExpression = Expression.Call(null,
+											  EngineExtensions.StringArrayContainsMethodInfo,
+											  sourceExpression,
+											  rightValue,
+											  stringComparison);
 
-		return exper;
+		return new (builtExpression, plExpression, value);
 	}
 }

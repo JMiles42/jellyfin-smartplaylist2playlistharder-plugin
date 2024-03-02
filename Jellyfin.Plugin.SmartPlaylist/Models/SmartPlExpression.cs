@@ -46,7 +46,12 @@ public class SmartPlExpression
                              StringComparison stringComparison = StringComparison.CurrentCulture,
                              string?           typeOverride     = null
                              ) {
-        MemberName       = memberName;
+        //Make nullable happy
+        _operator        = string.Empty;
+        OperatorAsLower  = string.Empty;
+        //Make nullable happy
+
+        MemberName = memberName;
         Operator         = @operator;
         TargetValue      = targetValue;
         TypeOverride     = typeOverride;
@@ -58,4 +63,7 @@ public class SmartPlExpression
 
     /// <inheritdoc />
     public override string ToString() => $"{MemberName} {(InvertResult? "!" : "")}'{Operator}' {TargetValue}";
+
+
+    public static SmartPlExpression Empty = new (OperandMember.Name, "IfYouSeeThisSomethingHasGoneWrong", NullExpressionValue.Instance);
 }

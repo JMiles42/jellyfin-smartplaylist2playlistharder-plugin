@@ -24,6 +24,8 @@ public class SmartPlaylistDto {
 
 	public List<ExpressionSet>? ExpressionSets { get; set; }
 
+	public MatchMode Match { get; set; } = MatchMode.Any;
+
 	public int MaxItems { get; set; }
 
 	[JsonConverter(typeof(OrderByDtoJsonConverter))]

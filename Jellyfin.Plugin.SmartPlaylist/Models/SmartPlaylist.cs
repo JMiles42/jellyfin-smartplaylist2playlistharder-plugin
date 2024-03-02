@@ -1,5 +1,6 @@
 using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Containers;
 using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Ordering;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Models;
@@ -17,14 +18,16 @@ public class SmartPlaylist {
 
     public int MaxItems { get; set; }
 
-    public bool IsReadonly { get; set; }
+    public bool      IsReadonly { get; set; }
+
+    public MatchMode Match      { get; set; }
 
     public OrderStack Order { get; set; }
 
     public BaseItemKind[] SupportedItems { get; set; }
 
-    public CompiledRule?    CompiledRule { get; set; }
-    public SmartPlaylistDto Dto          { get; set; }
+    public CompiledPlaylistExpressionSets? CompiledPlaylistExpressionSets { get; set; }
+    public SmartPlaylistDto                Dto                            { get; set; }
 
     public SmartPlaylist(SmartPlaylistDto dto) {
         Dto            = dto;
@@ -32,12 +35,13 @@ public class SmartPlaylist {
         Name           = dto.Name;
         FileName       = dto.FileName;
         User           = dto.User;
-        ExpressionSets = Engine.FixRuleSets(dto.ExpressionSets);
-
-        MaxItems = dto.MaxItems;
-
-        Order = GenerateOrderStack(dto.Order);
+        MaxItems       = dto.MaxItems;
         SupportedItems = dto.SupportedItems;
+        IsReadonly     = dto.IsReadonly;
+        Match          = dto.Match;
+
+        Order          = GenerateOrderStack(dto.Order);
+        ExpressionSets = RulesCompiler.FixRuleSets(dto.ExpressionSets);
     }
 
     private static OrderStack GenerateOrderStack(OrderByDto? dtoOrder) {
@@ -48,25 +52,28 @@ public class SmartPlaylist {
         return new(dtoOrder.Select(OrderManager.GetOrder).ToArray());
     }
 
-    internal CompiledRule CompileRules() {
-        CompiledRule compiledRule = new ();
+    internal CompiledPlaylistExpressionSets CompilePlaylistExpressionSets() {
+        CompiledPlaylistExpressionSets compiledPlaylistExpressionSets = new ();
 
         foreach (var set in ExpressionSets) {
-            compiledRule.CompiledRuleSets.Add(set.Expressions.Where(a => !a.IsInValid)
-                                                 .Select(Engine.CompileRule<Operand>).ToList());
+            var listOfCompiledExpressions = set.Expressions.Where(a => !a.IsInValid)
+                          .Select(RulesCompiler.CompileRule<Operand>)
+                          .ToList();
+
+            compiledPlaylistExpressionSets.CompiledExpressionSets.Add(new(set.Match, listOfCompiledExpressions));
         }
 
-        return compiledRule;
+        return compiledPlaylistExpressionSets;
     }
 
-    internal List<List<Func<Operand, bool>>> GetCompiledRules() {
-        if (CompiledRule is not null) {
-            return CompiledRule.CompiledRuleSets;
+    internal List<CompiledExpressionSet<Operand>> GetCompiledRules() {
+        if (CompiledPlaylistExpressionSets is not null) {
+            return CompiledPlaylistExpressionSets.CompiledExpressionSets;
         }
 
-        CompiledRule = CompileRules();
+        CompiledPlaylistExpressionSets = CompilePlaylistExpressionSets();
 
-        return CompiledRule!.CompiledRuleSets;
+        return CompiledPlaylistExpressionSets!.CompiledExpressionSets;
     }
 
     public Sorter GetSorter() => new(this);

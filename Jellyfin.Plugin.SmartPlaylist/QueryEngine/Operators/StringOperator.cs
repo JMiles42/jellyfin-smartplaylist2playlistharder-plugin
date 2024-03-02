@@ -1,10 +1,13 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using Jellyfin.Plugin.SmartPlaylist.Extensions;
 using Jellyfin.Plugin.SmartPlaylist.Models;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Containers;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
-public class StringOperator: IOperator {
+public class StringOperator: IOperator
+{
 	private static readonly Type[] StringAndComparisonTypeArray = { typeof(string), typeof(StringComparison) };
 
 	/// <inheritdoc />
@@ -19,47 +22,59 @@ public class StringOperator: IOperator {
 		var method = GetMethod(plExpression, parameterPropertyType);
 
 		if (method is null) {
-			return EngineOperatorResult.NotAValidFor($"The operator name {plExpression.Operator} is not a valid method on a string");
+			return
+					EngineOperatorResult
+							.NotAValidFor($"The operator name {plExpression.Operator} is not a valid method on a string");
 		}
 
 		return EngineOperatorResult.Success();
 	}
 
-	private static MethodInfo? GetMethod(SmartPlExpression plExpression, Type parameterPropertyType) => parameterPropertyType.GetMethod(plExpression.Operator, StringAndComparisonTypeArray);
+	private static MethodInfo? GetMethod(SmartPlExpression plExpression, Type parameterPropertyType) =>
+			parameterPropertyType.GetMethod(plExpression.Operator, StringAndComparisonTypeArray);
 
 	/// <inheritdoc />
-	public Expression GetOperator<T>(SmartPlExpression   plExpression,
-									 MemberExpression    sourceExpression,
-									 ParameterExpression parameterExpression,
-									 Type                parameterPropertyType) {
+	public ParsedValueExpressions GetOperator<T>(SmartPlExpression   plExpression,
+											 MemberExpression    sourceExpression,
+											 ParameterExpression parameterExpression,
+											 Type                parameterPropertyType) {
 		var method              = GetMethod(plExpression, parameterPropertyType);
 		var methodParameterType = method.GetParameters()[0].ParameterType;
 
 
 		if (plExpression.TargetValue.IsSingleValue) {
-			return BuildComparisonExpression(plExpression, sourceExpression, methodParameterType, method, plExpression.TargetValue.SingleValue);
+			return new(plExpression.Match,
+					   BuildComparisonExpression(plExpression,
+												 sourceExpression,
+												 methodParameterType,
+												 method,
+												 plExpression.TargetValue.SingleValue));
 		}
 
-		return GetAllExpressions(plExpression, sourceExpression, methodParameterType, method).CombineExpressions(plExpression.Match);
+		return new(plExpression.Match,
+				   GetAllExpressions(plExpression, sourceExpression, methodParameterType, method));
 	}
-	private static IEnumerable<Expression> GetAllExpressions(SmartPlExpression expression,
-															 MemberExpression  sourceExpression,
-															 Type              parameterType,
-															 MethodInfo        method) {
-		foreach (var value in expression.TargetValue.GetValues()) {
-			yield return BuildComparisonExpression(expression, sourceExpression, parameterType, method, value);
+
+	private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression plExpression,
+																		MemberExpression  sourceExpression,
+																		Type              parameterType,
+																		MethodInfo        method) {
+		foreach (var value in plExpression.TargetValue.GetValues()) {
+			yield return BuildComparisonExpression(plExpression, sourceExpression, parameterType, method, value);
 		}
 	}
 
-	private static Expression BuildComparisonExpression(SmartPlExpression expression,
-														MemberExpression  sourceExpression,
-														Type              parameterType,
-														MethodInfo        method,
-														object            value) {
-		var rightValue = value.ToConstantExpressionAsType(parameterType);
-		var stringComparison = Expression.Constant(expression.StringComparison);
+	private static ParsedValueExpressionResult BuildComparisonExpression(SmartPlExpression plExpression,
+																   MemberExpression  sourceExpression,
+																   Type              parameterType,
+																   MethodInfo        method,
+																   object            value) {
+		var rightValue       = value.ToConstantExpressionAsType(parameterType);
+		var stringComparison = Expression.Constant(plExpression.StringComparison);
 
 		// use a method call, e.g. 'Contains' -> 'u.Tags.Contains(some_tag, stringComparison)'
-		return Expression.Call(sourceExpression, method, rightValue, stringComparison);
+		var builtExpression = Expression.Call(sourceExpression, method, rightValue, stringComparison);
+
+		return new(builtExpression, plExpression, value);
 	}
 }

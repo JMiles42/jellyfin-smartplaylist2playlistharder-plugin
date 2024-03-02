@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Jellyfin.Plugin.SmartPlaylist.Models;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Containers;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
@@ -19,10 +20,13 @@ public class IsNullOperator : IOperator
 	}
 
 	/// <inheritdoc />
-	public Expression GetOperator<T>(SmartPlExpression   plExpression,
-									 MemberExpression    sourceExpression,
-									 ParameterExpression parameterExpression,
-									 Type                parameterPropertyType) {
-		return Expression.MakeBinary(ExpressionType.Equal, sourceExpression, NullExpression);
+	public ParsedValueExpressions GetOperator<T>(SmartPlExpression   plExpression,
+											 MemberExpression    sourceExpression,
+											 ParameterExpression parameterExpression,
+											 Type                parameterPropertyType) {
+		var builtExpression = Expression.MakeBinary(ExpressionType.Equal, sourceExpression, NullExpression);
+
+
+		return new(plExpression.Match, new ParsedValueExpressionResult(builtExpression, plExpression, null!));
 	}
 }

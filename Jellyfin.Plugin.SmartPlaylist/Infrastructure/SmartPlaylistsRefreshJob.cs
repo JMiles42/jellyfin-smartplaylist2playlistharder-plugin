@@ -45,11 +45,15 @@ public class SmartPlaylistsRefreshJob
 		SmartPlaylistDto       = playlistProcessRunData.SmartPlaylist;
 		PlaylistId             = playlistProcessRunData.SmartPlaylist?.Id;
 
-		if (PlaylistProcessRunData.ErrorDetails is null) {
+		if (PlaylistProcessRunData.ErrorDetails is not null) {
+			SetError("Parsing Error", PlaylistProcessRunData.ErrorDetails);
 			return;
 		}
 
-		SetError("Parsing Error", PlaylistProcessRunData.ErrorDetails);
+		if (SmartPlaylistDto?.IsReadonly is true) {
+			SetError("File is Readonly");
+		}
+
 	}
 
 	private void SetError(string errorDetails, Exception? exception = null) {
@@ -95,8 +99,8 @@ public class SmartPlaylistsRefreshJob
 		Models.SmartPlaylist pl;
 
 		try {
-			pl              = new(SmartPlaylistDto);
-			pl.CompiledRule = pl.CompileRules();
+			pl                                = new(SmartPlaylistDto);
+			pl.CompiledPlaylistExpressionSets = pl.CompilePlaylistExpressionSets();
 		}
 		catch (Exception ex) {
 			SetError("Playlist failed to compile", ex);

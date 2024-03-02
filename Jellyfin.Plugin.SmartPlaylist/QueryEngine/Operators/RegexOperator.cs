@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using Jellyfin.Plugin.SmartPlaylist.Extensions;
 using Jellyfin.Plugin.SmartPlaylist.Models;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Containers;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
@@ -35,7 +37,7 @@ public class RegexOperator : IOperator {
 						}).ToArray();
 
 			if (rsts.Any(a => a.Kind is not EngineOperatorResultKind.Success)) {
-				return EngineOperatorResult.Error(rsts.ToArray());
+				return EngineOperatorResult.Error(Enumerable.ToArray(rsts));
 			}
 		}
 
@@ -55,10 +57,10 @@ public class RegexOperator : IOperator {
 	}
 
 	/// <inheritdoc />
-	public Expression GetOperator<T>(SmartPlExpression   plExpression,
-									 MemberExpression    sourceExpression,
-									 ParameterExpression parameterExpression,
-									 Type                parameterPropertyType) {
+	public ParsedValueExpressions GetOperator<T>(SmartPlExpression   plExpression,
+											 MemberExpression    sourceExpression,
+											 ParameterExpression parameterExpression,
+											 Type                parameterPropertyType) {
 		var options = plExpression.StringComparison switch {
 				StringComparison.CurrentCulture => RegexOptions.None,
 				StringComparison.InvariantCulture => RegexOptions.None,
@@ -67,24 +69,27 @@ public class RegexOperator : IOperator {
 		};
 
 		if (plExpression.TargetValue.IsSingleValue) {
-			return BuildComparisonExpression(plExpression,
-											 sourceExpression,
-											 options,
-											 parameterPropertyType,
-											 plExpression.TargetValue);
+			return new(plExpression.Match, BuildComparisonExpression(plExpression,
+																	 sourceExpression,
+																	 options,
+																	 parameterPropertyType,
+																	 plExpression.TargetValue));
 		}
 
-		return GetAllExpressions(plExpression, sourceExpression, options, parameterPropertyType)
-				.CombineExpressions(plExpression.Match);
+		return new(plExpression.Match,
+				   GetAllExpressions(plExpression,
+									 sourceExpression,
+									 options,
+									 parameterPropertyType));
 
 	}
 
-	private static IEnumerable<Expression> GetAllExpressions(SmartPlExpression smartPlExpression,
-															 MemberExpression  sourceExpression,
-															 RegexOptions      options,
-															 Type              propertyType) {
-		foreach (var value in smartPlExpression.TargetValue.GetValues()) {
-				yield return BuildComparisonExpression(smartPlExpression,
+	private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression plExpression,
+																		MemberExpression  sourceExpression,
+																		RegexOptions      options,
+																		Type              propertyType) {
+		foreach (var value in plExpression.TargetValue.GetValues()) {
+				yield return BuildComparisonExpression(plExpression,
 													   sourceExpression,
 													   options,
 													   propertyType,
@@ -92,11 +97,11 @@ public class RegexOperator : IOperator {
 		}
 	}
 
-	private static Expression BuildComparisonExpression(SmartPlExpression smartPlExpression,
-														MemberExpression  sourceExpression,
-														RegexOptions      options,
-														Type              propertyType,
-														object            value) {
+	private static ParsedValueExpressionResult BuildComparisonExpression(SmartPlExpression plExpression,
+														MemberExpression             sourceExpression,
+														RegexOptions                 options,
+														Type                         propertyType,
+														object                       value) {
 		var regex = new Regex(value?.ToString() ?? string.Empty, options);
 
 		var callInstance = regex.ToConstantExpression();
@@ -105,6 +110,7 @@ public class RegexOperator : IOperator {
 
 		var methodParam = Expression.Call(sourceExpression, toStringMethod);
 
-		return Expression.Call(callInstance, RegexIsMatch, methodParam);
+		var builtExpression = Expression.Call(callInstance, RegexIsMatch, methodParam);
+		return new (builtExpression, plExpression, value);
 	}
 }

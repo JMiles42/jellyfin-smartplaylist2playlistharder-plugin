@@ -1,9 +1,11 @@
 ﻿using System.Linq.Expressions;
 using Jellyfin.Plugin.SmartPlaylist.Models;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Containers;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
-public class AllTextOperator: IOperator {
+public class AllTextOperator: IOperator
+{
 
 	/// <inheritdoc />
 	public EngineOperatorResult ValidateOperator<T>(SmartPlExpression   plExpression,
@@ -18,34 +20,42 @@ public class AllTextOperator: IOperator {
 	}
 
 	/// <inheritdoc />
-	public Expression GetOperator<T>(SmartPlExpression   plExpression,
-									 MemberExpression    sourceExpression,
-									 ParameterExpression parameterExpression,
-									 Type                parameterPropertyType) {
+	public ParsedValueExpressions GetOperator<T>(SmartPlExpression   plExpression,
+											 MemberExpression    sourceExpression,
+											 ParameterExpression parameterExpression,
+											 Type                parameterPropertyType) {
 		if (plExpression.TargetValue.IsSingleValue) {
-			return BuildComparisonExpression(plExpression, sourceExpression, plExpression.TargetValue.SingleValue);
+			return new(plExpression.Match,
+					   BuildComparisonExpression(plExpression,
+												 sourceExpression,
+												 plExpression.TargetValue.SingleValue));
 		}
 
-		return GetAllExpressions(plExpression, sourceExpression).CombineExpressions(plExpression.Match);
+		return new(plExpression.Match,
+				   GetAllExpressions(plExpression,
+									 sourceExpression));
 	}
 
-	private static IEnumerable<Expression> GetAllExpressions(SmartPlExpression expression, MemberExpression sourceExpression) {
+	private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression expression,
+																		MemberExpression  sourceExpression) {
 		foreach (var value in expression.TargetValue.GetValues()) {
 			yield return BuildComparisonExpression(expression, sourceExpression, value);
 		}
 	}
 
-	private static Expression BuildComparisonExpression(SmartPlExpression expression,
-														MemberExpression  leftValue,
-														object            value) {
-		var rightValue = value.ToConstantExpressionAsType<string>();
+	private static ParsedValueExpressionResult BuildComparisonExpression(SmartPlExpression expression,
+																   MemberExpression  leftValue,
+																   object            value) {
+		var rightValue       = value.ToConstantExpressionAsType<string>();
 		var stringComparison = Expression.Constant(expression.StringComparison);
 
 		// use a method call 'u.Tags.Any(a => a.Contains(some_tag))'
-		return Expression.Call(null,
-							   EngineExtensions.StringArrayContainsSubstringMethodInfo,
-							   leftValue,
-							   rightValue,
-							   stringComparison);
+		var builtExpression = Expression.Call(null,
+											  EngineExtensions.StringArrayContainsSubstringMethodInfo,
+											  leftValue,
+											  rightValue,
+											  stringComparison);
+
+		return new(builtExpression, expression, value);
 	}
 }
