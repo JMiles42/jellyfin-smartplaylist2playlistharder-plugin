@@ -1,8 +1,6 @@
-﻿using System.Collections.Immutable;
-using Jellyfin.Data.Entities;
+﻿using Jellyfin.Data.Entities;
 using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
-using Jellyfin.Plugin.SmartPlaylist.Interfaces;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
@@ -10,20 +8,20 @@ using MediaBrowser.Controller.Playlists;
 using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Playlists;
+using System.Collections.Generic;
 
 namespace Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
 
 public class PlaylistUpdater
 {
-	private readonly User                _user;
-	private readonly BaseItemKind[]      _supportedItems;
-	private readonly IFileSystem         _fileSystem;
-	private readonly ILibraryManager     _libraryManager;
-	private readonly ILogger             _logger;
-	private readonly CancellationToken   _cancellationToken;
-	private readonly IPlaylistManager    _playlistManager;
-	private readonly IProviderManager    _providerManager;
-	private readonly IProgress<double>   _progress;
+	private readonly User              _user;
+	private readonly BaseItemKind[]    _supportedItems;
+	private readonly IFileSystem       _fileSystem;
+	private readonly ILibraryManager   _libraryManager;
+	private readonly ILogger           _logger;
+	private readonly IPlaylistManager  _playlistManager;
+	private readonly IProviderManager  _providerManager;
+	private readonly IProgress<double> _progress;
 
 	public PlaylistUpdater(User                user,
 						   BaseItemKind[]      supportedItems,
@@ -32,14 +30,12 @@ public class PlaylistUpdater
 						   IPlaylistManager    playlistManager,
 						   IProviderManager    providerManager,
 						   ILogger             logger,
-						   CancellationToken   cancellationToken,
 						   IProgress<double>   progress) {
 		_user                  = user;
 		_fileSystem            = fileSystem;
 		_supportedItems        = supportedItems;
 		_libraryManager        = libraryManager;
 		_logger                = logger;
-		_cancellationToken     = cancellationToken;
 		_playlistManager       = playlistManager;
 		_providerManager       = providerManager;
 		_progress              = progress;
@@ -54,7 +50,7 @@ public class PlaylistUpdater
 		return _libraryManager.GetItemsResult(query).Items;
 	}
 
-	public async Task ProcessPlaylists(IEnumerable<PlaylistIoData> playlists) {
+	public async Task ProcessPlaylists(IEnumerable<PlaylistIoData> playlists, CancellationToken cancellationToken) {
 		var listsToProcess =   GetBuiltPlaylists(playlists);
 		var items          = GetAllUserMedia();
 		var progress       = new ProgressTracker(_progress) {
@@ -64,7 +60,7 @@ public class PlaylistUpdater
 		var numComplete = 0;
 
         for (var index = 0; index < items.Count; index++) {
-			_cancellationToken.ThrowIfCancellationRequested();
+			cancellationToken.ThrowIfCancellationRequested();
 
 			var opp = new Operand(_libraryManager, items[index], BaseItem.UserDataManager, _user);
 
@@ -73,7 +69,7 @@ public class PlaylistUpdater
 					list.Sorter.SortItem(opp);
 				}
 				catch (Exception e) {
-					list.IoData.UpdatePlaylistRun($"Error sorting data: {e.Message}");
+					list.IoData.UpdatePlaylistRun("Error sorting items", e);
 				}
 			}
 
@@ -82,10 +78,10 @@ public class PlaylistUpdater
 		}
 
 		foreach (var list in listsToProcess) {
-			_cancellationToken.ThrowIfCancellationRequested();
+			cancellationToken.ThrowIfCancellationRequested();
 
 			try {
-				Guid[] newItems;
+				BaseItem[] newItems;
 
 				if (list.SmartPlaylist.MaxItems > 0) {
 					newItems = list.Sorter.GetResults().Take(list.SmartPlaylist.MaxItems).ToArray();
@@ -95,36 +91,41 @@ public class PlaylistUpdater
 				}
 
 				if (list.Playlist is null) {
-					CreateNewPlaylist(list.SmartPlaylist.Dto, newItems);
-					SmartPlaylistManager.SavePlaylist(list.SmartPlaylist.Dto.FileName, list.SmartPlaylist.Dto);
+					if (string.IsNullOrEmpty(list.SmartPlaylist.Dto.FileName)) {
+						list.IoData.UpdatePlaylistRun("Error filename is null, cannot save playlist to disk");
+					}
+					else {
+						CreateNewPlaylist(list.SmartPlaylist.Dto, newItems);
+						_logger.LogInformation("Saving playlist {PlaylistName}", list.IoData.FileId);
+						SmartPlaylistManager.SavePlaylist(list.SmartPlaylist.Dto.FileName, list.SmartPlaylist.Dto);
+					}
 				}
 				else {
-					ClearPlaylist(list.Playlist, newItems);
+					_logger.LogInformation("Clearing and adding {Number} files to existing playlist: {PlaylistName}",
+										   newItems.Length,
+										   list.IoData.FileId);
 
-					await _playlistManager.AddToPlaylistAsync(list.Playlist.Id, newItems, _user.Id)
-										  .ConfigureAwait(false);
-				}
+					list.Playlist.LinkedChildren = newItems.Select(LinkedChild.Create).ToArray();
+					await list.Playlist.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, CancellationToken.None)
+							  .ConfigureAwait(false);
+
+					_providerManager.QueueRefresh(
+												  list.Playlist.Id,
+												  new (new DirectoryService(_fileSystem)) {
+														  ForceSave = true,
+														  ImageRefreshMode = MetadataRefreshMode.FullRefresh,
+												  },
+												  RefreshPriority.High);
+                }
+
+				list.IoData.UpdatePlaylistRunAsSuccessful(list.SmartPlaylist.Dto.Id);
 			}
 			catch (Exception e) {
-				list.IoData.UpdatePlaylistRun($"Error sorting data: {e.Message}");
+				list.IoData.UpdatePlaylistRun("Error getting results", e);
 			}
 		}
-	}
 
-	private void ClearPlaylist(Playlist playlist, Guid[] newItems) {
-		var children = playlist.GetManageableItems();
-
-		playlist.LinkedChildren = children.Where(a => a.Item1.ItemId is not null && !newItems.Contains(a.Item1.ItemId.Value))
-										  .Select(i => i.Item1)
-										  .ToArray();
-
-		playlist.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, CancellationToken.None);
-
-		_providerManager.QueueRefresh(playlist.Id,
-									  new(new DirectoryService(_fileSystem)) {
-											  ForceSave = true,
-									  },
-									  RefreshPriority.High);
+		var pl = _playlistManager.GetPlaylists(_user.Id).ToList();
 	}
 
 	private List<PlaylistPair> GetBuiltPlaylists(IEnumerable<PlaylistIoData> playlists) {
@@ -137,13 +138,14 @@ public class PlaylistUpdater
 				continue;
 			}
 			var      pl = new Models.SmartPlaylist(dto.SmartPlaylist);
-			Playlist jfList;
+			Playlist? jfList;
 
 			try {
 				pl.CompileRules();
 			}
 			catch (Exception ex) {
-				SmartPlaylistManager.UpdatePlaylistRun(dto.FileId, $"Playlist failed to compile: {ex.Message}");
+				SmartPlaylistManager.UpdatePlaylistRun(dto.FileId, "Playlist failed to compile", ex);
+
 				_logger.LogError(ex, "Error parsing rules for {FileName}", pl.FileName);
 
 				continue;
@@ -153,7 +155,8 @@ public class PlaylistUpdater
 				jfList = userLists.FirstOrDefault(x => x.Id.ToString("N") == dto.SmartPlaylist.Id);
 			}
 			catch (Exception ex) {
-				SmartPlaylistManager.UpdatePlaylistRun(dto.FileId, $"Error finding the playlist: {ex.Message}");
+				SmartPlaylistManager.UpdatePlaylistRun(dto.FileId, "Error finding the playlist", ex);
+
 				_logger.LogError(ex, "Error finding Jellyfin Playlist {PlaylistName}", dto.SmartPlaylist.Name);
 
 				continue;
@@ -168,11 +171,11 @@ public class PlaylistUpdater
 
 	private IEnumerable<Playlist> GetUserPlaylists() => _playlistManager.GetPlaylists(_user.Id);
 
-	private void CreateNewPlaylist(SmartPlaylistDto dto, IReadOnlyList<Guid> items) {
+	private void CreateNewPlaylist(SmartPlaylistDto dto, IReadOnlyList<BaseItem> items) {
 		var req = new PlaylistCreationRequest {
 				Name       = dto.Name,
 				UserId     = _user.Id,
-				ItemIdList = items,
+				ItemIdList = items.Select(baseItem => baseItem.Id).ToArray(),
 		};
 
 		var foo = _playlistManager.CreatePlaylist(req);

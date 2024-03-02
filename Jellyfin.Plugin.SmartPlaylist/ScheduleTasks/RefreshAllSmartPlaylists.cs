@@ -1,7 +1,6 @@
 using Jellyfin.Data.Entities;
 using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
-using Jellyfin.Plugin.SmartPlaylist.Interfaces;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 using Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
 using MediaBrowser.Controller;
@@ -91,7 +90,7 @@ public class RefreshAllSmartPlaylists : IScheduledTask, IConfigurableScheduledTa
 
             var groups = dtos.GroupBy(a => new {
                     a.SmartPlaylist!.User,
-                    a.SmartPlaylist.SupportedItems,
+                    a.SmartPlaylist!.SupportedItems,
             }).ToArray();
 
             var tracker = new ProgressTracker(progress) {
@@ -109,10 +108,9 @@ public class RefreshAllSmartPlaylists : IScheduledTask, IConfigurableScheduledTa
                                                  _playlistManager,
                                                  _providerManager,
                                                  _logger,
-                                                 cancellationToken,
                                                  tracker);
 
-                await sorter.ProcessPlaylists(group).ConfigureAwait(false);
+                await sorter.ProcessPlaylists(group, cancellationToken).ConfigureAwait(false);
                 tracker.Index++;
             }
         }

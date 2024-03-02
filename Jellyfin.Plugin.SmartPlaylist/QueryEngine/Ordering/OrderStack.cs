@@ -17,7 +17,8 @@ public class OrderStack {
 		var sortableBaseItems = items.Select(bi => new SortableBaseItem(bi));
 
 		if (Order.Length == 1) {
-			return Order[0].OrderBy(sortableBaseItems).Select(a => a.BaseItem);
+			return Order[0].OrderBy(sortableBaseItems)
+						   .Select(a => a.BaseItem);
 		}
 
 		return OrderMany(sortableBaseItems);

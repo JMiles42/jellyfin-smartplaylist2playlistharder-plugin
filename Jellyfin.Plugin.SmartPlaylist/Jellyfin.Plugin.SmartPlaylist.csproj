@@ -10,10 +10,12 @@
 
   <ItemGroup>
     <None Remove="Configuration\configPage.html" />
+    <None Remove="Configuration\pluginDataPage.html" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Configuration\configPage.html" />
+    <EmbeddedResource Include="Pages\pluginDataPage.html" />
+    <EmbeddedResource Include="Pages\configPage.html" />
   </ItemGroup>
 
   <ItemGroup>

@@ -81,9 +81,9 @@ public class SmartPlaylist {
     }
 
     // Returns the BaseItems that match the filter, if order is provided the IDs are sorted.
-    public IEnumerable<Guid> FilterPlaylistItems(IEnumerable<BaseItem> items,
-                                                 ILibraryManager       libraryManager,
-                                                 User                  user) {
+    public IEnumerable<BaseItem> FilterPlaylistItems(IEnumerable<BaseItem> items,
+                                                     ILibraryManager       libraryManager,
+                                                     User                  user) {
         var sorter = new Sorter(this);
 
         foreach (var i in items) {
@@ -118,10 +118,10 @@ public class SmartPlaylist {
             }
         }
 
-        public IEnumerable<Guid> GetResults() {
+        public IEnumerable<BaseItem> GetResults() {
             var enumerable = _owner.Order.OrderItems(Items);
 
-            return enumerable.Select(bi => bi.Id);
+            return enumerable;
         }
     }
 }

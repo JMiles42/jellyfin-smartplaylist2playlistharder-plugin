@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Smart Playlist 2 Playlist Harder</title>
+</head>
+<body>
+    <div data-role="page" class="page type-interior smartPlaylist2PlaylistHarderConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+        <div class="fieldDescription">
+            <h1>Smart Playlist 2 Playlist Harder Configuration Page</h1>
+            <p>For information on how to setup your libraries, see the Github page&nbsp;</p>
+            <p><a href="https://github.com/JMiles42/jellyfin-smartplaylist2playlistharder-plugin/">https://github.com/JMiles42/jellyfin-smartplaylist2playlistharder-plugin/</a></p>
+        </div>
+        <div data-role="content">
+            <div class="content-primary">
+                <form class="smartPlaylist2PlaylistHarderConfigurationForm">
+                    <div class="inputContainer">
+                        <input is="emby-input" type="number" id="playlistSorterThreadCount" pattern="[0-9]*" required="" label="Playlist Sorter Thread Count">
+                        <div class="fieldDescription">The number of threads used in the Parallel processing of playlist generation.</div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input is="emby-checkbox" type="checkbox" id="playlistDetailedErrors" />
+                            <span>Enable full detailed error messages</span>
+                        </label>
+                    </div>
+
+                    <br />
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button"><span>Save</span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+    (function () {
+
+		var pluginId = "5A63FE63-765F-43F7-A129-661E839F83D5";
+
+		$('.smartPlaylist2PlaylistHarderConfigurationPage').on('pageshow', function (event) {
+
+            var page = this;
+
+            Dashboard.showLoadingMsg();
+
+            ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+				page.querySelector('#playlistSorterThreadCount').value = config.PlaylistSorterThreadCount;
+				page.querySelector('#playlistDetailedErrors').checked = config.PlaylistDetailedErrors;
+
+                Dashboard.hideLoadingMsg();
+            });
+        });
+
+		$('.smartPlaylist2PlaylistHarderConfigurationForm').off('submit.plugin').on('submit.plugin', function (e) {
+
+            Dashboard.showLoadingMsg();
+
+            var form = this;
+
+            ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+				config.PlaylistSorterThreadCount = form.querySelector('#playlistSorterThreadCount').value;
+				config.PlaylistDetailedErrors = form.querySelector('#playlistDetailedErrors').checked;
+
+                ApiClient.updatePluginConfiguration(pluginId, config).then(Dashboard.processPluginConfigurationUpdateResult);
+            });
+
+            return false;
+        });
+
+    })();
+
+        </script>
+    </div>
+    
+</body>
+</html>

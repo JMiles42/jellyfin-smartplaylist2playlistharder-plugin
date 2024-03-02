@@ -19,7 +19,7 @@ public static class SmartPlaylistManager
 				yield return playlistIoData;
 			}
 			else {
-				UpdatePlaylistRun(playlistIoData.FileId, playlistIoData.ErrorDetails.Message);
+				UpdatePlaylistRun(playlistIoData.FileId, "Parsing Error", playlistIoData.ErrorDetails);
 			}
 		}
 	}
@@ -36,28 +36,33 @@ public static class SmartPlaylistManager
 		}
 	}
 
-	public static void UpdatePlaylistRun(string fileId, string messageText) {
-		SmartPlaylistLastRunDetails runData = new(fileId, messageText);
+	public static void UpdatePlaylistRun(string fileId, string statusOrErrorPrefix, Exception? exception = null, string? jellyfinPlaylistId = null) {
+		SmartPlaylistLastRunDetails runData = new(fileId, statusOrErrorPrefix, exception, jellyfinPlaylistId);
 		Data[fileId] = runData;
 	}
 
 	public static IEnumerable<PlaylistIoData> LoadAllPlaylists(string folderLocation) {
-		foreach (var file in Directory.EnumerateFiles(folderLocation, "*.json", SearchOption.AllDirectories)) {
-			yield return LoadPlaylist(folderLocation, file);
-		}
+		return Directory.EnumerateFiles(folderLocation, "*.json", SearchOption.AllDirectories)
+						.Select(file => {
+							var fileId = file[folderLocation.Length..].TrimStart('/').TrimStart('\\');
+
+							return LoadPlaylist(file, fileId);
+						});
 	}
 
-	public static PlaylistIoData LoadPlaylist(string folderLocation, string file) {
+	public static PlaylistIoData LoadPlaylist(string filepath, string fileId) {
 		SmartPlaylistDto? playlist  = null;
-		Exception         exception = null;
-		var               fileId    = file;
-		var filepath = Path.Combine(folderLocation, file);
+		Exception?        exception = null;
 
 		try {
 			using var reader = File.OpenRead(filepath);
 
 			playlist = JsonSerializer.Deserialize(reader, SmartPlaylistDtoJsonContext.WithConverters.SmartPlaylistDto);
-			playlist?.Validate();
+
+			if (playlist is not null) {
+				playlist.Validate();
+				playlist.FileName = filepath;
+			}
 		}
 		catch (Exception e) {
 			exception = e;
@@ -72,6 +77,7 @@ public static class SmartPlaylistManager
 		JsonSerializer.Serialize(writer, dto, SmartPlaylistDtoJsonContext.WithConverters.SmartPlaylistDto);
 	}
 
+	public static void UpdatePlaylistRun(this PlaylistIoData data, string statusOrErrorPrefix, Exception? exception = null) => UpdatePlaylistRun(data.FileId, statusOrErrorPrefix, exception);
 
-	public static void UpdatePlaylistRun(this PlaylistIoData data, string message) => UpdatePlaylistRun(data.FileId, message);
+	public static void UpdatePlaylistRunAsSuccessful(this PlaylistIoData data, string? jellyfinPlaylistId = null) => UpdatePlaylistRun(data.FileId, SmartPlaylistLastRunDetails.SUCCESS, null, jellyfinPlaylistId);
 }

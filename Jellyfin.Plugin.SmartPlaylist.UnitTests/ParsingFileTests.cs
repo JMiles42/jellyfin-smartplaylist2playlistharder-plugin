@@ -14,7 +14,7 @@ public class ParsingFileTests
 
     private static PlaylistIoData LoadFile([CallerMemberName] string filename = "") {
         var filename_ext = filename + ".json";
-        var contents     = SmartPlaylistManager.LoadPlaylist(_dataPath, filename_ext);
+        var contents     = SmartPlaylistManager.LoadPlaylist(Path.Combine(_dataPath, filename_ext), filename_ext);
         contents.Should().NotBeNull();
         return contents!;
     }
