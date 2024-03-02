@@ -12,7 +12,8 @@ public class SmartPlaylistDto {
 			BaseItemKind.Movie,
 	};
 
-	public string? Id { get; set; }
+	[JsonConverter(typeof(GuidNullableConverter))]
+	public Guid? Id { get; set; }
 
 	public string? Name { get; set; }
 

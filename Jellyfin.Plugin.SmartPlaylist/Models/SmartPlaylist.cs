@@ -1,18 +1,17 @@
 using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Ordering;
-using MediaBrowser.Controller.Entities;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Models;
 
 public class SmartPlaylist {
-    public string Id { get; set; }
+    public Guid? Id { get; set; }
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string FileName { get; set; }
+    public string? FileName { get; set; }
 
-    public string User { get; set; }
+    public string? User { get; set; }
 
     public IReadOnlyList<ExpressionSet> ExpressionSets { get; set; }
 
@@ -35,12 +34,7 @@ public class SmartPlaylist {
         User           = dto.User;
         ExpressionSets = Engine.FixRuleSets(dto.ExpressionSets);
 
-        if (dto.MaxItems > 0) {
-            MaxItems = dto.MaxItems;
-        }
-        else {
-            MaxItems = 0;
-        }
+        MaxItems = dto.MaxItems;
 
         Order = GenerateOrderStack(dto.Order);
         SupportedItems = dto.SupportedItems;
@@ -73,33 +67,4 @@ public class SmartPlaylist {
     }
 
     public Sorter GetSorter() => new(this);
-
-    private static bool ProcessRule(List<Func<Operand, bool>> set, Operand operand) {
-        return set.All(rule => rule(operand));
-    }
-
-    public class Sorter
-    {
-        private readonly List<BaseItem>                  Items = new (1000);
-        private readonly SmartPlaylist                   _owner;
-        private readonly List<List<Func<Operand, bool>>> _rules;
-
-        internal Sorter(SmartPlaylist owner) {
-            _owner = owner;
-            _rules = _owner.GetCompiledRules();
-        }
-
-        public void SortItem(Operand item) {
-
-            if (_rules.Any(set => ProcessRule(set, item))) {
-                Items.Add(item.BaseItem);
-            }
-        }
-
-        public IEnumerable<BaseItem> GetResults() {
-            var enumerable = _owner.Order.OrderItems(Items);
-
-            return enumerable;
-        }
-    }
 }

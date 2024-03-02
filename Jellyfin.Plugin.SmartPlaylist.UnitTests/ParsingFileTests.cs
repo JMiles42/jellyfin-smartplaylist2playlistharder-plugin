@@ -12,7 +12,7 @@ public class ParsingFileTests
     private static readonly string _appFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
     private static readonly string _dataPath = Path.Combine(_appFolder, "Data", "IO");
 
-    private static PlaylistIoData LoadFile([CallerMemberName] string filename = "") {
+    private static PlaylistProcessRunData LoadFile([CallerMemberName] string filename = "") {
         var filename_ext = filename + ".json";
         var contents     = SmartPlaylistManager.LoadPlaylist(Path.Combine(_dataPath, filename_ext), filename_ext);
         contents.Should().NotBeNull();

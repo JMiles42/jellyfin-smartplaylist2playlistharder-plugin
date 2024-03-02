@@ -7,10 +7,11 @@ using Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;
 
 public class SmartPlaylistTest {
+    static readonly Guid PlaylistId = Guid.Parse("87ccaa10-f801-4a7a-be40-46ede34adb22");
     [Fact]
     public void DtoToSmartPlaylist() {
         var dto = new SmartPlaylistDto {
-            Id = "87ccaa10-f801-4a7a-be40-46ede34adb22",
+            Id   = PlaylistId,
             Name = "Foo",
             User = "Rob"
         };
@@ -27,7 +28,7 @@ public class SmartPlaylistTest {
         var smartPlaylist = new Models.SmartPlaylist(dto);
 
         smartPlaylist.MaxItems.Should().Be(0);
-        smartPlaylist.Id.Should().Be("87ccaa10-f801-4a7a-be40-46ede34adb22");
+        smartPlaylist.Id.Should().Be(PlaylistId);
         smartPlaylist.Name.Should().Be("Foo");
         smartPlaylist.User.Should().Be("Rob");
         smartPlaylist.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Name);
@@ -39,7 +40,7 @@ public class SmartPlaylistTest {
     [Fact]
     public void DtoToSmartPlaylist_CanGetExtensionExpression() {
         var dto = new SmartPlaylistDto {
-            Id = "87ccaa10-f801-4a7a-be40-46ede34adb22",
+            Id   = PlaylistId,
             Name = "Foo",
             User = "Rob"
         };
@@ -62,7 +63,7 @@ public class SmartPlaylistTest {
     [Fact]
     public void DtoToSmartPlaylist_CanGetStringCaseInSensitive() {
         var dto = new SmartPlaylistDto {
-            Id = "87ccaa10-f801-4a7a-be40-46ede34adb22",
+            Id   = PlaylistId,
             Name = "Foo",
             User = "Rob"
         };

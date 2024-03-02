@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Jellyfin.Data.Entities;
+using Jellyfin.Plugin.SmartPlaylist.Extensions;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
@@ -11,37 +12,33 @@ public class Operand
 {
 	public BaseItem BaseItem { get; }
 
-	private readonly IUserDataManager _userDataManager;
-	private readonly User             _user;
 	private readonly ILibraryManager  _libraryManager;
 
 	public Operand(ILibraryManager libraryManager, BaseItem baseItem, IUserDataManager userDataManager, User user) {
 		BaseItem         = baseItem;
-		_userDataManager = userDataManager;
-		_user            = user;
 		_libraryManager  = libraryManager;
-		Name             = baseItem.Name;
+		Name             = baseItem.Name.ValueOrEmpty();
 
 		CommunityRating          = baseItem.CommunityRating.GetValueOrDefault();
 		CriticRating             = baseItem.CriticRating.GetValueOrDefault();
-		MediaType                = baseItem.MediaType;
-		Album                    = baseItem.Album;
-		FolderPath               = baseItem.ContainingFolderPath;
+		MediaType                = baseItem.MediaType.ValueOrEmpty();
+		Album                    = baseItem.Album.ValueOrEmpty();
+		FolderPath               = baseItem.ContainingFolderPath.ValueOrEmpty();
 		ProductionYear           = baseItem.ProductionYear;
-		OriginalTitle            = baseItem.OriginalTitle;
+		OriginalTitle            = baseItem.OriginalTitle.ValueOrEmpty();
 		Height                   = baseItem.Height;
 		Width                    = baseItem.Width;
-		FileNameWithoutExtension = baseItem.FileNameWithoutExtension;
-		OfficialRating           = baseItem.OfficialRating;
-		SortName                 = baseItem.SortName;
+		FileNameWithoutExtension = baseItem.FileNameWithoutExtension.ValueOrEmpty();
+		OfficialRating           = baseItem.OfficialRating.ValueOrEmpty();
+		SortName                 = baseItem.SortName.ValueOrEmpty();
 		DaysSinceCreated         = GetDaysAgo(baseItem.DateCreated);
 		DaysSinceLastRefreshed   = GetDaysAgo(baseItem.DateLastRefreshed);
 		DaysSinceLastSaved       = GetDaysAgo(baseItem.DateLastSaved);
 		DaysSinceLastModified    = GetDaysAgo(baseItem.DateModified);
-		Overview                 = baseItem.Overview;
-		Container                = baseItem.Container;
-		ParentName               = baseItem.LatestItemsIndexContainer?.Name;
-		GrandparentName          = baseItem.LatestItemsIndexContainer?.DisplayParent?.Name;
+		Overview                 = baseItem.Overview.ValueOrEmpty();
+		Container                = baseItem.Container.ValueOrEmpty();
+		ParentName               = baseItem.LatestItemsIndexContainer?.Name.ValueOrEmpty();
+		GrandparentName          = baseItem.LatestItemsIndexContainer?.DisplayParent?.Name.ValueOrEmpty();
 
 		if (baseItem.PremiereDate.HasValue) {
 			DaysSincePremiereDate = GetDaysAgo(baseItem.PremiereDate.Value, DateTime.Now);
@@ -56,7 +53,7 @@ public class Operand
 		switch (baseItem) {
 			case MediaBrowser.Controller.Entities.Movies.Movie movie:
 				HasSubtitles   = movie.HasSubtitles;
-				CollectionName = movie.CollectionName;
+				CollectionName = movie.CollectionName.ValueOrEmpty();
 				LengthTicks    = movie.RunTimeTicks ?? 0;
 
 				break;
@@ -64,8 +61,8 @@ public class Operand
 				HasSubtitles      = episode.HasSubtitles;
 				AiredSeasonNumber = episode.AiredSeasonNumber;
 				ParentIndexNumber = episode.ParentIndexNumber;
-				SeasonName        = episode.SeasonName;
-				SeriesName        = episode.SeriesName;
+				SeasonName        = episode.SeasonName.ValueOrEmpty();
+				SeriesName        = episode.SeriesName.ValueOrEmpty();
 				LengthTicks       = episode.RunTimeTicks ?? 0;
 
 				break;

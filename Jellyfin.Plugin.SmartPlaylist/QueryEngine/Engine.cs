@@ -51,7 +51,11 @@ public class Engine
 		return value;
 	}
 
-	public static List<ExpressionSet> FixRuleSets(List<ExpressionSet> ruleSets) {
+	public static List<ExpressionSet>? FixRuleSets(List<ExpressionSet>? ruleSets) {
+		if (ruleSets is null) {
+			return null;
+		}
+
 		foreach (var rules in ruleSets) {
 			FixRules(rules);
 		}

@@ -1,5 +1,6 @@
 ﻿using Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
+using System.Net.NetworkInformation;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
 
@@ -9,18 +10,13 @@ public static class SmartPlaylistManager
 
 	public static SmartPlaylistLastRunDetails[] GetAllRunDetails() => Data.Values.ToArray();
 
-	public static IEnumerable<PlaylistProcessRunData> GetAllValidPlaylists(string folderLocation) {
+	public static IEnumerable<PlaylistProcessRunData> GetAllPlaylists(string folderLocation) {
 		var all = LoadAllPlaylists(folderLocation).ToArray();
 
 		CleanOldJobs(all);
 
 		foreach (var playlistIoData in all) {
-			if (playlistIoData.ErrorDetails is null) {
-				yield return playlistIoData;
-			}
-			else {
-				UpdatePlaylistRun(playlistIoData.FileId, "Parsing Error", playlistIoData.ErrorDetails);
-			}
+			yield return playlistIoData;
 		}
 	}
 
@@ -34,11 +30,6 @@ public static class SmartPlaylistManager
 				Data.TryRemove(allLoadedId, out _);
 			}
 		}
-	}
-
-	public static void UpdatePlaylistRun(string fileId, string statusOrErrorPrefix, Exception? exception = null, string? jellyfinPlaylistId = null) {
-		SmartPlaylistLastRunDetails runData = new(fileId, statusOrErrorPrefix, exception, jellyfinPlaylistId);
-		Data[fileId] = runData;
 	}
 
 	public static IEnumerable<PlaylistProcessRunData> LoadAllPlaylists(string folderLocation) {
@@ -81,7 +72,18 @@ public static class SmartPlaylistManager
 		JsonSerializer.Serialize(writer, dto, SmartPlaylistDtoJsonContext.WithConverters.SmartPlaylistDto);
 	}
 
-	public static void UpdatePlaylistRun(this PlaylistProcessRunData data, string statusOrErrorPrefix, Exception? exception = null) => UpdatePlaylistRun(data.FileId, statusOrErrorPrefix, exception);
+	public static void SetErrorStatus(string                            jobFileId,
+									  string                            status = SmartPlaylistLastRunDetails.ERRORED,
+									  List<SmartPlaylistsRefreshError>? jobProcessErrors = null,
+									  Guid?                             jellyfinPlaylistId = null) {
+		jobProcessErrors ??= new();
 
-	public static void UpdatePlaylistRunAsSuccessful(this PlaylistProcessRunData data, string? jellyfinPlaylistId = null) => UpdatePlaylistRun(data.FileId, SmartPlaylistLastRunDetails.SUCCESS, null, jellyfinPlaylistId);
+		Data[jobFileId] = new(jobFileId, status, jobProcessErrors, JellyfinPlaylistId: jellyfinPlaylistId);
+	}
+
+	public static void SetStatus(string jobFileId,
+								 string status             = SmartPlaylistLastRunDetails.SUCCESS,
+								 Guid?  jellyfinPlaylistId = null) {
+		Data[jobFileId] = new(jobFileId, status, JellyfinPlaylistId: jellyfinPlaylistId);
+	}
 }

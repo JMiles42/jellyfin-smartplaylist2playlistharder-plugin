@@ -9,7 +9,9 @@ public static class EngineFallbackProcessor
 	public static Expression ProcessFallback(SmartPlExpression plExpression, Type tProp, MemberExpression left) {
 		var method = tProp.GetMethod(plExpression.Operator);
 
-		ArgumentNullException.ThrowIfNull(method);
+		if (method is null) {
+			throw new InvalidOperationException($"Operator '{plExpression.Operator}' is not a valid method to call on MemberName '{plExpression.MemberName}' of type: {tProp}");
+		}
 
 		if (plExpression.TargetValue.IsSingleValue) {
 			return BuildComparisonExpression(plExpression,

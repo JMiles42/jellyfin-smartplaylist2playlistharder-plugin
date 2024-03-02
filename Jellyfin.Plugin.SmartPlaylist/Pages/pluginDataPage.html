@@ -44,7 +44,7 @@
 
 					Dashboard.showLoadingMsg();
 
-					function createMenuItem(dataObject) {
+					function createJobRunListItem(dataObject) {
 						let tr = document.createElement('tr');
 
 						let tdId = document.createElement('td');
@@ -53,6 +53,12 @@
 						tdId.style.paddingLeft = "30px";
 						let tdStatus = document.createElement('td');
 						tdStatus.textContent = dataObject.Status;
+						if (dataObject.Errors) {
+							dataObject.Errors.forEach(a => {
+								tdStatus.textContent += '\n' + a;
+							})
+						}
+
 						tdStatus.style.width = "80%";
 
 						tr.appendChild(tdId);
@@ -72,7 +78,7 @@
 
 						data.forEach(element => {
 							//document.body.appendChild(createMenuItem(element));
-							$('.smartPlaylist2PlaylistHarderData')[0].appendChild(createMenuItem(element));
+							$('.smartPlaylist2PlaylistHarderData')[0].appendChild(createJobRunListItem(element));
 						});
 
 						console.log(data);

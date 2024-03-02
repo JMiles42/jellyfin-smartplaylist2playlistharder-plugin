@@ -13,6 +13,8 @@ public partial class SmartPlaylistDtoJsonContext : JsonSerializerContext
 					new ExpressionValueJsonConverter(),
 					new OrderByDtoJsonConverter(),
 					new OrderDtoJsonConverter(),
+					new GuidConverter(),
+					new GuidNullableConverter(),
 			},
 			WriteIndented = true,
 			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,

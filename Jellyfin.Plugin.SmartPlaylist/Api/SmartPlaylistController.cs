@@ -72,44 +72,26 @@ public class SmartPlaylistController: ControllerBase
 		return new JsonResult(all);
 	}
 
-	public record struct SmartPlaylistLastRunDetailsDto(string PlaylistId, string Status, string? JellyfinPlaylistId = null);
+	public record SmartPlaylistLastRunDetailsDto(string PlaylistId, string Status, IEnumerable<string>? Errors = null, Guid? JellyfinPlaylistId = null);
 
 	private static SmartPlaylistLastRunDetailsDto GetResultObject(SmartPlaylistLastRunDetails runDetails) {
-		if (runDetails.Exception is null) {
-			return new(runDetails.PlaylistId, runDetails.StatusOrErrorPrefix, runDetails.JellyfinPlaylistId);
+		if (runDetails.Errors is null) {
+			return new(runDetails.PlaylistId, runDetails.Status, JellyfinPlaylistId: runDetails.JellyfinPlaylistId);
+		}
+
+		return new(runDetails.PlaylistId, runDetails.Status, runDetails.Errors?.Select(Selector), runDetails.JellyfinPlaylistId);
+	}
+
+	private static string Selector(SmartPlaylistsRefreshError e) {
+		if (e.Exception is null) {
+			return e.ErrorPrefix;
 		}
 
 		if (SmartPlaylistPlugin.Instance?.Configuration.PlaylistDetailedErrors is true) {
-			return new(runDetails.PlaylistId, $"{runDetails.StatusOrErrorPrefix}: {runDetails.Exception}", runDetails.JellyfinPlaylistId);
+			return e.ErrorPrefix + " " + e.Exception;
 		}
 
-		return new(runDetails.PlaylistId, $"{runDetails.StatusOrErrorPrefix}: {runDetails.Exception.Message}", runDetails.JellyfinPlaylistId);
+		return e.ErrorPrefix + " " + e.Exception?.Message;
 	}
 
-	class SmartPlaylistLastRunDetailsComparer : IComparer<SmartPlaylistLastRunDetails>
-	{
-		public static readonly SmartPlaylistLastRunDetailsComparer Instance = new ();
-		public int Compare(SmartPlaylistLastRunDetails? left, SmartPlaylistLastRunDetails? right) {
-			if (ReferenceEquals(left, right))
-				return 0;
-
-			if (right is null)
-				return 1;
-
-			if (left is null)
-				return -1;
-
-			var leftIsSuccess  = left.StatusOrErrorPrefix  == SmartPlaylistLastRunDetails.SUCCESS;
-			var rightIsSuccess = right.StatusOrErrorPrefix == SmartPlaylistLastRunDetails.SUCCESS;
-
-			return leftIsSuccess switch {
-					true when rightIsSuccess => StringComparer.OrdinalIgnoreCase.Compare(left.PlaylistId,
-						right.PlaylistId),
-					true when !rightIsSuccess => -1,
-					false when rightIsSuccess => 1,
-					_ => StringComparer.OrdinalIgnoreCase.Compare(left.PlaylistId,          right.PlaylistId) +
-						 StringComparer.OrdinalIgnoreCase.Compare(left.StatusOrErrorPrefix, right.StatusOrErrorPrefix)
-			};
-		}
-	}
 }
