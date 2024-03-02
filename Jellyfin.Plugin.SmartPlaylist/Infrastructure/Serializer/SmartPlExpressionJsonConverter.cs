@@ -22,7 +22,7 @@ public class ExpressionValueJsonConverter : JsonConverter<ExpressionValue>
             case JsonValueKind.Array:
                 return ProcessArray(doc);
             case JsonValueKind.String:
-                return ExpressionValue.Create<string>(doc.RootElement.GetString()!);
+                return ExpressionValue.Create(doc.RootElement.GetString()!);
             case JsonValueKind.Number:
                 return ExpressionValue.Create(doc.RootElement.GetInt32());
             case JsonValueKind.True:
@@ -48,11 +48,11 @@ public class ExpressionValueJsonConverter : JsonConverter<ExpressionValue>
                 case JsonValueKind.Undefined: break;
                 case JsonValueKind.Object:    break;
                 case JsonValueKind.Array:
-                    return ExpressionValue.CreateList<string>(array.Select(a => a.GetRawText()).ToArray());
+                    return ExpressionValue.CreateList(array.Select(a => a.GetRawText()).ToArray());
                 case JsonValueKind.String:
-                    return ExpressionValue.CreateList<string>(array.Select(a => a.GetString()!).ToArray());
+                    return ExpressionValue.CreateList(array.Select(a => a.GetString()!).ToArray());
                 case JsonValueKind.Number:
-                    return ExpressionValue.CreateList<int>(array.Select(a => a.GetInt32()).ToArray());
+                    return ExpressionValue.CreateList(array.Select(a => a.GetInt32()).ToArray());
                 case JsonValueKind.True:  return ExpressionValue.Create(true);
                 case JsonValueKind.False: return ExpressionValue.Create(false);
                 case JsonValueKind.Null:  return ExpressionValue.Create();
@@ -60,7 +60,7 @@ public class ExpressionValueJsonConverter : JsonConverter<ExpressionValue>
             }
         }
 
-        return ExpressionValue.CreateList<string>(array.Select(a => a.GetRawText()).ToArray());
+        return ExpressionValue.CreateList(array.Select(a => a.GetRawText()).ToArray());
     }
 
     /// <inheritdoc />

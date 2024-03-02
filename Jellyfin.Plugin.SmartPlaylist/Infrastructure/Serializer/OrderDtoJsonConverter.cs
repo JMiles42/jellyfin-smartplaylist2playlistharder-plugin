@@ -14,34 +14,34 @@ public class OrderDtoJsonConverter : JsonConverter<OrderDto>
 
         switch (doc.RootElement.ValueKind) {
             case JsonValueKind.Object:
-                return ProcessObject(doc);
+                return ProcessObject(doc, options);
             case JsonValueKind.Array:
-                return ProcessArray(doc);
+                return ProcessArray(doc, options);
             case JsonValueKind.String:
-                return ProcessString(doc);
+                return ProcessString(doc, options);
         }
 
         return null;
     }
 
-    private static OrderDto ProcessObject(JsonDocument document) {
+    private static OrderDto ProcessObject(JsonDocument document, JsonSerializerOptions jsonSerializerOptions) {
         var name = document.RootElement.GetProperty(nameof(OrderDto.Name)).GetString()!;
 
         if (document.RootElement.TryGetProperty(nameof(OrderDto.Ascending), out var asc) && asc.ValueKind is JsonValueKind.True or JsonValueKind.False) {
             return new() {
-                    Name      = name,
-                    Ascending = asc.GetBoolean(),
+                Name      = name,
+                Ascending = asc.GetBoolean(),
             };
         }
 
         return new() {
-                Name = name,
+            Name = name,
         };
     }
 
-    private static OrderDto ProcessString(JsonDocument document) => new() { Name = document.RootElement.GetString()! };
+    private static OrderDto ProcessString(JsonDocument document, JsonSerializerOptions jsonSerializerOptions) => new() { Name = document.RootElement.GetString()! };
 
-    private static OrderDto? ProcessArray(JsonDocument doc) {
+    private static OrderDto? ProcessArray(JsonDocument doc, JsonSerializerOptions jsonSerializerOptions) {
         if (doc.RootElement.GetArrayLength() <= 2) {
             return null;
         }
@@ -58,8 +58,8 @@ public class OrderDtoJsonConverter : JsonConverter<OrderDto>
     private static OrderDto? GetOrderDtoFrom2LengthArray(JsonElement first, JsonElement second) {
         if (first.ValueKind is JsonValueKind.String && (second.ValueKind is JsonValueKind.False or JsonValueKind.True)) {
             return new () {
-                    Name      = first.GetString()!,
-                    Ascending = second.GetBoolean(),
+                Name = first.GetString()!, 
+                Ascending = second.GetBoolean(),
             };
         }
 
@@ -68,14 +68,9 @@ public class OrderDtoJsonConverter : JsonConverter<OrderDto>
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, OrderDto value, JsonSerializerOptions options) {
-        if (value.Ascending) {
-            writer.WriteStringValue(value.Name);
-        }
-        else {
-            writer.WriteStartObject();
-            writer.WriteString(nameof(value.Name),      value.Name);
-            writer.WriteBoolean(nameof(value.Ascending), value.Ascending);
-            writer.WriteEndObject();
-        }
+        writer.WriteStartObject();
+        writer.WriteString(nameof(value.Name), value.Name);
+        writer.WriteBoolean(nameof(value.Ascending), value.Ascending);
+        writer.WriteEndObject();
     }
 }

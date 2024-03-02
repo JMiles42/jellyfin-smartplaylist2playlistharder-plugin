@@ -86,7 +86,7 @@ public class RefreshAllSmartPlaylists : IScheduledTask, IConfigurableScheduledTa
     public async Task ExecuteAsync(IProgress<double> progress, CancellationToken cancellationToken) {
         try {
             var folder = Path.Combine(_serverApplicationPaths.DataPath, "smartplaylists");
-            var dtos   = SmartPlaylistManager.GetAllValidPlaylists(folder);
+            var dtos   = SmartPlaylistManager.GetAllValidPlaylists(folder).ToArray();
 
             var groups = dtos.GroupBy(a => new {
                     a.SmartPlaylist!.User,
@@ -100,6 +100,15 @@ public class RefreshAllSmartPlaylists : IScheduledTask, IConfigurableScheduledTa
             foreach (var group in groups) {
                 cancellationToken.ThrowIfCancellationRequested();
                 var user = _userManager.GetUserByName(group.Key.User);
+
+                if (user is null) {
+
+                    foreach (var playlistIoData in group) {
+                        playlistIoData.UpdatePlaylistRun($"Error User {group.Key.User} does not exist, cannot process playlist.");
+                    }
+
+                    continue;
+                }
 
                 var sorter = new PlaylistUpdater(user,
                                                  group.Key.SupportedItems,

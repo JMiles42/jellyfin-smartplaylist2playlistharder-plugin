@@ -9,7 +9,7 @@ public static class SmartPlaylistManager
 
 	public static SmartPlaylistLastRunDetails[] GetAllRunDetails() => Data.Values.ToArray();
 
-	public static IEnumerable<PlaylistIoData> GetAllValidPlaylists(string folderLocation) {
+	public static IEnumerable<PlaylistProcessRunData> GetAllValidPlaylists(string folderLocation) {
 		var all = LoadAllPlaylists(folderLocation).ToArray();
 
 		CleanOldJobs(all);
@@ -24,7 +24,7 @@ public static class SmartPlaylistManager
 		}
 	}
 
-	private static void CleanOldJobs(PlaylistIoData[] allPlaylists) {
+	private static void CleanOldJobs(PlaylistProcessRunData[] allPlaylists) {
 		var hash = new HashSet<string>(allPlaylists.Select(a => a.FileId));
 
 		var allLoadedIds = Data.Keys.ToArray();
@@ -41,7 +41,7 @@ public static class SmartPlaylistManager
 		Data[fileId] = runData;
 	}
 
-	public static IEnumerable<PlaylistIoData> LoadAllPlaylists(string folderLocation) {
+	public static IEnumerable<PlaylistProcessRunData> LoadAllPlaylists(string folderLocation) {
 		return Directory.EnumerateFiles(folderLocation, "*.json", SearchOption.AllDirectories)
 						.Select(file => {
 							var fileId = file[folderLocation.Length..].TrimStart('/').TrimStart('\\');
@@ -50,7 +50,7 @@ public static class SmartPlaylistManager
 						});
 	}
 
-	public static PlaylistIoData LoadPlaylist(string filepath, string fileId) {
+	public static PlaylistProcessRunData LoadPlaylist(string filepath, string fileId) {
 		SmartPlaylistDto? playlist  = null;
 		Exception?        exception = null;
 
@@ -72,12 +72,16 @@ public static class SmartPlaylistManager
 	}
 
 	public static void SavePlaylist(string file, SmartPlaylistDto dto) {
+		if (File.Exists(file)) {
+			File.Delete(file);
+		}
+
 		using var writer = File.OpenWrite(file);
 
 		JsonSerializer.Serialize(writer, dto, SmartPlaylistDtoJsonContext.WithConverters.SmartPlaylistDto);
 	}
 
-	public static void UpdatePlaylistRun(this PlaylistIoData data, string statusOrErrorPrefix, Exception? exception = null) => UpdatePlaylistRun(data.FileId, statusOrErrorPrefix, exception);
+	public static void UpdatePlaylistRun(this PlaylistProcessRunData data, string statusOrErrorPrefix, Exception? exception = null) => UpdatePlaylistRun(data.FileId, statusOrErrorPrefix, exception);
 
-	public static void UpdatePlaylistRunAsSuccessful(this PlaylistIoData data, string? jellyfinPlaylistId = null) => UpdatePlaylistRun(data.FileId, SmartPlaylistLastRunDetails.SUCCESS, null, jellyfinPlaylistId);
+	public static void UpdatePlaylistRunAsSuccessful(this PlaylistProcessRunData data, string? jellyfinPlaylistId = null) => UpdatePlaylistRun(data.FileId, SmartPlaylistLastRunDetails.SUCCESS, null, jellyfinPlaylistId);
 }

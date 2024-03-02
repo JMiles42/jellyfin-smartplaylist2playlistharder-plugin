@@ -5,8 +5,7 @@ public class NoOrder : Order {
 
 	public static NoOrder Instance { get; } = new();
 
-	public NoOrder() : base(true) {
-	}
+	public NoOrder() : base(true) { }
 
 	public override IEnumerable<string> Names() {
 		yield return ID;

@@ -49,9 +49,9 @@ public class Operand
 		}
 
 		DateCreated       = GetUnixSeconds(baseItem.DateCreated);
-		DateLastRefreshed = GetUnixSeconds(baseItem.DateLastRefreshed);
 		DateLastSaved     = GetUnixSeconds(baseItem.DateLastSaved);
 		DateModified      = GetUnixSeconds(baseItem.DateModified);
+		DateLastRefreshed = GetUnixSeconds(baseItem.DateLastRefreshed);
 
 		switch (baseItem) {
 			case MediaBrowser.Controller.Entities.Movies.Movie movie:
@@ -76,18 +76,18 @@ public class Operand
 				break;
 		}
 
-		var data = userDataManager.GetUserData(user, baseItem);
+		var userData = userDataManager.GetUserData(user, baseItem);
 
-		if (data is not null) {
-			IsPlayed    = data.Played;
-			PlayedCount = data.PlayCount;
+		if (userData is not null) {
+			IsPlayed    = userData.Played;
+			PlayedCount = userData.PlayCount;
 
-			if (data.LastPlayedDate.HasValue) {
-				LastPlayedDate = GetUnixSeconds(data.LastPlayedDate.Value);
+			if (userData.LastPlayedDate.HasValue) {
+				LastPlayedDate = GetUnixSeconds(userData.LastPlayedDate.Value);
 			}
 
-			IsFavoriteOrLiked     = data.IsFavorite;
-			PlaybackPositionTicks = data.PlaybackPositionTicks;
+			IsFavoriteOrLiked     = userData.IsFavorite;
+			PlaybackPositionTicks = userData.PlaybackPositionTicks;
 
 
 
@@ -101,7 +101,7 @@ public class Operand
 				return;
 			}
 
-			pct = data.PlaybackPositionTicks / pct;
+			pct = userData.PlaybackPositionTicks / pct;
 
 			if (pct > 0) {
 				PlayedPercentage = 100 * pct;

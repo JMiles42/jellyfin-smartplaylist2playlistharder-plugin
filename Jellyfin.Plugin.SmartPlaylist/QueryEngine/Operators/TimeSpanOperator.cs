@@ -10,6 +10,10 @@ public class TimeSpanOperator: IOperator {
 													MemberExpression    sourceExpression,
 													ParameterExpression parameterExpression,
 													Type                parameterPropertyType) {
+		if (parameterPropertyType != typeof(TimeSpan)) {
+			return EngineOperatorResult.NotAValidFor($"Property {plExpression.MemberName} is not a TimeSpan");
+		}
+
 		if (!Enum.TryParse(plExpression.Operator, out ExpressionType _)) {
 			return EngineOperatorResult.NotAValidFor($"{plExpression.Operator} is not a valid ExpressionType");
 		}

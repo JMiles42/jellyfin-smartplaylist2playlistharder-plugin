@@ -11,7 +11,7 @@ public partial class SmartPlaylistDtoJsonContext : JsonSerializerContext
 			Converters = {
 					new JsonStringEnumConverter(allowIntegerValues:true),
 					new ExpressionValueJsonConverter(),
-					//new OrderByDtoJsonConverter(),
+					new OrderByDtoJsonConverter(),
 					new OrderDtoJsonConverter(),
 			},
 			WriteIndented = true,

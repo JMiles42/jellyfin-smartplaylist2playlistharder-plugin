@@ -11,25 +11,34 @@ public readonly struct SortableBaseItem {
 		BaseItem = baseItem;
 	}
 
-	public string Name => BaseItem.Name;
-	public string OriginalTitle => BaseItem.OriginalTitle;
-	public DateTime? PremiereDate => BaseItem.PremiereDate;
-	public string Path => BaseItem.Path;
-	public string Container => BaseItem.Container;
-	public string Tagline => BaseItem.Tagline;
-	public Guid ChannelId => BaseItem.ChannelId;
-	public Guid Id => BaseItem.Id;
-	public int Width => BaseItem.Width;
-	public int Height => BaseItem.Height;
-	public DateTime DateModified => BaseItem.DateModified;
-	public DateTime DateLastSaved => BaseItem.DateLastSaved;
-	public DateTime DateLastRefreshed => BaseItem.DateLastRefreshed;
-	public string MediaType => BaseItem.MediaType;
-	public string SortName => BaseItem.SortName;
-	public string ForcedSortName => BaseItem.ForcedSortName;
-	public DateTime? EndDate => BaseItem.EndDate;
-	public string Overview => BaseItem.Overview;
-	public int? ProductionYear => BaseItem.ProductionYear;
+	public string    Name                   => BaseItem.Name;
+	public float?    CommunityRating        => BaseItem.CommunityRating;
+	public float?    CriticRating           => BaseItem.CriticRating;
+	public string    OriginalTitle          => BaseItem.OriginalTitle;
+	public string    Path                   => BaseItem.Path;
+	public string    Container              => BaseItem.Container;
+	public string    Tagline                => BaseItem.Tagline;
+	public Guid      ChannelId              => BaseItem.ChannelId;
+	public Guid      Id                     => BaseItem.Id;
+	public int       Width                  => BaseItem.Width;
+	public int       Height                 => BaseItem.Height;
+	public DateTime? PremiereDate           => BaseItem.PremiereDate;
+	public DateTime  DateCreated            => BaseItem.DateCreated;
+	public DateTime  DateModified           => BaseItem.DateModified;
+	public DateTime  DateLastSaved          => BaseItem.DateLastSaved;
+	public DateTime  DateLastRefreshed      => BaseItem.DateLastRefreshed;
+	public double   DaysSincePremiereDate  => BaseItem.PremiereDate.HasValue ? (DateTime.UtcNow - BaseItem.PremiereDate.Value).TotalDays : 0;
+	public double    DateSinceCreated       => (DateTime.UtcNow - BaseItem.DateCreated).TotalDays;
+	public double    DateSinceModified      => (DateTime.UtcNow - BaseItem.DateModified).TotalDays;
+	public double    DateSinceLastSaved     => (DateTime.UtcNow - BaseItem.DateLastSaved).TotalDays;
+	public double    DateSinceLastRefreshed => (DateTime.UtcNow - BaseItem.DateLastRefreshed).TotalDays;
+	public string    MediaType              => BaseItem.MediaType;
+	public string    SortName               => BaseItem.SortName;
+	public string    ForcedSortName         => BaseItem.ForcedSortName;
+	public DateTime? EndDate                => BaseItem.EndDate;
+	public string    Overview               => BaseItem.Overview;
+	public int?      ProductionYear         => BaseItem.ProductionYear;
+	public long?     RunTimeTicks           => BaseItem.RunTimeTicks;
 
 	public string CollectionName {
 		get {
@@ -74,7 +83,7 @@ public readonly struct SortableBaseItem {
 		get {
 			return BaseItem switch {
 				Episode episode => episode.SeasonName,
-				_ => null
+				_ => string.Empty
 			};
 		}
 	}
@@ -83,7 +92,7 @@ public readonly struct SortableBaseItem {
 		get {
 			return BaseItem switch {
 				Episode episode => episode.SeriesName,
-				_ => null
+				_ => string.Empty
 			};
 		}
 	}

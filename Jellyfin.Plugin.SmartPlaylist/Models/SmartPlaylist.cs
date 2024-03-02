@@ -1,9 +1,7 @@
-using Jellyfin.Data.Entities;
 using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Ordering;
 using MediaBrowser.Controller.Entities;
-using MediaBrowser.Controller.Library;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Models;
 
@@ -48,18 +46,12 @@ public class SmartPlaylist {
         SupportedItems = dto.SupportedItems;
     }
 
-    private static OrderStack GenerateOrderStack(OrderByDto dtoOrder) {
-        var result = new List<Order>(1 + (dtoOrder.ThenBy?.Count ?? 0)) {
-                OrderManager.GetOrder(dtoOrder)
-        };
-
-        if (dtoOrder.ThenBy?.Count > 0) {
-            foreach (var order in dtoOrder.ThenBy) {
-                result.Add(OrderManager.GetOrder(order));
-            }
+    private static OrderStack GenerateOrderStack(OrderByDto? dtoOrder) {
+        if (dtoOrder is null) {
+            return OrderManager.Default;
         }
 
-        return new(result.ToArray());
+        return new(dtoOrder.Select(OrderManager.GetOrder).ToArray());
     }
 
     internal void CompileRules() {
@@ -80,20 +72,6 @@ public class SmartPlaylist {
         return CompiledRule!.CompiledRuleSets;
     }
 
-    // Returns the BaseItems that match the filter, if order is provided the IDs are sorted.
-    public IEnumerable<BaseItem> FilterPlaylistItems(IEnumerable<BaseItem> items,
-                                                     ILibraryManager       libraryManager,
-                                                     User                  user) {
-        var sorter = new Sorter(this);
-
-        foreach (var i in items) {
-            var opp = new Operand(libraryManager, i, BaseItem.UserDataManager, user);
-            sorter.SortItem(opp);
-        }
-
-        return sorter.GetResults();
-    }
-
     public Sorter GetSorter() => new(this);
 
     private static bool ProcessRule(List<Func<Operand, bool>> set, Operand operand) {
@@ -111,7 +89,7 @@ public class SmartPlaylist {
             _rules = _owner.GetCompiledRules();
         }
 
-        public void SortItem(Operand         item) {
+        public void SortItem(Operand item) {
 
             if (_rules.Any(set => ProcessRule(set, item))) {
                 Items.Add(item.BaseItem);

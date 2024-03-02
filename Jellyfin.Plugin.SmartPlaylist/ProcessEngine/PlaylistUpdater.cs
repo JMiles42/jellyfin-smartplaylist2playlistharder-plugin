@@ -8,7 +8,6 @@ using MediaBrowser.Controller.Playlists;
 using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Playlists;
-using System.Collections.Generic;
 
 namespace Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
 
@@ -50,8 +49,8 @@ public class PlaylistUpdater
 		return _libraryManager.GetItemsResult(query).Items;
 	}
 
-	public async Task ProcessPlaylists(IEnumerable<PlaylistIoData> playlists, CancellationToken cancellationToken) {
-		var listsToProcess =   GetBuiltPlaylists(playlists);
+	public async Task ProcessPlaylists(IEnumerable<PlaylistProcessRunData> playlists, CancellationToken cancellationToken) {
+		var listsToProcess =     GetBuiltPlaylists(playlists);
 		var items          = GetAllUserMedia();
 		var progress       = new ProgressTracker(_progress) {
 			Length = items.Count,
@@ -64,12 +63,13 @@ public class PlaylistUpdater
 
 			var opp = new Operand(_libraryManager, items[index], BaseItem.UserDataManager, _user);
 
-			foreach (var list in listsToProcess) {
+			foreach (var playlistPair in listsToProcess) {
 				try {
-					list.Sorter.SortItem(opp);
+					playlistPair.Sorter.SortItem(opp);
 				}
 				catch (Exception e) {
-					list.IoData.UpdatePlaylistRun("Error sorting items", e);
+					playlistPair.ProcessRunData.UpdatePlaylistRun("Error sorting items", e);
+					playlistPair.HasErrorOccurred = true;
 				}
 			}
 
@@ -77,40 +77,40 @@ public class PlaylistUpdater
 			progress.Report(numComplete++ / (double)items.Count);
 		}
 
-		foreach (var list in listsToProcess) {
+		foreach (var playlistPair in listsToProcess) {
 			cancellationToken.ThrowIfCancellationRequested();
 
 			try {
 				BaseItem[] newItems;
 
-				if (list.SmartPlaylist.MaxItems > 0) {
-					newItems = list.Sorter.GetResults().Take(list.SmartPlaylist.MaxItems).ToArray();
+				if (playlistPair.SmartPlaylist.MaxItems > 0) {
+					newItems = playlistPair.Sorter.GetResults().Take(playlistPair.SmartPlaylist.MaxItems).ToArray();
 				}
 				else {
-					newItems = list.Sorter.GetResults().ToArray();
+					newItems = playlistPair.Sorter.GetResults().ToArray();
 				}
 
-				if (list.Playlist is null) {
-					if (string.IsNullOrEmpty(list.SmartPlaylist.Dto.FileName)) {
-						list.IoData.UpdatePlaylistRun("Error filename is null, cannot save playlist to disk");
+				if (playlistPair.Playlist is null) {
+					if (string.IsNullOrEmpty(playlistPair.SmartPlaylist.Dto.FileName)) {
+						playlistPair.ProcessRunData.UpdatePlaylistRun("Error filename is null, cannot save playlist to disk");
 					}
 					else {
-						CreateNewPlaylist(list.SmartPlaylist.Dto, newItems);
-						_logger.LogInformation("Saving playlist {PlaylistName}", list.IoData.FileId);
-						SmartPlaylistManager.SavePlaylist(list.SmartPlaylist.Dto.FileName, list.SmartPlaylist.Dto);
+						CreateNewPlaylist(playlistPair.SmartPlaylist.Dto, newItems);
+						_logger.LogInformation("Saving playlist {PlaylistName}", playlistPair.ProcessRunData.FileId);
+						SmartPlaylistManager.SavePlaylist(playlistPair.SmartPlaylist.Dto.FileName, playlistPair.SmartPlaylist.Dto);
 					}
 				}
 				else {
 					_logger.LogInformation("Clearing and adding {Number} files to existing playlist: {PlaylistName}",
 										   newItems.Length,
-										   list.IoData.FileId);
+										   playlistPair.ProcessRunData.FileId);
 
-					list.Playlist.LinkedChildren = newItems.Select(LinkedChild.Create).ToArray();
-					await list.Playlist.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, CancellationToken.None)
+					playlistPair.Playlist.LinkedChildren = newItems.Select(LinkedChild.Create).ToArray();
+					await playlistPair.Playlist.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, CancellationToken.None)
 							  .ConfigureAwait(false);
 
 					_providerManager.QueueRefresh(
-												  list.Playlist.Id,
+												  playlistPair.Playlist.Id,
 												  new (new DirectoryService(_fileSystem)) {
 														  ForceSave = true,
 														  ImageRefreshMode = MetadataRefreshMode.FullRefresh,
@@ -118,17 +118,18 @@ public class PlaylistUpdater
 												  RefreshPriority.High);
                 }
 
-				list.IoData.UpdatePlaylistRunAsSuccessful(list.SmartPlaylist.Dto.Id);
+				playlistPair.ProcessRunData.UpdatePlaylistRunAsSuccessful(playlistPair.SmartPlaylist.Dto.Id);
 			}
 			catch (Exception e) {
-				list.IoData.UpdatePlaylistRun("Error getting results", e);
+				playlistPair.ProcessRunData.UpdatePlaylistRun("Error getting results", e);
+				playlistPair.HasErrorOccurred = true;
 			}
 		}
 
 		var pl = _playlistManager.GetPlaylists(_user.Id).ToList();
 	}
 
-	private List<PlaylistPair> GetBuiltPlaylists(IEnumerable<PlaylistIoData> playlists) {
+	private List<PlaylistPair> GetBuiltPlaylists(IEnumerable<PlaylistProcessRunData> playlists) {
 		var userLists = GetUserPlaylists().ToArray();
 		var pairs     = new List<PlaylistPair>(20);
 
@@ -137,8 +138,20 @@ public class PlaylistUpdater
 				SmartPlaylistManager.UpdatePlaylistRun(dto.FileId, "Playlist is null");
 				continue;
 			}
-			var      pl = new Models.SmartPlaylist(dto.SmartPlaylist);
+
+			Models.SmartPlaylist pl;
 			Playlist? jfList;
+
+			try {
+				pl = new (dto.SmartPlaylist);
+			}
+			catch (Exception ex) {
+				SmartPlaylistManager.UpdatePlaylistRun(dto.FileId, "Playlist failed to create", ex);
+
+				_logger.LogError(ex, "Error parsing rules for {FileName}", dto.FileId);
+
+				continue;
+			}
 
 			try {
 				pl.CompileRules();
@@ -146,7 +159,7 @@ public class PlaylistUpdater
 			catch (Exception ex) {
 				SmartPlaylistManager.UpdatePlaylistRun(dto.FileId, "Playlist failed to compile", ex);
 
-				_logger.LogError(ex, "Error parsing rules for {FileName}", pl.FileName);
+				_logger.LogError(ex, "Error parsing rules for {FileName}", dto.FileId);
 
 				continue;
 			}
@@ -184,7 +197,7 @@ public class PlaylistUpdater
 
 	private record PlaylistPair(Models.SmartPlaylist        SmartPlaylist,
 								Playlist?                   Playlist,
-								PlaylistIoData              IoData,
+								PlaylistProcessRunData      ProcessRunData,
 								Models.SmartPlaylist.Sorter Sorter)
 	{
 		public bool HasErrorOccurred { get; set; }

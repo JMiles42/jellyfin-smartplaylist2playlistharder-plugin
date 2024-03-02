@@ -1,53 +1,80 @@
+using System;
+using System.Linq.Expressions;
+using Jellyfin.Plugin.SmartPlaylist.Extensions;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Ordering;
 
 public static class OrderManager {
     private static readonly Dictionary<string, OrderPair> _orderPairs = new();
-
+    public static           OrderStack                    Default;
     static OrderManager() {
         RegisterOrders();
+        Default = new(NoOrder.Instance);
     }
 
     private static void RegisterOrders() {
         RegisterOrder(NoOrder.Instance,               NoOrder.Instance);
         RegisterOrder(RandomOrder.Instance,           RandomOrder.Instance);
-        RegisterOrder(item => item.Name,              "Name");
-        RegisterOrder(item => item.OriginalTitle,     "OriginalTitle");
-        RegisterOrder(item => item.PremiereDate,      "PremiereDate", "ReleaseDate", "Release Date");
-        RegisterOrder(item => item.Path,              "Path");
-        RegisterOrder(item => item.Container,         "Container");
-        RegisterOrder(item => item.Tagline,           "Tagline");
-        RegisterOrder(item => item.ChannelId,         "ChannelId");
-        RegisterOrder(item => item.Id,                "Id");
-        RegisterOrder(item => item.Width,             "Width");
-        RegisterOrder(item => item.Height,            "Height");
-        RegisterOrder(item => item.DateModified,      "DateModified");
-        RegisterOrder(item => item.DateLastSaved,     "DateLastSaved");
-        RegisterOrder(item => item.DateLastRefreshed, "DateLastRefreshed");
-        RegisterOrder(item => item.MediaType,         "MediaType");
-        RegisterOrder(item => item.SortName,          "SortName");
-        RegisterOrder(item => item.ForcedSortName,    "ForcedSortName");
-        RegisterOrder(item => item.EndDate,           "EndDate");
-        RegisterOrder(item => item.Overview,          "Overview");
-        RegisterOrder(item => item.ProductionYear,    "ProductionYear", "Year");
-
-        RegisterOrder(item => item.CollectionName, "CollectionName", "BoxSet");
-        RegisterOrder(item => item.HasSubtitles, "HasSubtitles");
-
-        RegisterOrder(item => item.AiredSeasonNumber, "SeasonNumber", "AiredSeasonNumber");
-        RegisterOrder(item => item.ParentIndexNumber, "IndexNumber",  "ParentIndexNumber", "ParentIndex");
-        RegisterOrder(item => item.SeasonName,        "SeasonName",   "Season");
-        RegisterOrder(item => item.SeriesName,        "SeriesName",   "Series");
+        RegisterOrder(item => item.Name);
+        RegisterOrder(item => item.OriginalTitle);
+        RegisterOrder(item => item.PremiereDate,"ReleaseDate", "Release Date");
+        RegisterOrder(item => item.Path);
+        RegisterOrder(item => item.Container);
+        RegisterOrder(item => item.Tagline);
+        RegisterOrder(item => item.ChannelId);
+        RegisterOrder(item => item.Id);
+        RegisterOrder(item => item.Width);
+        RegisterOrder(item => item.Height);
+        RegisterOrder(item => item.DateModified);
+        RegisterOrder(item => item.DateLastSaved);
+        RegisterOrder(item => item.DateLastRefreshed);
+        RegisterOrder(item => item.MediaType);
+        RegisterOrder(item => item.SortName);
+        RegisterOrder(item => item.ForcedSortName);
+        RegisterOrder(item => item.EndDate);
+        RegisterOrder(item => item.Overview);
+        RegisterOrder(item => item.ProductionYear,"Year");
+        RegisterOrder(item => item.CollectionName,"BoxSet");
+        RegisterOrder(item => item.HasSubtitles);
+        RegisterOrder(item => item.AiredSeasonNumber, "AiredSeasonNumber");
+        RegisterOrder(item => item.ParentIndexNumber,  "ParentIndexNumber", "ParentIndex");
+        RegisterOrder(item => item.SeasonName,  "Season");
+        RegisterOrder(item => item.SeriesName,   "Series");
     }
 
-    private static void RegisterOrder<TKey>(Func<SortableBaseItem, TKey> keySelector, params string[] ids) {
-        var ascending = new PropertyOrder<TKey>(keySelector, true, ids);
-        var descending = new PropertyOrder<TKey>(keySelector, false, ids);
+    private static void RegisterOrder<TKey>(Expression<Func<SortableBaseItem, TKey>> keySelector) => RegisterOrder(keySelector, Array.Empty<string>());
+
+    private static void RegisterOrder<TKey>(Expression<Func<SortableBaseItem, TKey>> keySelector, params string[] orderIds) {
+        var      hasMemberName = keySelector.TryGetMemberName(out var memberName);
+        string[] ids;
+
+        if (hasMemberName) {
+            ids = new string[orderIds.Length+1];
+            orderIds.CopyTo(ids, 1);
+            ids[0] = memberName;
+        }
+        else {
+            ids = orderIds;
+        }
+
+        var compiled   = keySelector.Compile();
+        var ascending  = new PropertyOrder<TKey>(compiled, true,  ids);
+        var descending = new PropertyOrder<TKey>(compiled, false, ids);
+
+        var pair = new OrderPair(ascending, descending);
+
+        if (hasMemberName) {
+            RegisterOrder(memberName, pair);
+        }
 
         foreach (var name in ids) {
-            _orderPairs[name] = new(ascending, descending);
+            RegisterOrder(name, pair);
         }
+    }
+
+    private static void RegisterOrder(string name, OrderPair pair) {
+        _orderPairs[name] = pair;
     }
 
     private static void RegisterOrder<T>(T ascending, T descending) where T : Order {
@@ -56,7 +83,8 @@ public static class OrderManager {
         }
     }
 
-    public static Order GetOrder(OrderDto dto) => _orderPairs[dto.Name].Get(dto.Ascending);
+    public static Order GetOrder(IOrderDetails dto)                  => _orderPairs[dto.Name].Get(dto.Ascending);
+    public static Order GetOrder(string name, bool ascending = true) => _orderPairs[name].Get(ascending);
 
     private class OrderPair {
         private Order Ascending { get; }

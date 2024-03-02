@@ -56,10 +56,8 @@ public class ExpressionTypeOperator: IOperator {
 														object            value) {
 		var rightValue = value.ToConstantExpressionAsType(propertyType);
 
-		var right = Expression.Constant(rightValue);
-
 		// use a method call 'u.Tags.Any(a => a.Contains(some_tag))'
-		var exper = Expression.MakeBinary(tBinary, sourceExpression, right);
+		var exper = Expression.MakeBinary(tBinary, sourceExpression, rightValue);
 
 		return exper;
 	}

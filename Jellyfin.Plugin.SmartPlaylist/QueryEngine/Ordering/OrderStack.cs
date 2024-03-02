@@ -2,10 +2,11 @@
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Ordering;
 
-public class OrderStack {
+public class OrderStack
+{
 	public Order[] Order { get; }
 
-	public OrderStack(Order[] order) {
+	public OrderStack(params Order[] order) {
 		Order = order;
 	}
 

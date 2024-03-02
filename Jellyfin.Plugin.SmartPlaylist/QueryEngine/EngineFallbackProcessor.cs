@@ -31,13 +31,13 @@ public static class EngineFallbackProcessor
 	}
 
 	private static Expression BuildComparisonExpression(SmartPlExpression plExpression,
-														MemberExpression  left,
+														MemberExpression  leftValue,
 														MethodInfo        method,
 														object            value) {
 		var tParam = method.GetParameters()[0].ParameterType;
-		var right  = value.ToConstantExpressionAsType(tParam);
+		var rightValue  = value.ToConstantExpressionAsType(tParam);
 
 		// use a method call, e.g. 'Contains' -> 'u.Tags.Contains(some_tag)'
-		return Expression.Call(left, method, right);
+		return Expression.Call(leftValue, method, rightValue);
 	}
 }
