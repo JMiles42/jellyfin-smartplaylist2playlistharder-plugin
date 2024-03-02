@@ -1,18 +1,43 @@
 ﻿using System.Linq.Expressions;
-using Jellyfin.Plugin.SmartPlaylist.Models;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Containers;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
 public class ExpressionTypeOperator: IOperator
 {
 
+	private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression plExpression,
+																			  MemberExpression  sourceExpression,
+																			  ExpressionType    tBinary,
+																			  Type              propertyType)
+	{
+		foreach (var value in plExpression.TargetValue.GetValues())
+		{
+			yield return BuildComparisonExpression(plExpression, sourceExpression, tBinary, propertyType, value);
+		}
+	}
+
+	private static ParsedValueExpressionResult BuildComparisonExpression(SmartPlExpression plExpression,
+																		 MemberExpression  sourceExpression,
+																		 ExpressionType    tBinary,
+																		 Type              propertyType,
+																		 object            value)
+	{
+		var rightValue = value.ToConstantExpressionAsType(propertyType);
+
+		// use a method call 'u.Tags.Any(a => a.Contains(some_tag))'
+		var builtExpression = Expression.MakeBinary(tBinary, sourceExpression, rightValue);
+
+		return new(builtExpression, plExpression, value);
+	}
+
 	/// <inheritdoc />
 	public EngineOperatorResult ValidateOperator<T>(SmartPlExpression   plExpression,
 													MemberExpression    sourceExpression,
 													ParameterExpression parameterExpression,
-													Type                parameterPropertyType) {
-		if (!Enum.TryParse(plExpression.Operator, out ExpressionType _)) {
+													Type                parameterPropertyType)
+	{
+		if (!Enum.TryParse(plExpression.Operator, out ExpressionType _))
+		{
 			return EngineOperatorResult.NotAValidFor($"{plExpression.Operator} is not a valid ExpressionType");
 		}
 
@@ -21,13 +46,15 @@ public class ExpressionTypeOperator: IOperator
 
 	/// <inheritdoc />
 	public ParsedValueExpressions GetOperator<T>(SmartPlExpression   plExpression,
-											 MemberExpression    sourceExpression,
-											 ParameterExpression parameterExpression,
-											 Type                parameterPropertyType) {
+												 MemberExpression    sourceExpression,
+												 ParameterExpression parameterExpression,
+												 Type                parameterPropertyType)
+	{
 		Enum.TryParse(plExpression.Operator, out ExpressionType tBinary);
 
 
-		if (plExpression.TargetValue.IsSingleValue) {
+		if (plExpression.TargetValue.IsSingleValue)
+		{
 			return new(plExpression.Match,
 					   BuildComparisonExpression(plExpression,
 												 sourceExpression,
@@ -41,27 +68,5 @@ public class ExpressionTypeOperator: IOperator
 									 sourceExpression,
 									 tBinary,
 									 parameterPropertyType));
-	}
-
-	private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression plExpression,
-																		MemberExpression  sourceExpression,
-																		ExpressionType    tBinary,
-																		Type              propertyType) {
-		foreach (var value in plExpression.TargetValue.GetValues()) {
-			yield return BuildComparisonExpression(plExpression, sourceExpression, tBinary, propertyType, value);
-		}
-	}
-
-	private static ParsedValueExpressionResult BuildComparisonExpression(SmartPlExpression plExpression,
-																   MemberExpression  sourceExpression,
-																   ExpressionType    tBinary,
-																   Type              propertyType,
-																   object            value) {
-		var rightValue = value.ToConstantExpressionAsType(propertyType);
-
-		// use a method call 'u.Tags.Any(a => a.Contains(some_tag))'
-		var builtExpression = Expression.MakeBinary(tBinary, sourceExpression, rightValue);
-
-		return new(builtExpression, plExpression, value);
 	}
 }

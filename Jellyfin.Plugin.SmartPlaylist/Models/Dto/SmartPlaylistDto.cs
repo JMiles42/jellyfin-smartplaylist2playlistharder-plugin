@@ -1,15 +1,11 @@
-﻿using System.Text.Json.Serialization;
-using Jellyfin.Data.Enums;
-using Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
-
-namespace Jellyfin.Plugin.SmartPlaylist.Models.Dto;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 
 [Serializable]
-public class SmartPlaylistDto {
-	public static readonly BaseItemKind[] SupportedItemDefault = {
-			BaseItemKind.Audio,
-			BaseItemKind.Episode,
-			BaseItemKind.Movie,
+public class SmartPlaylistDto
+{
+	public static readonly BaseItemKind[] SupportedItemDefault =
+	{
+		BaseItemKind.Audio, BaseItemKind.Episode, BaseItemKind.Movie,
 	};
 
 	[JsonConverter(typeof(GuidNullableConverter))]
@@ -35,11 +31,11 @@ public class SmartPlaylistDto {
 
 	public bool IsReadonly { get; set; }
 
-	public SmartPlaylistDto Validate() {
+	public SmartPlaylistDto Validate()
+	{
 		SupportedItems ??= SupportedItemDefault;
 		Array.Sort(SupportedItems);
 
 		return this;
 	}
-
 }

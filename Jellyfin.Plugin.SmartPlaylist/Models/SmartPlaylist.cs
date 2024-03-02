@@ -1,80 +1,84 @@
-using Jellyfin.Data.Enums;
-using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Containers;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Ordering;
-
 namespace Jellyfin.Plugin.SmartPlaylist.Models;
 
-public class SmartPlaylist {
-    public Guid? Id { get; set; }
+public class SmartPlaylist
+{
+	public Guid? Id { get; set; }
 
-    public string? Name { get; set; }
+	public string? Name { get; set; }
 
-    public string? FileName { get; set; }
+	public string? FileName { get; set; }
 
-    public string? User { get; set; }
+	public string? User { get; set; }
 
-    public IReadOnlyList<ExpressionSet> ExpressionSets { get; set; }
+	public IReadOnlyList<ExpressionSet> ExpressionSets { get; set; }
 
-    public int MaxItems { get; set; }
+	public int MaxItems { get; set; }
 
-    public bool      IsReadonly { get; set; }
+	public bool IsReadonly { get; set; }
 
-    public MatchMode Match      { get; set; }
+	public MatchMode Match { get; set; }
 
-    public OrderStack Order { get; set; }
+	public OrderStack Order { get; set; }
 
-    public BaseItemKind[] SupportedItems { get; set; }
+	public BaseItemKind[] SupportedItems { get; set; }
 
-    public CompiledPlaylistExpressionSets? CompiledPlaylistExpressionSets { get; set; }
-    public SmartPlaylistDto                Dto                            { get; set; }
+	public CompiledPlaylistExpressionSets? CompiledPlaylistExpressionSets { get; set; }
 
-    public SmartPlaylist(SmartPlaylistDto dto) {
-        Dto            = dto;
-        Id             = dto.Id;
-        Name           = dto.Name;
-        FileName       = dto.FileName;
-        User           = dto.User;
-        MaxItems       = dto.MaxItems;
-        SupportedItems = dto.SupportedItems;
-        IsReadonly     = dto.IsReadonly;
-        Match          = dto.Match;
+	public SmartPlaylistDto Dto { get; set; }
 
-        Order          = GenerateOrderStack(dto.Order);
-        ExpressionSets = RulesCompiler.FixRuleSets(dto.ExpressionSets);
-    }
+	public SmartPlaylist(SmartPlaylistDto dto)
+	{
+		Dto            = dto;
+		Id             = dto.Id;
+		Name           = dto.Name;
+		FileName       = dto.FileName;
+		User           = dto.User;
+		MaxItems       = dto.MaxItems;
+		SupportedItems = dto.SupportedItems;
+		IsReadonly     = dto.IsReadonly;
+		Match          = dto.Match;
 
-    private static OrderStack GenerateOrderStack(OrderByDto? dtoOrder) {
-        if (dtoOrder is null) {
-            return OrderManager.Default;
-        }
+		Order          = GenerateOrderStack(dto.Order);
+		ExpressionSets = RulesCompiler.FixRuleSets(dto.ExpressionSets);
+	}
 
-        return new(dtoOrder.Select(OrderManager.GetOrder).ToArray());
-    }
+	private static OrderStack GenerateOrderStack(OrderByDto? dtoOrder)
+	{
+		if (dtoOrder is null)
+		{
+			return OrderManager.Default;
+		}
 
-    internal CompiledPlaylistExpressionSets CompilePlaylistExpressionSets() {
-        CompiledPlaylistExpressionSets compiledPlaylistExpressionSets = new ();
+		return new(dtoOrder.Select(OrderManager.GetOrder).ToArray());
+	}
 
-        foreach (var set in ExpressionSets) {
-            var listOfCompiledExpressions = set.Expressions.Where(a => !a.IsInValid)
-                          .Select(RulesCompiler.CompileRule<Operand>)
-                          .ToList();
+	internal CompiledPlaylistExpressionSets CompilePlaylistExpressionSets()
+	{
+		CompiledPlaylistExpressionSets compiledPlaylistExpressionSets = new();
 
-            compiledPlaylistExpressionSets.CompiledExpressionSets.Add(new(set.Match, listOfCompiledExpressions));
-        }
+		foreach (var set in ExpressionSets)
+		{
+			var listOfCompiledExpressions = set.Expressions.Where(a => !a.IsInValid)
+											   .Select(RulesCompiler.CompileRule<Operand>)
+											   .ToList();
 
-        return compiledPlaylistExpressionSets;
-    }
+			compiledPlaylistExpressionSets.CompiledExpressionSets.Add(new(set.Match, listOfCompiledExpressions));
+		}
 
-    internal List<CompiledExpressionSet<Operand>> GetCompiledRules() {
-        if (CompiledPlaylistExpressionSets is not null) {
-            return CompiledPlaylistExpressionSets.CompiledExpressionSets;
-        }
+		return compiledPlaylistExpressionSets;
+	}
 
-        CompiledPlaylistExpressionSets = CompilePlaylistExpressionSets();
+	internal List<CompiledExpressionSet<Operand>> GetCompiledRules()
+	{
+		if (CompiledPlaylistExpressionSets is not null)
+		{
+			return CompiledPlaylistExpressionSets.CompiledExpressionSets;
+		}
 
-        return CompiledPlaylistExpressionSets!.CompiledExpressionSets;
-    }
+		CompiledPlaylistExpressionSets = CompilePlaylistExpressionSets();
 
-    public Sorter GetSorter() => new(this);
+		return CompiledPlaylistExpressionSets!.CompiledExpressionSets;
+	}
+
+	public Sorter GetSorter() => new(this);
 }

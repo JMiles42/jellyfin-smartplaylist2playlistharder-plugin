@@ -2,5 +2,5 @@
 
 public class CompiledPlaylistExpressionSets
 {
-    public List<CompiledExpressionSet<Operand>> CompiledExpressionSets { get; set; } = new();
+	public List<CompiledExpressionSet<Operand>> CompiledExpressionSets { get; set; } = new();
 }

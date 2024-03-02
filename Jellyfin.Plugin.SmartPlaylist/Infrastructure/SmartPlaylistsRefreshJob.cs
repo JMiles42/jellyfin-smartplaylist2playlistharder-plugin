@@ -1,10 +1,4 @@
-﻿using Jellyfin.Data.Entities;
-using Jellyfin.Data.Enums;
-using Jellyfin.Plugin.SmartPlaylist.Models;
-using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
-using MediaBrowser.Controller.Entities;
-using MediaBrowser.Controller.Library;
-using MediaBrowser.Controller.Playlists;
+﻿using MediaBrowser.Controller.Playlists;
 using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Playlists;
@@ -38,32 +32,37 @@ public class SmartPlaylistsRefreshJob
 	public BaseItemKind[]? Kinds => SmartPlaylistDto?.SupportedItems;
 
 	public SmartPlaylistsRefreshJob(PlaylistProcessRunData            playlistProcessRunData,
-									ILogger<SmartPlaylistsRefreshJob> logger) {
+									ILogger<SmartPlaylistsRefreshJob> logger)
+	{
 		_logger = logger;
 
 		PlaylistProcessRunData = playlistProcessRunData;
 		SmartPlaylistDto       = playlistProcessRunData.SmartPlaylist;
 		PlaylistId             = playlistProcessRunData.SmartPlaylist?.Id;
 
-		if (PlaylistProcessRunData.ErrorDetails is not null) {
+		if (PlaylistProcessRunData.ErrorDetails is not null)
+		{
 			SetError("Parsing Error", PlaylistProcessRunData.ErrorDetails);
+
 			return;
 		}
 
-		if (SmartPlaylistDto?.IsReadonly is true) {
+		if (SmartPlaylistDto?.IsReadonly is true)
+		{
 			SetError("File is Readonly");
 		}
-
 	}
 
-	private void SetError(string errorDetails, Exception? exception = null) {
+	private void SetError(string errorDetails, Exception? exception = null)
+	{
 		ProcessErrors.Add(new(errorDetails, exception));
 		HasErrors = true;
 	}
 
-
-	public void SetUser(IUserManager userManager) {
-		if (string.IsNullOrEmpty(PlaylistProcessRunData.SmartPlaylist?.User)) {
+	public void SetUser(IUserManager userManager)
+	{
+		if (string.IsNullOrEmpty(PlaylistProcessRunData.SmartPlaylist?.User))
+		{
 			SetError("Error User is null or empty, cannot process playlist.");
 
 			return;
@@ -71,38 +70,46 @@ public class SmartPlaylistsRefreshJob
 
 		var username = PlaylistProcessRunData.SmartPlaylist.User!;
 
-		try {
+		try
+		{
 			var user = userManager.GetUserByName(username);
 
-			if (user is null) {
+			if (user is null)
+			{
 				SetError($"Error User {username} does not exist, cannot process playlist.");
 			}
 
 			User = user;
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			SetError($"Error when looking for User '{username}' cannot process playlist.", e);
 		}
 	}
 
 	public JobGrouping GetGrouping() => JobGrouping ??= new(User, Kinds);
 
-	public void BuildPlaylist(Playlist[] userPlaylists) {
-		if (HasErrors) {
+	public void BuildPlaylist(Playlist[] userPlaylists)
+	{
+		if (HasErrors)
+		{
 			return;
 		}
 
-		if (SmartPlaylistDto is null) {
+		if (SmartPlaylistDto is null)
+		{
 			return;
 		}
 
 		Models.SmartPlaylist pl;
 
-		try {
+		try
+		{
 			pl                                = new(SmartPlaylistDto);
 			pl.CompiledPlaylistExpressionSets = pl.CompilePlaylistExpressionSets();
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			SetError("Playlist failed to compile", ex);
 
 			_logger.LogError(ex, "Error parsing rules for {FileId}", FileId);
@@ -110,10 +117,12 @@ public class SmartPlaylistsRefreshJob
 			return;
 		}
 
-		try {
+		try
+		{
 			Sorter = pl.GetSorter();
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			SetError("Playlist failed to get sorter", ex);
 
 			_logger.LogError(ex, "Error parsing rules for {FileId}", FileId);
@@ -121,95 +130,114 @@ public class SmartPlaylistsRefreshJob
 			return;
 		}
 
-		try {
+		try
+		{
 			JellyfinPlaylist = userPlaylists.FirstOrDefault(a => a.Id == PlaylistId);
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			SetError("Error finding the playlist");
 
 			_logger.LogError(ex, "Error finding Jellyfin Playlist {FileId}", FileId);
-
-			return;
 		}
 	}
 
-	public void ProcessItem(Operand item) {
-		if (HasErrors) {
+	public void ProcessItem(Operand item)
+	{
+		if (HasErrors)
+		{
 			return;
 		}
 
-		try {
+		try
+		{
 			Sorter?.SortItem(item);
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			SetError($"Error sorting item {item.Name}", e);
 		}
 	}
 
-	public BaseItem[] GetItems() {
-		if (HasErrors) {
+	public BaseItem[] GetItems()
+	{
+		if (HasErrors)
+		{
 			return Array.Empty<BaseItem>();
 		}
 
-		if (Sorter is null) {
+		if (Sorter is null)
+		{
 			return Array.Empty<BaseItem>();
 		}
 
-		if (SmartPlaylistDto?.MaxItems > 0) {
+		if (SmartPlaylistDto?.MaxItems > 0)
+		{
 			return Sorter.GetResults().Take(SmartPlaylistDto.MaxItems).ToArray();
 		}
 
 		return Sorter.GetResults().ToArray();
 	}
 
-
-	public async Task CreateOrUpdatePlaylist(IPlaylistManager playlistManager,
-											 IProviderManager providerManager,
-											 IFileSystem      fileSystem,
-											 BaseItem[]       items,
-											 CancellationToken token) {
-		if (HasErrors) {
+	public async Task CreateOrUpdatePlaylist(IPlaylistManager  playlistManager,
+											 IProviderManager  providerManager,
+											 IFileSystem       fileSystem,
+											 BaseItem[]        items,
+											 CancellationToken token)
+	{
+		if (HasErrors)
+		{
 			return;
 		}
 
-		if (SmartPlaylistDto is null) {
+		if (SmartPlaylistDto is null)
+		{
 			return;
 		}
 
-		if (User is null) {
+		if (User is null)
+		{
 			return;
 		}
 
 
-		if (JellyfinPlaylist is null) {
-			try {
+		if (JellyfinPlaylist is null)
+		{
+			try
+			{
 				_logger.LogInformation("Creating and Saving Playlist {FileId}", FileId);
 
-				var req = new PlaylistCreationRequest {
-						Name       = SmartPlaylistDto.Name,
-						UserId     = User.Id,
-						ItemIdList = items.Select(baseItem => baseItem.Id).ToArray(),
+				var req = new PlaylistCreationRequest
+				{
+					Name       = SmartPlaylistDto.Name,
+					UserId     = User.Id,
+					ItemIdList = items.Select(baseItem => baseItem.Id).ToArray(),
 				};
 
 				var foo = await playlistManager.CreatePlaylist(req);
-				PlaylistId = Guid.Parse(foo.Id);
+				PlaylistId          = Guid.Parse(foo.Id);
 				SmartPlaylistDto.Id = PlaylistId;
 
 
-				if (string.IsNullOrEmpty(SmartPlaylistDto.FileName)) {
+				if (string.IsNullOrEmpty(SmartPlaylistDto.FileName))
+				{
 					SetError("Error filename is null, cannot save playlist to disk");
 				}
-				else {
+				else
+				{
 					_logger.LogInformation("Saving playlist {FileId}", FileId);
 					SmartPlaylistManager.SavePlaylist(SmartPlaylistDto.FileName, SmartPlaylistDto);
 				}
 			}
-			catch (Exception e) {
+			catch (Exception e)
+			{
 				SetError($"Error creating Playlist {FileId}", e);
 			}
 		}
-		else {
-			try {
+		else
+		{
+			try
+			{
 				_logger.LogInformation("Clearing and adding {Number} files to existing playlist: {FileId}",
 									   items.Length,
 									   FileId);
@@ -221,13 +249,14 @@ public class SmartPlaylistsRefreshJob
 									  .ConfigureAwait(false);
 
 				providerManager.QueueRefresh(JellyfinPlaylist.Id,
-											 new(new DirectoryService(fileSystem)) {
-													 ForceSave        = true,
-													 ImageRefreshMode = MetadataRefreshMode.FullRefresh,
+											 new(new DirectoryService(fileSystem))
+											 {
+												 ForceSave = true, ImageRefreshMode = MetadataRefreshMode.FullRefresh,
 											 },
 											 RefreshPriority.High);
 			}
-			catch (Exception e) {
+			catch (Exception e)
+			{
 				SetError($"Error updating Playlist {FileId}", e);
 			}
 		}

@@ -1,103 +1,118 @@
-﻿using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
-using System.Text.Json.Serialization;
-using static System.Text.Json.JsonSerializer;
+﻿using static System.Text.Json.JsonSerializer;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
 
 public class OrderByDtoJsonConverter: JsonConverter<OrderByDto>
 {
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    /// <inheritdoc />
-    public override OrderByDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
-        if (!JsonDocument.TryParseValue(ref reader, out var doc)) {
-            return null;
-        }
+	/// <exception cref="ArgumentOutOfRangeException"></exception>
+	/// <inheritdoc />
+	public override OrderByDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		if (!JsonDocument.TryParseValue(ref reader, out var doc))
+		{
+			return null;
+		}
 
-        switch (doc.RootElement.ValueKind) {
-            case JsonValueKind.Object: return ProcessObject(doc, options);
-            case JsonValueKind.Array:  return ProcessArray(doc, options);
-            case JsonValueKind.String: return ProcessString(doc, options);
-        }
+		switch (doc.RootElement.ValueKind)
+		{
+			case JsonValueKind.Object: return ProcessObject(doc, options);
+			case JsonValueKind.Array:  return ProcessArray(doc, options);
+			case JsonValueKind.String: return ProcessString(doc, options);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    private static OrderByDto ProcessObject(JsonDocument document, JsonSerializerOptions options) {
-        string     name;
-        if (document.RootElement.TryGetProperty(nameof(OrderByDto.Name), out var nameElement)) {
-            name = nameElement.GetString();
-        }
-        else {
-            return null;
-        }
-        OrderByDto result = new() {
-                Name = name,
-                Ascending = true,
-        };
+	private static OrderByDto ProcessObject(JsonDocument document, JsonSerializerOptions options)
+	{
+		string name;
 
-        if (document.RootElement.TryGetProperty(nameof(OrderByDto.Ascending), out var ascendingElement)) {
-            result.Ascending = ascendingElement.GetBoolean();
-        }
+		if (document.RootElement.TryGetProperty(nameof(OrderByDto.Name), out var nameElement))
+		{
+			name = nameElement.GetString();
+		}
+		else
+		{
+			return null;
+		}
 
-        if (document.RootElement.TryGetProperty(nameof(OrderByDto.ThenBy), out var thenByElement)) {
-            foreach (var orderByElement in thenByElement.EnumerateArray()) {
-                var orderByParsed = orderByElement.Deserialize<OrderDto>(options);
+		OrderByDto result = new() { Name = name, Ascending = true, };
 
-                if (orderByParsed is not null) {
-                    result.ThenBy.Add(orderByParsed);
-                }
-            }
-        }
+		if (document.RootElement.TryGetProperty(nameof(OrderByDto.Ascending), out var ascendingElement))
+		{
+			result.Ascending = ascendingElement.GetBoolean();
+		}
 
-        return result;
-    }
+		if (document.RootElement.TryGetProperty(nameof(OrderByDto.ThenBy), out var thenByElement))
+		{
+			foreach (var orderByElement in thenByElement.EnumerateArray())
+			{
+				var orderByParsed = orderByElement.Deserialize<OrderDto>(options);
 
-    private static OrderByDto ProcessString(JsonDocument document, JsonSerializerOptions options) =>
-            new() { Name = document.RootElement.GetString()! };
+				if (orderByParsed is not null)
+				{
+					result.ThenBy.Add(orderByParsed);
+				}
+			}
+		}
 
-    private static OrderByDto ProcessArray(JsonDocument doc, JsonSerializerOptions options) {
-        var rst      = new OrderByDto();
-        var elements = doc.RootElement.EnumerateArray().ToArray();
-        var first    = GetDto(elements.First(), options);
-        rst.Name      = first.Name;
-        rst.Ascending = first.Ascending;
+		return result;
+	}
 
-        foreach (var element in elements.Skip(1)) {
-            var ele = GetDto(element, options);
+	private static OrderByDto ProcessString(JsonDocument document, JsonSerializerOptions options) =>
+			new() { Name = document.RootElement.GetString()! };
 
-            if (ele is not null) {
-                rst.ThenBy.Add(ele);
-            }
-        }
+	private static OrderByDto ProcessArray(JsonDocument doc, JsonSerializerOptions options)
+	{
+		var rst      = new OrderByDto();
+		var elements = doc.RootElement.EnumerateArray().ToArray();
+		var first    = GetDto(elements.First(), options);
+		rst.Name      = first.Name;
+		rst.Ascending = first.Ascending;
 
-        return rst;
-    }
+		foreach (var element in elements.Skip(1))
+		{
+			var ele = GetDto(element, options);
 
-    private static OrderDto? GetDto(JsonElement element, JsonSerializerOptions options) {
-        if (element.ValueKind == JsonValueKind.Object) {
-            return element.Deserialize<OrderDto>(options);
-        }
+			if (ele is not null)
+			{
+				rst.ThenBy.Add(ele);
+			}
+		}
 
-        if (element.ValueKind == JsonValueKind.String) {
-            return new() { Name = element.GetString()! };
-        }
+		return rst;
+	}
 
-        return null;
-    }
+	private static OrderDto? GetDto(JsonElement element, JsonSerializerOptions options)
+	{
+		if (element.ValueKind == JsonValueKind.Object)
+		{
+			return element.Deserialize<OrderDto>(options);
+		}
 
-    /// <inheritdoc />
-    public override void Write(Utf8JsonWriter writer, OrderByDto value, JsonSerializerOptions options) {
-        writer.WriteStartArray();
+		if (element.ValueKind == JsonValueKind.String)
+		{
+			return new() { Name = element.GetString()! };
+		}
 
-        writer.WriteStartObject();
-        writer.WriteString(nameof(value.Name), value.Name);
-        writer.WriteBoolean(nameof(value.Ascending), value.Ascending);
-        writer.WriteEndObject();
+		return null;
+	}
 
-        foreach (var element in value.ThenBy) {
-            Serialize(writer, element, options);
-        }
+	/// <inheritdoc />
+	public override void Write(Utf8JsonWriter writer, OrderByDto value, JsonSerializerOptions options)
+	{
+		writer.WriteStartArray();
 
-        writer.WriteEndArray();
-    }
+		writer.WriteStartObject();
+		writer.WriteString(nameof(value.Name), value.Name);
+		writer.WriteBoolean(nameof(value.Ascending), value.Ascending);
+		writer.WriteEndObject();
+
+		foreach (var element in value.ThenBy)
+		{
+			Serialize(writer, element, options);
+		}
+
+		writer.WriteEndArray();
+	}
 }

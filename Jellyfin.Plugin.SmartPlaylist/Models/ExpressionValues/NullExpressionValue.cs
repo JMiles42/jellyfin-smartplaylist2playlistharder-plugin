@@ -2,6 +2,9 @@
 
 public record NullExpressionValue: ExpressionValue
 {
+
+	public static NullExpressionValue Instance { get; } = new();
+
 	/// <inheritdoc />
 	public override bool IsSingleValue => true;
 
@@ -9,9 +12,8 @@ public record NullExpressionValue: ExpressionValue
 	public override object SingleValue => null;
 
 	/// <inheritdoc />
-	public override IEnumerable<object> GetValues() {
+	public override IEnumerable<object> GetValues()
+	{
 		yield return null;
 	}
-
-	public static NullExpressionValue Instance { get; } = new ();
 }

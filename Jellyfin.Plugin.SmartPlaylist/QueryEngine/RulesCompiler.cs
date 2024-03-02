@@ -1,10 +1,4 @@
 ﻿using System.Linq.Expressions;
-using Jellyfin.Plugin.SmartPlaylist.Extensions;
-using Jellyfin.Plugin.SmartPlaylist.Models;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Containers;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine.RuleFixers;
-using linqExpression = System.Linq.Expressions.Expression;
 
 namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 
@@ -17,17 +11,20 @@ public class RulesCompiler
 	private static ParsedValueExpressions BuildExpr<T>(SmartPlExpression expression, ParameterExpression param) =>
 			GetExpression<T>(expression, param);
 
-	private static ParsedValueExpressions GetExpression<T>(SmartPlExpression r, ParameterExpression param) {
+	private static ParsedValueExpressions GetExpression<T>(SmartPlExpression r, ParameterExpression param)
+	{
 		var left = linqExpression.Property(param, r.MemberName.ToStringFast());
 
 		var tProp = typeof(T).GetProperty(r.MemberName.ToStringFast())?.PropertyType;
 		ArgumentNullException.ThrowIfNull(tProp);
 
 
-		foreach (var engineOperator in OperatorManager.EngineOperators) {
+		foreach (var engineOperator in OperatorManager.EngineOperators)
+		{
 			var opper = engineOperator.ValidateOperator<T>(r, left, param, tProp);
 
-			if (opper.Kind is not EngineOperatorResultKind.Success) {
+			if (opper.Kind is not EngineOperatorResultKind.Success)
+			{
 				continue;
 			}
 
@@ -39,29 +36,33 @@ public class RulesCompiler
 
 	private static bool JunkMethod<T>(T t) => false;
 
-	public static CompiledExpression<T> CompileRule<T>(SmartPlExpression plExpression) {
-		CompiledExpression<T> results = new() {
-				Match = plExpression.Match,
-		};
+	public static CompiledExpression<T> CompileRule<T>(SmartPlExpression plExpression)
+	{
+		CompiledExpression<T> results = new() { Match = plExpression.Match, };
 
-		if (plExpression.IsInValid) {
+		if (plExpression.IsInValid)
+		{
 			results.Add(new(JunkMethod, ParsedValueExpressionResult.Empty));
 
 			return results;
 		}
 
 		var sourceTypeParameter = linqExpression.Parameter(typeof(Operand));
-		var builtExpressionSet                = BuildExpr<T>(plExpression, sourceTypeParameter);
+		var builtExpressionSet  = BuildExpr<T>(plExpression, sourceTypeParameter);
 
-		foreach (var builtExpressionResult in builtExpressionSet) {
+		foreach (var builtExpressionResult in builtExpressionSet)
+		{
 			Func<T, bool> compiledValueChecker = JunkMethod;
-			Exception?    error              = null;
+			Exception?    error                = null;
 
-			try {
+			try
+			{
 				compiledValueChecker = linqExpression.Lambda<Func<T, bool>>(builtExpressionResult.Expression,
-																		  sourceTypeParameter).Compile();
+																			sourceTypeParameter)
+													 .Compile();
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				error = ex;
 			}
 
@@ -71,19 +72,23 @@ public class RulesCompiler
 		return results;
 	}
 
-	public static List<ExpressionSet>? FixRuleSets(List<ExpressionSet>? ruleSets) {
-		if (ruleSets is null) {
+	public static List<ExpressionSet>? FixRuleSets(List<ExpressionSet>? ruleSets)
+	{
+		if (ruleSets is null)
+		{
 			return null;
 		}
 
-		foreach (var rules in ruleSets) {
+		foreach (var rules in ruleSets)
+		{
 			FixRules(rules);
 		}
 
 		return ruleSets;
 	}
 
-	public static ExpressionSet FixRules(ExpressionSet rules) {
+	public static ExpressionSet FixRules(ExpressionSet rules)
+	{
 		ExpressionFixerManager.FixRules(rules.Expressions);
 
 		return rules;

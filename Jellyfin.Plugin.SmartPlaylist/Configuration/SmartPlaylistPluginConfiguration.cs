@@ -1,16 +1,17 @@
-using MediaBrowser.Model.Plugins;
-
 namespace Jellyfin.Plugin.SmartPlaylist.Configuration;
 
 /// <summary>
-/// Class PluginConfiguration
+///     Class PluginConfiguration
 /// </summary>
-public class SmartPlaylistPluginConfiguration : BasePluginConfiguration {
+public class SmartPlaylistPluginConfiguration: BasePluginConfiguration
+{
+
+	public int PlaylistSorterThreadCount { get; set; } = 10;
+
+	public bool PlaylistDetailedErrors { get; set; } = false;
+
 	/// <summary>
-	/// Initializes a new instance of the <see cref="SmartPlaylistPluginConfiguration"/> class.
+	///     Initializes a new instance of the <see cref="SmartPlaylistPluginConfiguration" /> class.
 	/// </summary>
 	public SmartPlaylistPluginConfiguration() { }
-
-	public int  PlaylistSorterThreadCount { get; set; } = 10;
-	public bool PlaylistDetailedErrors     { get; set; } = false;
 }

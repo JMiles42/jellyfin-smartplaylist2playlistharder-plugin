@@ -1,6 +1,4 @@
-﻿using Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
-using MediaBrowser.Controller;
-using MediaBrowser.Controller.Library;
+﻿using MediaBrowser.Controller;
 using MediaBrowser.Controller.Playlists;
 using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
@@ -18,14 +16,15 @@ public class SmartPlaylistsRefreshAll
 	private readonly IServerApplicationPaths _serverApplicationPaths;
 	private readonly ILoggerFactory          _loggerFactory;
 
-	public SmartPlaylistsRefreshAll(IFileSystem                      fileSystem,
-									ILibraryManager                  libraryManager,
-									IPlaylistManager                 playlistManager,
-									IProviderManager                 providerManager,
-									IServerApplicationPaths          serverApplicationPaths,
-									IUserManager                     userManager,
-									ILoggerFactory loggerFactory,
-									ILogger<SmartPlaylistsRefreshAll> logger) {
+	public SmartPlaylistsRefreshAll(IFileSystem                       fileSystem,
+									ILibraryManager                   libraryManager,
+									IPlaylistManager                  playlistManager,
+									IProviderManager                  providerManager,
+									IServerApplicationPaths           serverApplicationPaths,
+									IUserManager                      userManager,
+									ILoggerFactory                    loggerFactory,
+									ILogger<SmartPlaylistsRefreshAll> logger)
+	{
 		_fileSystem             = fileSystem;
 		_libraryManager         = libraryManager;
 		_logger                 = logger;
@@ -36,28 +35,36 @@ public class SmartPlaylistsRefreshAll
 		_serverApplicationPaths = serverApplicationPaths;
 	}
 
-	public async Task ExecuteAsync(IProgress<double> progress, CancellationToken cancellationToken) {
+	public async Task ExecuteAsync(IProgress<double> progress, CancellationToken cancellationToken)
+	{
 		var folder = Path.Combine(_serverApplicationPaths.DataPath, "smartplaylists");
 		var dtos   = SmartPlaylistManager.GetAllPlaylists(folder).ToArray();
-		var jobs   = dtos.Select(d => new SmartPlaylistsRefreshJob(d, _loggerFactory.CreateLogger<SmartPlaylistsRefreshJob>())).ToArray();
 
-		foreach (var job in jobs) {
+		var jobs = dtos
+				   .Select(d => new SmartPlaylistsRefreshJob(d,
+															 _loggerFactory.CreateLogger<SmartPlaylistsRefreshJob>()))
+				   .ToArray();
+
+		foreach (var job in jobs)
+		{
 			job.SetUser(_userManager);
 		}
 
 		var jobGroups = jobs.GroupBy(a => a.GetGrouping()).ToArray();
 
-		var tracker = new ProgressTracker(progress) {
-				Length = jobGroups.Length,
-		};
+		var tracker = new ProgressTracker(progress) { Length = jobGroups.Length, };
 
-		foreach (var group in jobGroups) {
+		foreach (var group in jobGroups)
+		{
 			cancellationToken.ThrowIfCancellationRequested();
 
-			if (group.Key.User is null || group.Key.Kinds is null) {
-				foreach (var job in group) {
+			if (group.Key.User is null || group.Key.Kinds is null)
+			{
+				foreach (var job in group)
+				{
 					SmartPlaylistManager.SetErrorStatus(job.FileId, jobProcessErrors: job.ProcessErrors);
 				}
+
 				continue;
 			}
 

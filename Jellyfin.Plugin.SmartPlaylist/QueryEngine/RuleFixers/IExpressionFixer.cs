@@ -1,6 +1,4 @@
-﻿using Jellyfin.Plugin.SmartPlaylist.Models;
-
-namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.RuleFixers;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.RuleFixers;
 
 public interface IExpressionFixer
 {

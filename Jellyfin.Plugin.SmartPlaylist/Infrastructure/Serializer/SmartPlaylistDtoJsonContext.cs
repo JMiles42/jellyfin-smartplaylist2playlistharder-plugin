@@ -1,22 +1,26 @@
-﻿using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
-using System.Text.Json.Serialization;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
 
-namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
-
-[JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Default, WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault)]
+[JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Default,
+							 WriteIndented = true,
+							 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault)]
 [JsonSerializable(typeof(SmartPlaylistDto))]
-public partial class SmartPlaylistDtoJsonContext : JsonSerializerContext
+public partial class SmartPlaylistDtoJsonContext: JsonSerializerContext
 {
-	public static SmartPlaylistDtoJsonContext WithConverters = new(new() {
-			Converters = {
-					new JsonStringEnumConverter(allowIntegerValues:true),
-					new ExpressionValueJsonConverter(),
-					new OrderByDtoJsonConverter(),
-					new OrderDtoJsonConverter(),
-					new GuidConverter(),
-					new GuidNullableConverter(),
-			},
-			WriteIndented = true,
-			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+	public static SmartPlaylistDtoJsonContext WithConverters = new(new()
+	{
+		Converters =
+		{
+			new
+					JsonStringEnumConverter(allowIntegerValues
+											: true),
+			new ExpressionValueJsonConverter(),
+			new OrderByDtoJsonConverter(),
+			new OrderDtoJsonConverter(),
+			new GuidConverter(),
+			new GuidNullableConverter(),
+		},
+		WriteIndented = true,
+		DefaultIgnoreCondition =
+				JsonIgnoreCondition.WhenWritingDefault,
 	});
 }

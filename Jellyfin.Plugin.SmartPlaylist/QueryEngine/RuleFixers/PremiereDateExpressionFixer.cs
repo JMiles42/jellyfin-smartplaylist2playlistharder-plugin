@@ -1,50 +1,56 @@
-﻿using Jellyfin.Plugin.SmartPlaylist.Models;
-using System.Globalization;
-using Jellyfin.Plugin.SmartPlaylist.Models.ExpressionValues;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.RuleFixers;
 
-namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.RuleFixers;
-
-public class PremiereDateExpressionFixer: IExpressionFixer {
+public class PremiereDateExpressionFixer: IExpressionFixer
+{
 
 	/// <inheritdoc />
-	public void FixExpression(SmartPlExpression expression) {
-		if (!expression.TargetValue.IsSingleValue) {
+	public void FixExpression(SmartPlExpression expression)
+	{
+		if (!expression.TargetValue.IsSingleValue)
+		{
 			return;
 		}
 
 		DateTime rst;
 
-		switch (expression.TargetValue) {
-			case ExpressionValue<DateTime> ev: {
+		switch (expression.TargetValue)
+		{
+			case ExpressionValue<DateTime> ev:
+			{
 				rst = ev.Value;
 
 				break;
 			}
 
-			case ExpressionValueList<DateTime> ev: {
+			case ExpressionValueList<DateTime> ev:
+			{
 				rst = ev.Value.First();
 
 				break;
 			}
-			case ExpressionValue<DateOnly> ev: {
+			case ExpressionValue<DateOnly> ev:
+			{
 				rst = ev.Value.ToDateTime(TimeOnly.MinValue);
 
 				break;
 			}
 
-			case ExpressionValueList<DateOnly> ev: {
+			case ExpressionValueList<DateOnly> ev:
+			{
 				rst = ev.Value.First().ToDateTime(TimeOnly.MinValue);
 
 				break;
 			}
 
-			case ExpressionValue<string> ev: {
+			case ExpressionValue<string> ev:
+			{
 				rst = DateTime.Parse(ev.Value);
 
 				break;
 			}
 
-			case ExpressionValueList<string> { IsSingleValue: true } ev: {
+			case ExpressionValueList<string> { IsSingleValue: true } ev:
+			{
 				rst = DateTime.Parse(ev.Value.First());
 
 				break;

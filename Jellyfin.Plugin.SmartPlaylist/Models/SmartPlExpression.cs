@@ -1,69 +1,69 @@
-﻿using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
-using Jellyfin.Plugin.SmartPlaylist.Models.ExpressionValues;
-
-namespace Jellyfin.Plugin.SmartPlaylist.Models;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.Models;
 
 public class SmartPlExpression
 {
-    public OperandMember MemberName { get; set; }
 
-    [JsonIgnore]
-    [IgnoreDataMember]
-    private string _operator;
+	public static SmartPlExpression Empty = new(OperandMember.Name,
+												"IfYouSeeThisSomethingHasGoneWrong",
+												NullExpressionValue.Instance);
 
-    public string Operator {
-        get => _operator;
-        set {
-            _operator       = value;
-            OperatorAsLower = value.ToLower();
-        }
-    }
+	[JsonIgnore]
+	[IgnoreDataMember]
+	private string _operator;
 
-    [JsonIgnore]
-    [IgnoreDataMember]
-    public string OperatorAsLower { get; private set; }
+	public OperandMember MemberName { get; set; }
 
-    public ExpressionValue TargetValue { get; set; }
+	public string Operator
+	{
+		get => _operator;
+		set
+		{
+			_operator       = value;
+			OperatorAsLower = value.ToLower();
+		}
+	}
 
-    public bool InvertResult { get; set; }
+	[JsonIgnore]
+	[IgnoreDataMember]
+	public string OperatorAsLower { get; private set; }
 
-    public StringComparison StringComparison { get; set; }
+	public ExpressionValue TargetValue { get; set; }
 
-    public MatchMode Match { get; set; }
+	public bool InvertResult { get; set; }
 
-    public string? TypeOverride { get; set; }
+	public StringComparison StringComparison { get; set; }
 
-    [JsonIgnore]
-    [IgnoreDataMember]
-    public bool IsInValid { get; }
+	public MatchMode Match { get; set; }
 
-    public SmartPlExpression(OperandMember    memberName,
-                             string           @operator,
-                             ExpressionValue  targetValue,
-                             MatchMode        match            = MatchMode.Any,
-                             bool             invertResult     = false,
-                             StringComparison stringComparison = StringComparison.CurrentCulture,
-                             string?           typeOverride     = null
-                             ) {
-        //Make nullable happy
-        _operator        = string.Empty;
-        OperatorAsLower  = string.Empty;
-        //Make nullable happy
+	public string? TypeOverride { get; set; }
 
-        MemberName = memberName;
-        Operator         = @operator;
-        TargetValue      = targetValue;
-        TypeOverride     = typeOverride;
-        InvertResult     = invertResult;
-        StringComparison = stringComparison;
-        Match            = match;
-        IsInValid        = MemberName == OperandMember.Invalid;
-    }
+	[JsonIgnore]
+	[IgnoreDataMember]
+	public bool IsInValid { get; }
 
-    /// <inheritdoc />
-    public override string ToString() => $"{MemberName} {(InvertResult? "!" : "")}'{Operator}' {TargetValue}";
+	public SmartPlExpression(OperandMember    memberName,
+							 string           @operator,
+							 ExpressionValue  targetValue,
+							 MatchMode        match            = MatchMode.Any,
+							 bool             invertResult     = false,
+							 StringComparison stringComparison = StringComparison.CurrentCulture,
+							 string?          typeOverride     = null)
+	{
+		//Make nullable happy
+		_operator       = string.Empty;
+		OperatorAsLower = string.Empty;
+		//Make nullable happy
 
+		MemberName       = memberName;
+		Operator         = @operator;
+		TargetValue      = targetValue;
+		TypeOverride     = typeOverride;
+		InvertResult     = invertResult;
+		StringComparison = stringComparison;
+		Match            = match;
+		IsInValid        = MemberName == OperandMember.Invalid;
+	}
 
-    public static SmartPlExpression Empty = new (OperandMember.Name, "IfYouSeeThisSomethingHasGoneWrong", NullExpressionValue.Instance);
+	/// <inheritdoc />
+	public override string ToString() => $"{MemberName} {(InvertResult? "!" : "")}'{Operator}' {TargetValue}";
 }

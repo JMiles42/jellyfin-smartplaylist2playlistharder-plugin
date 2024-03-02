@@ -1,6 +1,4 @@
-﻿using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
-
-namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
 
 public record PlaylistProcessRunData(SmartPlaylistDto? SmartPlaylist, string FileId, Exception? ErrorDetails)
 {
