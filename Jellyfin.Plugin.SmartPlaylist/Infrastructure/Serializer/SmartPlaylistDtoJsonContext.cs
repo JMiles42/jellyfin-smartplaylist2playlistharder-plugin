@@ -10,17 +10,14 @@ public partial class SmartPlaylistDtoJsonContext: JsonSerializerContext
 	{
 		Converters =
 		{
-			new
-					JsonStringEnumConverter(allowIntegerValues
-											: true),
+			new JsonStringEnumConverter(allowIntegerValues: true),
 			new ExpressionValueJsonConverter(),
 			new OrderByDtoJsonConverter(),
 			new OrderDtoJsonConverter(),
 			new GuidConverter(),
 			new GuidNullableConverter(),
 		},
-		WriteIndented = true,
-		DefaultIgnoreCondition =
-				JsonIgnoreCondition.WhenWritingDefault,
+		WriteIndented          = true,
+		DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
 	});
 }

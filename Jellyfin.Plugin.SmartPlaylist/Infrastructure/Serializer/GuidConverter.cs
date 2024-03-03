@@ -6,11 +6,13 @@ public class GuidConverter: JsonConverter<Guid>
 {
 
 	/// <inheritdoc />
-	public override Guid Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+	public override Guid Read(ref Utf8JsonReader reader, Type typeToConvert,
+							  JsonSerializerOptions options) =>
 			Guid.Parse(reader.GetString());
 
 	/// <inheritdoc />
-	public override void Write(Utf8JsonWriter writer, Guid value, JsonSerializerOptions options) =>
+	public override void Write(Utf8JsonWriter writer, Guid value,
+							   JsonSerializerOptions options) =>
 			writer.WriteStringValue(value.ToString());
 }
 
@@ -18,7 +20,9 @@ public class GuidNullableConverter: JsonConverter<Guid?>
 {
 
 	/// <inheritdoc />
-	public override Guid? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	public override Guid? Read(ref Utf8JsonReader    reader,
+							   Type                  typeToConvert,
+							   JsonSerializerOptions options)
 	{
 		if (reader.TokenType == JsonTokenType.Null)
 		{
@@ -29,6 +33,8 @@ public class GuidNullableConverter: JsonConverter<Guid?>
 	}
 
 	/// <inheritdoc />
-	public override void Write(Utf8JsonWriter writer, Guid? value, JsonSerializerOptions options) =>
+	public override void Write(Utf8JsonWriter        writer,
+							   Guid?                 value,
+							   JsonSerializerOptions options) =>
 			Serialize(writer, value);
 }

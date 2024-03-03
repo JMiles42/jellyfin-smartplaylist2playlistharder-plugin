@@ -4,24 +4,26 @@ public class OrderDtoJsonConverter: JsonConverter<OrderDto>
 {
 	/// <exception cref="ArgumentOutOfRangeException"></exception>
 	/// <inheritdoc />
-	public override OrderDto? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	public override OrderDto? Read(ref Utf8JsonReader    reader,
+								   Type                  typeToConvert,
+								   JsonSerializerOptions options)
 	{
 		if (!JsonDocument.TryParseValue(ref reader, out var doc))
 		{
 			return null;
 		}
 
-		switch (doc.RootElement.ValueKind)
+		return doc.RootElement.ValueKind switch
 		{
-			case JsonValueKind.Object: return ProcessObject(doc, options);
-			case JsonValueKind.Array:  return ProcessArray(doc, options);
-			case JsonValueKind.String: return ProcessString(doc, options);
-		}
-
-		return null;
+			JsonValueKind.Object => ProcessObject(doc, options),
+			JsonValueKind.Array  => ProcessArray(doc, options),
+			JsonValueKind.String => ProcessString(doc, options),
+			_                    => null,
+		};
 	}
 
-	private static OrderDto ProcessObject(JsonDocument document, JsonSerializerOptions jsonSerializerOptions)
+	private static OrderDto ProcessObject(JsonDocument          document,
+										  JsonSerializerOptions jsonSerializerOptions)
 	{
 		var name = document.RootElement.GetProperty(nameof(OrderDto.Name)).GetString()!;
 
@@ -34,10 +36,12 @@ public class OrderDtoJsonConverter: JsonConverter<OrderDto>
 		return new() { Name = name, };
 	}
 
-	private static OrderDto ProcessString(JsonDocument document, JsonSerializerOptions jsonSerializerOptions) =>
+	private static OrderDto ProcessString(JsonDocument          document,
+										  JsonSerializerOptions jsonSerializerOptions) =>
 			new() { Name = document.RootElement.GetString()! };
 
-	private static OrderDto? ProcessArray(JsonDocument doc, JsonSerializerOptions jsonSerializerOptions)
+	private static OrderDto? ProcessArray(JsonDocument          doc,
+										  JsonSerializerOptions jsonSerializerOptions)
 	{
 		if (doc.RootElement.GetArrayLength() <= 2)
 		{
@@ -52,7 +56,8 @@ public class OrderDtoJsonConverter: JsonConverter<OrderDto>
 			   GetOrderDtoFrom2LengthArray(second, first);
 	}
 
-	private static OrderDto? GetOrderDtoFrom2LengthArray(JsonElement first, JsonElement second)
+	private static OrderDto? GetOrderDtoFrom2LengthArray(JsonElement first,
+														 JsonElement second)
 	{
 		if (first.ValueKind is JsonValueKind.String && second.ValueKind is JsonValueKind.False or JsonValueKind.True)
 		{
@@ -63,7 +68,9 @@ public class OrderDtoJsonConverter: JsonConverter<OrderDto>
 	}
 
 	/// <inheritdoc />
-	public override void Write(Utf8JsonWriter writer, OrderDto value, JsonSerializerOptions options)
+	public override void Write(Utf8JsonWriter        writer,
+							   OrderDto              value,
+							   JsonSerializerOptions options)
 	{
 		writer.WriteStartObject();
 		writer.WriteString(nameof(value.Name), value.Name);

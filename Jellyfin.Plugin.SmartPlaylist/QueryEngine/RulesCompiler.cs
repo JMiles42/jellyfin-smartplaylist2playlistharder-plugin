@@ -4,11 +4,12 @@ namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 
 // This was based off of  https://stackoverflow.com/questions/6488034/how-to-implement-a-rule-engine
 // When first written in https://github.com/ankenyr/jellyfin-smartplaylist-plugin which this repo is a fork of
-public class RulesCompiler
+public static class RulesCompiler
 {
 	private static readonly OperatorManager OperatorManager = new();
 
-	private static ParsedValueExpressions BuildExpr<T>(SmartPlExpression expression, ParameterExpression param) =>
+	private static ParsedValueExpressions BuildExpr<T>(SmartPlExpression expression,
+													   ParameterExpression param) =>
 			GetExpression<T>(expression, param);
 
 	private static ParsedValueExpressions GetExpression<T>(SmartPlExpression r, ParameterExpression param)
@@ -21,9 +22,9 @@ public class RulesCompiler
 
 		foreach (var engineOperator in OperatorManager.EngineOperators)
 		{
-			var opper = engineOperator.ValidateOperator<T>(r, left, param, tProp);
+			var engineOperatorResult = engineOperator.ValidateOperator<T>(r, left, param, tProp);
 
-			if (opper.Kind is not EngineOperatorResultKind.Success)
+			if (engineOperatorResult.Kind is not EngineOperatorResultKind.Success)
 			{
 				continue;
 			}

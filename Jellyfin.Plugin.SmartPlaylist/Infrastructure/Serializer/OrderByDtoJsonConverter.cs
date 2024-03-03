@@ -6,7 +6,7 @@ public class OrderByDtoJsonConverter: JsonConverter<OrderByDto>
 {
 	/// <exception cref="ArgumentOutOfRangeException"></exception>
 	/// <inheritdoc />
-	public override OrderByDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	public override OrderByDto? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
 		if (!JsonDocument.TryParseValue(ref reader, out var doc))
 		{
@@ -23,13 +23,13 @@ public class OrderByDtoJsonConverter: JsonConverter<OrderByDto>
 		return null;
 	}
 
-	private static OrderByDto ProcessObject(JsonDocument document, JsonSerializerOptions options)
+	private static OrderByDto? ProcessObject(JsonDocument document, JsonSerializerOptions options)
 	{
 		string name;
 
 		if (document.RootElement.TryGetProperty(nameof(OrderByDto.Name), out var nameElement))
 		{
-			name = nameElement.GetString();
+			name = nameElement.GetString() ?? string.Empty;
 		}
 		else
 		{
@@ -43,32 +43,35 @@ public class OrderByDtoJsonConverter: JsonConverter<OrderByDto>
 			result.Ascending = ascendingElement.GetBoolean();
 		}
 
-		if (document.RootElement.TryGetProperty(nameof(OrderByDto.ThenBy), out var thenByElement))
+		if (!document.RootElement.TryGetProperty(nameof(OrderByDto.ThenBy), out var thenByElement))
 		{
-			foreach (var orderByElement in thenByElement.EnumerateArray())
-			{
-				var orderByParsed = orderByElement.Deserialize<OrderDto>(options);
+			return result;
+		}
 
-				if (orderByParsed is not null)
-				{
-					result.ThenBy.Add(orderByParsed);
-				}
+		foreach (var orderByElement in thenByElement.EnumerateArray())
+		{
+			var orderByParsed = orderByElement.Deserialize<OrderDto>(options);
+
+			if (orderByParsed is not null)
+			{
+				result.ThenBy.Add(orderByParsed);
 			}
 		}
 
 		return result;
 	}
 
-	private static OrderByDto ProcessString(JsonDocument document, JsonSerializerOptions options) =>
-			new() { Name = document.RootElement.GetString()! };
+	private static OrderByDto ProcessString(JsonDocument document,
+											JsonSerializerOptions options) =>
+			new() { Name = document.RootElement.GetString() ?? string.Empty };
 
 	private static OrderByDto ProcessArray(JsonDocument doc, JsonSerializerOptions options)
 	{
 		var rst      = new OrderByDto();
 		var elements = doc.RootElement.EnumerateArray().ToArray();
 		var first    = GetDto(elements.First(), options);
-		rst.Name      = first.Name;
-		rst.Ascending = first.Ascending;
+		rst.Name      = first?.Name ?? string.Empty;
+		rst.Ascending = first?.Ascending ?? true;
 
 		foreach (var element in elements.Skip(1))
 		{
@@ -83,20 +86,13 @@ public class OrderByDtoJsonConverter: JsonConverter<OrderByDto>
 		return rst;
 	}
 
-	private static OrderDto? GetDto(JsonElement element, JsonSerializerOptions options)
-	{
-		if (element.ValueKind == JsonValueKind.Object)
-		{
-			return element.Deserialize<OrderDto>(options);
-		}
-
-		if (element.ValueKind == JsonValueKind.String)
-		{
-			return new() { Name = element.GetString()! };
-		}
-
-		return null;
-	}
+	private static OrderDto? GetDto(JsonElement element, JsonSerializerOptions options) =>
+			element.ValueKind switch
+			{
+				JsonValueKind.Object => element.Deserialize<OrderDto>(options),
+				JsonValueKind.String => new() { Name = element.GetString() ?? string.Empty, },
+				_                    => null,
+			};
 
 	/// <inheritdoc />
 	public override void Write(Utf8JsonWriter writer, OrderByDto value, JsonSerializerOptions options)

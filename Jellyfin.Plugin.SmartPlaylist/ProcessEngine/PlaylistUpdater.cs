@@ -6,23 +6,23 @@ namespace Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
 
 public class PlaylistUpdater
 {
-	private readonly User              _user;
-	private readonly BaseItemKind[]    _supportedItems;
-	private readonly IFileSystem       _fileSystem;
-	private readonly ILibraryManager   _libraryManager;
-	private readonly ILogger           _logger;
-	private readonly IPlaylistManager  _playlistManager;
-	private readonly IProviderManager  _providerManager;
-	private readonly IProgress<double> _progress;
+	private readonly User                    _user;
+	private readonly BaseItemKind[]          _supportedItems;
+	private readonly IFileSystem             _fileSystem;
+	private readonly ILibraryManager         _libraryManager;
+	private readonly ILogger                 _logger;
+	private readonly IPlaylistManager        _playlistManager;
+	private readonly IProviderManager        _providerManager;
+	private          readonly ProgressTracker _progress;
 
-	public PlaylistUpdater(User              user,
-						   BaseItemKind[]    supportedItems,
-						   IFileSystem       fileSystem,
-						   ILibraryManager   libraryManager,
-						   IPlaylistManager  playlistManager,
-						   IProviderManager  providerManager,
-						   ILogger           logger,
-						   IProgress<double> progress)
+	public PlaylistUpdater(User             user,
+						   BaseItemKind[]   supportedItems,
+						   IFileSystem      fileSystem,
+						   ILibraryManager  libraryManager,
+						   IPlaylistManager playlistManager,
+						   IProviderManager providerManager,
+						   ILogger          logger,
+						   ProgressTracker  progress)
 	{
 		_user            = user;
 		_fileSystem      = fileSystem;
@@ -36,8 +36,11 @@ public class PlaylistUpdater
 
 	private IReadOnlyList<BaseItem> GetAllUserMedia()
 	{
-		var query =
-				new InternalItemsQuery(_user) { IncludeItemTypes = _supportedItems, Recursive = true, };
+		var query = new InternalItemsQuery(_user)
+		{
+			IncludeItemTypes = _supportedItems,
+			Recursive = true,
+		};
 
 		return _libraryManager.GetItemsResult(query).Items;
 	}
@@ -45,37 +48,42 @@ public class PlaylistUpdater
 	public async Task ProcessPlaylists(IEnumerable<SmartPlaylistsRefreshJob> jobsIn,
 									   CancellationToken                     cancellationToken)
 	{
+
 		var jobs          = jobsIn.ToArray();
 		var userPlaylists = GetUserPlaylists().ToArray();
+		var items         = GetAllUserMedia();
+
+		//Set the percent to calculate all items though all playlists
+		var totalThingsToProcess = items.Count * jobs.Length;
+
+		//Add Each jobs separate steps
+		totalThingsToProcess += jobs.Length * 3;
+
+		var progress = new ProgressTracker(_progress, totalThingsToProcess);
 
 		foreach (var job in jobs)
 		{
+			progress.Increment();
 			job.BuildPlaylist(userPlaylists);
 		}
 
-		var items = GetAllUserMedia();
 
-		var progress = new ProgressTracker(_progress) { Length = items.Count, };
-
-		var numComplete = 0;
-
-		for (var index = 0; index < items.Count; index++)
+		foreach (var item in items)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
-			var opp = new Operand(_libraryManager, items[index], BaseItem.UserDataManager, _user);
+			var opp = new Operand(_libraryManager, item, BaseItem.UserDataManager, _user);
 
 			foreach (var job in jobs)
 			{
+				progress.Increment();
 				job.ProcessItem(opp);
 			}
-
-			progress.Index = index;
-			progress.Report(numComplete++ / (double)items.Count);
 		}
 
 		foreach (var job in jobs)
 		{
+			progress.Increment();
 			var newItems = job.GetItems();
 
 			await job.CreateOrUpdatePlaylist(_playlistManager,
@@ -87,6 +95,8 @@ public class PlaylistUpdater
 
 		foreach (var job in jobs)
 		{
+			progress.Increment();
+
 			if (job.HasErrors)
 			{
 				SmartPlaylistManager.SetErrorStatus(job.FileId, jobProcessErrors: job.ProcessErrors);

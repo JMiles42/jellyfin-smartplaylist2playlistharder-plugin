@@ -58,7 +58,8 @@ public class SmartPlaylist
 
 		foreach (var set in ExpressionSets)
 		{
-			var listOfCompiledExpressions = set.Expressions.Where(a => !a.IsInValid)
+			var listOfCompiledExpressions = set.Expressions
+											   .Where(a => !a.IsInValid)
 											   .Select(RulesCompiler.CompileRule<Operand>)
 											   .ToList();
 

@@ -52,7 +52,7 @@ public class SmartPlaylistsRefreshAll
 
 		var jobGroups = jobs.GroupBy(a => a.GetGrouping()).ToArray();
 
-		var tracker = new ProgressTracker(progress) { Length = jobGroups.Length, };
+		var tracker = new ProgressTracker(progress, jobGroups.Length);
 
 		foreach (var group in jobGroups)
 		{
@@ -78,7 +78,7 @@ public class SmartPlaylistsRefreshAll
 											 tracker);
 
 			await sorter.ProcessPlaylists(group, cancellationToken).ConfigureAwait(false);
-			tracker.Index++;
+			tracker.Increment();
 		}
 	}
 }
