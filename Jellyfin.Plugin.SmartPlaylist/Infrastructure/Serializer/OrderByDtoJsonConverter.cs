@@ -87,12 +87,7 @@ public class OrderByDtoJsonConverter: JsonConverter<OrderByDto>
 	}
 
 	private static OrderDto? GetDto(JsonElement element, JsonSerializerOptions options) =>
-			element.ValueKind switch
-			{
-				JsonValueKind.Object => element.Deserialize<OrderDto>(options),
-				JsonValueKind.String => new() { Name = element.GetString() ?? string.Empty, },
-				_                    => null,
-			};
+			element.Deserialize<OrderDto>(options);
 
 	/// <inheritdoc />
 	public override void Write(Utf8JsonWriter writer, OrderByDto value, JsonSerializerOptions options)
