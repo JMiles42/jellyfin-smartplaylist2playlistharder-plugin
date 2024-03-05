@@ -179,10 +179,11 @@ public class SmartPlaylistsRefreshJob
 		return Sorter.GetResults().ToArray();
 	}
 
-	public async Task CreateOrUpdatePlaylist(IPlaylistManager  playlistManager,
-											 IProviderManager  providerManager,
-											 IFileSystem       fileSystem,
-											 BaseItem[]        items,
+	public async Task CreateOrUpdatePlaylist(IPlaylistManager playlistManager,
+											 IProviderManager providerManager,
+											 IFileSystem      fileSystem,
+											 BaseItem[]       items,
+											 SmartPlaylistPluginConfiguration config,
 											 CancellationToken token)
 	{
 		if (HasErrors)
@@ -201,64 +202,79 @@ public class SmartPlaylistsRefreshJob
 		}
 
 
-		if (JellyfinPlaylist is null)
+		if (JellyfinPlaylist is not null)
 		{
-			try
-			{
-				_logger.LogInformation("Creating and Saving Playlist {FileId}", FileId);
-
-				var req = new PlaylistCreationRequest
-				{
-					Name       = SmartPlaylistDto.Name,
-					UserId     = User.Id,
-					ItemIdList = items.Select(baseItem => baseItem.Id).ToArray(),
-				};
-
-				var foo = await playlistManager.CreatePlaylist(req);
-				PlaylistId          = Guid.Parse(foo.Id);
-				SmartPlaylistDto.Id = PlaylistId;
-
-
-				if (string.IsNullOrEmpty(SmartPlaylistDto.FileName))
-				{
-					SetError("Error filename is null, cannot save playlist to disk");
-				}
-				else
-				{
-					_logger.LogInformation("Saving playlist {FileId}", FileId);
-					SmartPlaylistManager.SavePlaylist(SmartPlaylistDto.FileName, SmartPlaylistDto);
-				}
-			}
-			catch (Exception e)
-			{
-				SetError($"Error creating Playlist {FileId}", e);
-			}
+			await CreatePlaylist(playlistManager, items);
 		}
 		else
 		{
-			try
-			{
-				_logger.LogInformation("Clearing and adding {Number} files to existing playlist: {FileId}",
-									   items.Length,
-									   FileId);
+			await UpdatePlaylist(providerManager, fileSystem, items, config, token);
+		}
+	}
 
-				JellyfinPlaylist.LinkedChildren = items.Select(LinkedChild.Create)
-													   .ToArray();
+	private async Task UpdatePlaylist(IProviderManager                 providerManager,
+									  IFileSystem                      fileSystem,
+									  BaseItem[]                       items,
+									  SmartPlaylistPluginConfiguration config,
+									  CancellationToken                token)
+	{
+		try {
+			_logger.LogInformation("Clearing and adding {Number} files to existing playlist: {FileId}",
+								   items.Length,
+								   FileId);
 
-				await JellyfinPlaylist.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, token)
-									  .ConfigureAwait(false);
+			JellyfinPlaylist!.LinkedChildren = items.Select(LinkedChild.Create)
+												   .ToArray();
 
-				providerManager.QueueRefresh(JellyfinPlaylist.Id,
-											 new(new DirectoryService(fileSystem))
-											 {
-												 ForceSave = true, ImageRefreshMode = MetadataRefreshMode.FullRefresh,
-											 },
-											 RefreshPriority.High);
+			await JellyfinPlaylist.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, token)
+								  .ConfigureAwait(false);
+
+			providerManager.QueueRefresh(JellyfinPlaylist.Id,
+										 new(new DirectoryService(fileSystem)) {
+											 ForceSave        = true,
+											 ImageRefreshMode = MetadataRefreshMode.FullRefresh,
+										 },
+										 RefreshPriority.High);
+			if (config.AlwaysSaveFile) {
+				SavePlaylist();
 			}
-			catch (Exception e)
-			{
-				SetError($"Error updating Playlist {FileId}", e);
-			}
+		}
+		catch (Exception e) {
+			SetError($"Error updating Playlist {FileId}", e);
+		}
+	}
+
+	private async Task CreatePlaylist(IPlaylistManager playlistManager, BaseItem[] items)
+	{
+		try {
+			_logger.LogInformation("Creating and Saving Playlist {FileId}", FileId);
+
+			var req = new PlaylistCreationRequest {
+				Name       = SmartPlaylistDto!.Name,
+				UserId     = User!.Id,
+				ItemIdList = items.Select(baseItem => baseItem.Id).ToArray(),
+			};
+
+			var foo = await playlistManager.CreatePlaylist(req);
+			PlaylistId          = Guid.Parse(foo.Id);
+			SmartPlaylistDto.Id = PlaylistId;
+			SavePlaylist();
+		}
+		catch (Exception e) {
+			SetError($"Error creating Playlist {FileId}", e);
+		}
+	}
+
+	private void SavePlaylist()
+	{
+		if (string.IsNullOrEmpty(SmartPlaylistDto?.FileName))
+		{
+			SetError("Error filename is null, cannot save playlist to disk");
+		}
+		else
+		{
+			_logger.LogInformation("Saving playlist {FileId}", FileId);
+			SmartPlaylistManager.SavePlaylist(SmartPlaylistDto.FileName, SmartPlaylistDto);
 		}
 	}
 }

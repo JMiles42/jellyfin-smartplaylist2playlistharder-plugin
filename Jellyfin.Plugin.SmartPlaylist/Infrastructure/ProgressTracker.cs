@@ -3,14 +3,15 @@
 public class ProgressTracker: IProgress<double>
 {
 	private readonly IProgress<double> _parent;
-	public           int               Length         { get; private set; }
-	public           int               Index          { get; private set; }
-	public           double            LastPercentage { get; private set; }
+	private          int               _length;
+	private          int               _index;
+	private          double            _lastPercentage;
+	private readonly object            _locker = new();
 
 	public ProgressTracker(IProgress<double> parent, int length = 0)
 	{
 		_parent = parent;
-		Length  = length;
+		_length = length;
 	}
 
 	/// <inheritdoc />
@@ -18,26 +19,41 @@ public class ProgressTracker: IProgress<double>
 	{
 		if (_parent is ProgressTracker pt)
 		{
-			_parent.Report(value * (pt.Index / (double)pt.Length));
+			ReportToParent(value * (pt._index / (double)pt._length));
 		}
 		else
 		{
 			value *= 100;
 
-			if (value < LastPercentage)
+			if (value < _lastPercentage)
 			{
 				return;
 			}
-			LastPercentage = value;
 
-			Console.WriteLine(LastPercentage);
-			_parent.Report(LastPercentage);
+			_lastPercentage = value;
+
+			lock (_locker)
+			{
+				ReportToParent(_lastPercentage);
+			}
+		}
+	}
+
+	private void ReportToParent(double value)
+	{
+		lock (_locker)
+		{
+			_parent.Report(value);
 		}
 	}
 
 	public void Report(double index, double length) => Report(index / length);
 
-	public void Increment() => Report(Index++, Length);
+	public void Increment()
+	{
+		Interlocked.Increment(ref _index);
+		Report(_index, _length);
+	}
 
-	public void AddLength(int lengthToAdd) => Length += lengthToAdd;
+	public void AddLength(int lengthToAdd) => _length += lengthToAdd;
 }

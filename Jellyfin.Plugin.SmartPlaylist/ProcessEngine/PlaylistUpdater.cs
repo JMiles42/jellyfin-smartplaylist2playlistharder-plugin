@@ -6,23 +6,25 @@ namespace Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
 
 public class PlaylistUpdater
 {
-	private readonly User                    _user;
-	private readonly BaseItemKind[]          _supportedItems;
-	private readonly IFileSystem             _fileSystem;
-	private readonly ILibraryManager         _libraryManager;
-	private readonly ILogger                 _logger;
-	private readonly IPlaylistManager        _playlistManager;
-	private readonly IProviderManager        _providerManager;
-	private          readonly ProgressTracker _progress;
+	private readonly          User                             _user;
+	private readonly          BaseItemKind[]                   _supportedItems;
+	private readonly          IFileSystem                      _fileSystem;
+	private readonly          ILibraryManager                  _libraryManager;
+	private readonly          ILogger                          _logger;
+	private readonly          IPlaylistManager                 _playlistManager;
+	private readonly          IProviderManager                 _providerManager;
+	private          readonly ProgressTracker                  _progress;
+	private          readonly SmartPlaylistPluginConfiguration _config;
 
-	public PlaylistUpdater(User             user,
-						   BaseItemKind[]   supportedItems,
-						   IFileSystem      fileSystem,
-						   ILibraryManager  libraryManager,
-						   IPlaylistManager playlistManager,
-						   IProviderManager providerManager,
-						   ILogger          logger,
-						   ProgressTracker  progress)
+	public PlaylistUpdater(User                             user,
+						   BaseItemKind[]                   supportedItems,
+						   IFileSystem                      fileSystem,
+						   ILibraryManager                  libraryManager,
+						   IPlaylistManager                 playlistManager,
+						   IProviderManager                 providerManager,
+						   ILogger                          logger,
+						   ProgressTracker                  progress,
+						   SmartPlaylistPluginConfiguration config)
 	{
 		_user            = user;
 		_fileSystem      = fileSystem;
@@ -32,6 +34,7 @@ public class PlaylistUpdater
 		_playlistManager = playlistManager;
 		_providerManager = providerManager;
 		_progress        = progress;
+		_config     = config;
 	}
 
 	private IReadOnlyList<BaseItem> GetAllUserMedia()
@@ -67,11 +70,22 @@ public class PlaylistUpdater
 			job.BuildPlaylist(userPlaylists);
 		}
 
-
-		foreach (var item in items)
+		var options = new ParallelOptions
 		{
-			cancellationToken.ThrowIfCancellationRequested();
+			CancellationToken = cancellationToken,
+		};
 
+		if (_config.PlaylistSorterThreadCount is > 0 or -1)
+		{
+			options.MaxDegreeOfParallelism = _config.PlaylistSorterThreadCount;
+		}
+		else
+		{
+			options.MaxDegreeOfParallelism = 2;
+		}
+
+		ValueTask ParallelJobRun(BaseItem item, CancellationToken token)
+		{
 			var opp = new Operand(_libraryManager, item, BaseItem.UserDataManager, _user);
 
 			foreach (var job in jobs)
@@ -79,7 +93,11 @@ public class PlaylistUpdater
 				progress.Increment();
 				job.ProcessItem(opp);
 			}
+
+			return ValueTask.CompletedTask;
 		}
+
+		await Parallel.ForEachAsync(items, options, ParallelJobRun);
 
 		foreach (var job in jobs)
 		{
@@ -90,6 +108,7 @@ public class PlaylistUpdater
 											 _providerManager,
 											 _fileSystem,
 											 newItems,
+											 _config,
 											 cancellationToken);
 		}
 

@@ -28,7 +28,7 @@ public class SmartPlaylistPlugin: BasePlugin<SmartPlaylistPluginConfiguration>, 
 					EnableInMainMenu     = true,
 					EmbeddedResourcePath = $"{GetType().Namespace}.Pages.pluginDataPage.html",
 					Name                 = "pluginDataPage.html",
-					MenuIcon             = "playlist_add_check_circle"
+					MenuIcon             = "playlist_add_check_circle",
 				},
 			};
 }

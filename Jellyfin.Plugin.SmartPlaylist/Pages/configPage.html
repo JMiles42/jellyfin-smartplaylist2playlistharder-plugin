@@ -19,12 +19,20 @@
                 <div class="inputContainer">
                     <input is="emby-input" type="number" id="playlistSorterThreadCount" pattern="[0-9]*" required="" label="Playlist Sorter Thread Count">
                     <div class="fieldDescription">The number of threads used in the Parallel processing of playlist generation.</div>
+                    <span>Warning, don't set to high.</span>
                 </div>
 
                 <div class="checkboxContainer checkboxContainer-withDescription">
                     <label>
                         <input is="emby-checkbox" type="checkbox" id="playlistDetailedErrors"/>
                         <span>Enable full detailed error messages</span>
+                    </label>
+                </div>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="alwaysSaveFile"/>
+                        <span>Force the saving of playlist files on every run. Will only save valid files.</span>
                     </label>
                 </div>
 
@@ -52,6 +60,7 @@
             ApiClient.getPluginConfiguration(pluginId).then(function (config) {
 				page.querySelector('#playlistSorterThreadCount').value = config.PlaylistSorterThreadCount;
 				page.querySelector('#playlistDetailedErrors').checked = config.PlaylistDetailedErrors;
+				page.querySelector('#alwaysSaveFile').checked = config.AlwaysSaveFile;
 
                 Dashboard.hideLoadingMsg();
             });
@@ -66,6 +75,7 @@
             ApiClient.getPluginConfiguration(pluginId).then(function (config) {
 				config.PlaylistSorterThreadCount = form.querySelector('#playlistSorterThreadCount').value;
 				config.PlaylistDetailedErrors = form.querySelector('#playlistDetailedErrors').checked;
+				config.AlwaysSaveFile = form.querySelector('#alwaysSaveFile').checked;
 
                 ApiClient.updatePluginConfiguration(pluginId, config).then(Dashboard.processPluginConfigurationUpdateResult);
             });

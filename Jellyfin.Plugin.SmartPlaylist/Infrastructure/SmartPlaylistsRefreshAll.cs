@@ -75,7 +75,9 @@ public class SmartPlaylistsRefreshAll
 											 _playlistManager,
 											 _providerManager,
 											 _logger,
-											 tracker);
+											 tracker,
+											 SmartPlaylistPlugin.Instance.Configuration
+											 );
 
 			await sorter.ProcessPlaylists(group, cancellationToken).ConfigureAwait(false);
 			tracker.Increment();
