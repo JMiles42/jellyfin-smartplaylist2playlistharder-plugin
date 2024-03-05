@@ -1,10 +1,8 @@
-﻿using System.Linq.Expressions;
-
-namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
 public class IsNullOperator: IOperator
 {
-	private static readonly ConstantExpression NullExpression = Expression.Constant(null);
+	private static readonly ConstantExpression NullExpression = LinqExpression.Constant(null);
 
 	/// <inheritdoc />
 	public EngineOperatorResult ValidateOperator<T>(SmartPlExpression   plExpression,
@@ -27,7 +25,7 @@ public class IsNullOperator: IOperator
 												 Type                parameterPropertyType)
 	{
 		var builtExpression =
-				Expression.MakeBinary(ExpressionType.Equal, sourceExpression, NullExpression);
+				LinqExpression.MakeBinary(LinqExpressionType.Equal, sourceExpression, NullExpression);
 
 
 		return new(plExpression.Match, new ParsedValueExpressionResult(builtExpression, plExpression, null!));

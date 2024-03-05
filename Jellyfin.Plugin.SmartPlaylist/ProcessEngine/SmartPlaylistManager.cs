@@ -1,4 +1,4 @@
-﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
 
 public static class SmartPlaylistManager
 {

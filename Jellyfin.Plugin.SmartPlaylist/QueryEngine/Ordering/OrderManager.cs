@@ -5,7 +5,7 @@ namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Ordering;
 public static class OrderManager
 {
 	private static readonly Dictionary<string, OrderPair> _orderPairs = new();
-	public static           OrderStack                    Default;
+	public static readonly  OrderStack                    Default;
 
 	static OrderManager()
 	{
@@ -32,11 +32,11 @@ public static class OrderManager
 		RegisterOrder(item => item.DateModified);
 		RegisterOrder(item => item.DateLastSaved);
 		RegisterOrder(item => item.DateLastRefreshed);
-		RegisterOrder(item => item.DaysSincePremiereDate);
-		RegisterOrder(item => item.DateSinceCreated);
-		RegisterOrder(item => item.DateSinceModified);
-		RegisterOrder(item => item.DateSinceLastSaved);
-		RegisterOrder(item => item.DateSinceLastRefreshed);
+		RegisterOrder(item => item.DaysSincePremiereDate,  "DateSincePremiereDate");
+		RegisterOrder(item => item.DaysSinceCreated,       "DateSinceCreated");
+		RegisterOrder(item => item.DaysSinceLastModified,  "DateSinceLastModified");
+		RegisterOrder(item => item.DaysSinceLastSaved,     "DateSinceLastSaved");
+		RegisterOrder(item => item.DaysSinceLastRefreshed, "DateSinceLastRefreshed");
 		RegisterOrder(item => item.MediaType);
 		RegisterOrder(item => item.SortName);
 		RegisterOrder(item => item.ForcedSortName);
@@ -52,11 +52,11 @@ public static class OrderManager
 		RegisterOrder(item => item.SeriesName,        "Series");
 	}
 
-	private static void RegisterOrder<TKey>(Expression<Func<SortableBaseItem, TKey>> keySelector) =>
+	private static void RegisterOrder<TKey>(Expression<Func<Operand, TKey>> keySelector) =>
 			RegisterOrder(keySelector, Array.Empty<string>());
 
-	private static void RegisterOrder<TKey>(Expression<Func<SortableBaseItem, TKey>> keySelector,
-											params string[]                          orderIds)
+	private static void RegisterOrder<TKey>(Expression<Func<Operand, TKey>> keySelector,
+											params string[]                 orderIds)
 	{
 		var      hasMemberName = keySelector.TryGetMemberName(out var memberName);
 		string[] ids;

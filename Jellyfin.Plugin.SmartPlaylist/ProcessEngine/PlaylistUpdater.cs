@@ -6,15 +6,15 @@ namespace Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
 
 public class PlaylistUpdater
 {
-	private readonly          User                             _user;
-	private readonly          BaseItemKind[]                   _supportedItems;
-	private readonly          IFileSystem                      _fileSystem;
-	private readonly          ILibraryManager                  _libraryManager;
-	private readonly          ILogger                          _logger;
-	private readonly          IPlaylistManager                 _playlistManager;
-	private readonly          IProviderManager                 _providerManager;
-	private          readonly ProgressTracker                  _progress;
-	private          readonly SmartPlaylistPluginConfiguration _config;
+	private readonly User                             _user;
+	private readonly BaseItemKind[]                   _supportedItems;
+	private readonly IFileSystem                      _fileSystem;
+	private readonly ILibraryManager                  _libraryManager;
+	private readonly ILogger                          _logger;
+	private readonly IPlaylistManager                 _playlistManager;
+	private readonly IProviderManager                 _providerManager;
+	private readonly ProgressTracker                  _progress;
+	private readonly SmartPlaylistPluginConfiguration _config;
 
 	public PlaylistUpdater(User                             user,
 						   BaseItemKind[]                   supportedItems,
@@ -34,7 +34,7 @@ public class PlaylistUpdater
 		_playlistManager = playlistManager;
 		_providerManager = providerManager;
 		_progress        = progress;
-		_config     = config;
+		_config          = config;
 	}
 
 	private IReadOnlyList<BaseItem> GetAllUserMedia()
@@ -42,7 +42,7 @@ public class PlaylistUpdater
 		var query = new InternalItemsQuery(_user)
 		{
 			IncludeItemTypes = _supportedItems,
-			Recursive = true,
+			Recursive        = true,
 		};
 
 		return _libraryManager.GetItemsResult(query).Items;
@@ -51,7 +51,6 @@ public class PlaylistUpdater
 	public async Task ProcessPlaylists(IEnumerable<SmartPlaylistsRefreshJob> jobsIn,
 									   CancellationToken                     cancellationToken)
 	{
-
 		var jobs          = jobsIn.ToArray();
 		var userPlaylists = GetUserPlaylists().ToArray();
 		var items         = GetAllUserMedia();
@@ -81,12 +80,12 @@ public class PlaylistUpdater
 		}
 		else
 		{
-			options.MaxDegreeOfParallelism = 2;
+			options.MaxDegreeOfParallelism = 1;
 		}
 
 		ValueTask ParallelJobRun(BaseItem item, CancellationToken token)
 		{
-			var opp = new Operand(_libraryManager, item, BaseItem.UserDataManager, _user);
+			var opp = Operand.Create(_libraryManager, item, BaseItem.UserDataManager, _user);
 
 			foreach (var job in jobs)
 			{

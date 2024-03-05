@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 
 public static class EngineFallbackProcessor
 {
@@ -47,7 +45,7 @@ public static class EngineFallbackProcessor
 		var rightValue = value.ToConstantExpressionAsType(tParam);
 
 		// use a method call, e.g. 'Contains' -> 'u.Tags.Contains(some_tag)'
-		var builtExpression = Expression.Call(leftValue, method, rightValue);
+		var builtExpression = LinqExpression.Call(leftValue, method, rightValue);
 
 		return new(builtExpression, plExpression, value);
 	}

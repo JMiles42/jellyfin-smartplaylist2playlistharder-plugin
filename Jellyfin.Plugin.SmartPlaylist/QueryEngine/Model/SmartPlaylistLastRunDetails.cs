@@ -1,4 +1,4 @@
-﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Model;
 
 public record SmartPlaylistLastRunDetails(string                            PlaylistId,
 										  string                            Status,

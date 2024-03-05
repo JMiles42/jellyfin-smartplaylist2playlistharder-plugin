@@ -2,7 +2,6 @@
 
 public class SmartPlaylistPlugin: BasePlugin<SmartPlaylistPluginConfiguration>, IHasWebPages
 {
-
 	public static SmartPlaylistPlugin? Instance { get; private set; }
 
 	public override Guid Id => Guid.Parse(SmartPlaylistConsts.PLUGIN_GUID);

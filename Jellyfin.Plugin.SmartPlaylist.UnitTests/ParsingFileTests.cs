@@ -1,8 +1,10 @@
 using System.Runtime.CompilerServices;
 using FluentAssertions;
-using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
+using Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
 using Jellyfin.Plugin.SmartPlaylist.QueryEngine;
+using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Model;
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
 
 namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;
 

@@ -1,32 +1,25 @@
-﻿using System.Linq.Expressions;
-
-namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
 public class StringListContainsOperator: IOperator
 {
 
 	private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression expression,
-																			  MemberExpression  sourceExpression)
-	{
-		foreach (var value in expression.TargetValue.GetValues())
-		{
-			yield return BuildComparisonExpression(expression, sourceExpression, value);
-		}
-	}
+																			  MemberExpression  sourceExpression) =>
+			expression.TargetValue.GetValues()
+					  .Select(value => BuildComparisonExpression(expression, sourceExpression, value));
 
 	private static ParsedValueExpressionResult BuildComparisonExpression(SmartPlExpression plExpression,
 																		 MemberExpression  sourceExpression,
 																		 object            value)
 	{
 		var rightValue       = value.ToConstantExpressionAsType<string>();
-		var stringComparison = Expression.Constant(plExpression.StringComparison);
+		var stringComparison = LinqExpression.Constant(plExpression.StringComparison);
 
-		// use a method call 'u.Tags.Any(a => a.Contains(some_tag))'
-		var builtExpression = Expression.Call(null,
-											  EngineExtensions.StringArrayContainsMethodInfo,
-											  sourceExpression,
-											  rightValue,
-											  stringComparison);
+		var builtExpression = LinqExpression.Call(null,
+												  EngineExtensions.StringArrayContainsMethodInfo,
+												  sourceExpression,
+												  rightValue,
+												  stringComparison);
 
 		return new(builtExpression, plExpression, value);
 	}

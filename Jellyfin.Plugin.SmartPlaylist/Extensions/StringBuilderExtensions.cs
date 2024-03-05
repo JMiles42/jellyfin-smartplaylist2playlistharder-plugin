@@ -1,4 +1,4 @@
-﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.Extensions;
 
 public static class StringBuilderExtensions
 {

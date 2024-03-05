@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
 public class StringOperator: IOperator
 {
@@ -12,13 +10,13 @@ public class StringOperator: IOperator
 	private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression plExpression,
 																			  MemberExpression  sourceExpression,
 																			  Type              parameterType,
-																			  MethodInfo        method)
-	{
-		foreach (var value in plExpression.TargetValue.GetValues())
-		{
-			yield return BuildComparisonExpression(plExpression, sourceExpression, parameterType, method, value);
-		}
-	}
+																			  MethodInfo        method) =>
+			plExpression.TargetValue.GetValues()
+						.Select(value => BuildComparisonExpression(plExpression,
+																   sourceExpression,
+																   parameterType,
+																   method,
+																   value));
 
 	private static ParsedValueExpressionResult BuildComparisonExpression(SmartPlExpression plExpression,
 																		 MemberExpression  sourceExpression,
@@ -27,10 +25,10 @@ public class StringOperator: IOperator
 																		 object            value)
 	{
 		var rightValue       = value.ToConstantExpressionAsType(parameterType);
-		var stringComparison = Expression.Constant(plExpression.StringComparison);
+		var stringComparison = LinqExpression.Constant(plExpression.StringComparison);
 
 		// use a method call, e.g. 'Contains' -> 'u.Tags.Contains(some_tag, stringComparison)'
-		var builtExpression = Expression.Call(sourceExpression, method, rightValue, stringComparison);
+		var builtExpression = LinqExpression.Call(sourceExpression, method, rightValue, stringComparison);
 
 		return new(builtExpression, plExpression, value);
 	}

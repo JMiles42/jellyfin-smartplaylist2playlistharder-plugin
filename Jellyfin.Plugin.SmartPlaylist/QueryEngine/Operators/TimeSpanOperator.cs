@@ -1,33 +1,30 @@
-﻿using System.Linq.Expressions;
-
-namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
 public class TimeSpanOperator: IOperator
 {
 
-	private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression plExpression,
-																			  MemberExpression  sourceExpression,
-																			  ExpressionType    tBinary,
-																			  Type              propertyType)
-	{
-		foreach (var value in plExpression.TargetValue.GetValues())
-		{
-			yield return BuildComparisonExpression(plExpression, sourceExpression, tBinary, propertyType, value);
-		}
-	}
+	private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression  plExpression,
+																			  MemberExpression   sourceExpression,
+																			  LinqExpressionType tBinary,
+																			  Type               propertyType) =>
+			plExpression.TargetValue.GetValues()
+						.Select(value => BuildComparisonExpression(plExpression,
+																   sourceExpression,
+																   tBinary,
+																   propertyType,
+																   value));
 
-	private static ParsedValueExpressionResult BuildComparisonExpression(SmartPlExpression plExpression,
-																		 MemberExpression  sourceExpression,
-																		 ExpressionType    tBinary,
-																		 Type              propertyType,
-																		 object            value)
+	private static ParsedValueExpressionResult BuildComparisonExpression(SmartPlExpression  plExpression,
+																		 MemberExpression   sourceExpression,
+																		 LinqExpressionType tBinary,
+																		 Type               propertyType,
+																		 object             value)
 	{
 		var parsedValue = TimeSpan.Parse(value.ToString());
 
 		var rightValue = parsedValue.ToConstantExpressionAsType(propertyType);
 
-		// use a method call 'u.Tags.Any(a => a.Contains(some_tag))'
-		var builtExpression = Expression.MakeBinary(tBinary, sourceExpression, rightValue);
+		var builtExpression = LinqExpression.MakeBinary(tBinary, sourceExpression, rightValue);
 
 		return new(builtExpression, plExpression, value);
 	}
@@ -43,7 +40,7 @@ public class TimeSpanOperator: IOperator
 			return EngineOperatorResult.NotAValidFor($"Property {plExpression.MemberName} is not a TimeSpan");
 		}
 
-		if (!Enum.TryParse(plExpression.Operator, out ExpressionType _))
+		if (!Enum.TryParse(plExpression.Operator, out LinqExpressionType _))
 		{
 			return EngineOperatorResult.NotAValidFor($"{plExpression.Operator} is not a valid ExpressionType");
 		}
@@ -91,7 +88,7 @@ public class TimeSpanOperator: IOperator
 												 ParameterExpression parameterExpression,
 												 Type                parameterPropertyType)
 	{
-		var tBinary = Enum.Parse<ExpressionType>(plExpression.Operator);
+		var tBinary = Enum.Parse<LinqExpressionType>(plExpression.Operator);
 
 		if (plExpression.TargetValue.IsSingleValue)
 		{

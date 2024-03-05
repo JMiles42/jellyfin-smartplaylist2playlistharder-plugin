@@ -2,7 +2,7 @@ namespace Jellyfin.Plugin.SmartPlaylist.Models;
 
 public class Sorter
 {
-	private readonly ConcurrentBag<BaseItem>              Items = new();
+	private readonly ConcurrentBag<Operand>               Items = new();
 	private readonly SmartPlaylist                        _owner;
 	private readonly List<CompiledExpressionSet<Operand>> _rules;
 
@@ -18,7 +18,7 @@ public class Sorter
 
 		if (_owner.Match.DoesMatch(matches, _rules.Count))
 		{
-			Items.Add(item.BaseItem);
+			Items.Add(item);
 		}
 	}
 

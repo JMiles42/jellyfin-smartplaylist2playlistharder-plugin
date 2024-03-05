@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Operators;
 
 public class RegexOperator: IOperator
 {
@@ -50,9 +48,9 @@ public class RegexOperator: IOperator
 
 		var toStringMethod = propertyType.GetMethod(nameof(string.ToString), Array.Empty<Type>())!;
 
-		var methodParam = Expression.Call(sourceExpression, toStringMethod);
+		var methodParam = LinqExpression.Call(sourceExpression, toStringMethod);
 
-		var builtExpression = Expression.Call(callInstance, RegexIsMatch, methodParam);
+		var builtExpression = LinqExpression.Call(callInstance, RegexIsMatch, methodParam);
 
 		return new(builtExpression, plExpression, value);
 	}

@@ -1,6 +1,6 @@
 ﻿using static System.Text.Json.JsonSerializer;
 
-namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
+namespace Jellyfin.Plugin.SmartPlaylist.Serializer;
 
 public class OrderByDtoJsonConverter: JsonConverter<OrderByDto>
 {
@@ -61,7 +61,7 @@ public class OrderByDtoJsonConverter: JsonConverter<OrderByDto>
 		return result;
 	}
 
-	private static OrderByDto ProcessString(JsonDocument document,
+	private static OrderByDto ProcessString(JsonDocument          document,
 											JsonSerializerOptions options) =>
 			new() { Name = document.RootElement.GetString() ?? string.Empty };
 
@@ -70,7 +70,7 @@ public class OrderByDtoJsonConverter: JsonConverter<OrderByDto>
 		var rst      = new OrderByDto();
 		var elements = doc.RootElement.EnumerateArray().ToArray();
 		var first    = GetDto(elements.First(), options);
-		rst.Name      = first?.Name ?? string.Empty;
+		rst.Name      = first?.Name      ?? string.Empty;
 		rst.Ascending = first?.Ascending ?? true;
 
 		foreach (var element in elements.Skip(1))

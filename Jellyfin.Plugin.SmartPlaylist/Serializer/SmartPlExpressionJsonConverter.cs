@@ -1,13 +1,13 @@
 ﻿using static System.Text.Json.JsonSerializer;
 
-namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
+namespace Jellyfin.Plugin.SmartPlaylist.Serializer;
 
 public class ExpressionValueJsonConverter: JsonConverter<ExpressionValue>
 {
 	/// <exception cref="ArgumentOutOfRangeException"></exception>
 	/// <inheritdoc />
-	public override ExpressionValue Read(ref Utf8JsonReader reader,
-										 Type typeToConvert,
+	public override ExpressionValue Read(ref Utf8JsonReader    reader,
+										 Type                  typeToConvert,
 										 JsonSerializerOptions options)
 	{
 		if (!JsonDocument.TryParseValue(ref reader, out var doc))
@@ -58,8 +58,8 @@ public class ExpressionValueJsonConverter: JsonConverter<ExpressionValue>
 	}
 
 	/// <inheritdoc />
-	public override void Write(Utf8JsonWriter writer,
-							   ExpressionValue value,
+	public override void Write(Utf8JsonWriter        writer,
+							   ExpressionValue       value,
 							   JsonSerializerOptions options)
 	{
 		if (value.IsSingleValue)

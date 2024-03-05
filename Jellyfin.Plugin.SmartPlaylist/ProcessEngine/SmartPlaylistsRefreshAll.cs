@@ -3,7 +3,7 @@ using MediaBrowser.Controller.Playlists;
 using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
 
-namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
+namespace Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
 
 public class SmartPlaylistsRefreshAll
 {
@@ -76,8 +76,7 @@ public class SmartPlaylistsRefreshAll
 											 _providerManager,
 											 _logger,
 											 tracker,
-											 SmartPlaylistPlugin.Instance.Configuration
-											 );
+											 SmartPlaylistPlugin.Instance.Configuration);
 
 			await sorter.ProcessPlaylists(group, cancellationToken).ConfigureAwait(false);
 			tracker.Increment();

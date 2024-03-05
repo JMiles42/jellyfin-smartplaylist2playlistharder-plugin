@@ -1,4 +1,4 @@
-﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Model;
 
 public record PlaylistProcessRunData(SmartPlaylistDto? SmartPlaylist, string FileId, Exception? ErrorDetails)
 {

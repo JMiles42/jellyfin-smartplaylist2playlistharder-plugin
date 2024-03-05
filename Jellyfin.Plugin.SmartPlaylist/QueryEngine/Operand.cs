@@ -1,10 +1,10 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 
 #pragma warning disable CA1822 // Mark members as static
-public class Operand
+public record Operand
 {
-
 	private readonly ILibraryManager _libraryManager;
+	private readonly object          _locker = new();
 
 	private List<string>? _actors;
 	private List<string>? _artists;
@@ -28,17 +28,20 @@ public class Operand
 	{
 		get
 		{
-			if (_actors is not null)
+			lock (_locker)
 			{
+				if (_actors is not null)
+				{
+					return _actors;
+				}
+
+				var people = GetPeople();
+
+				_actors = new(people.Where(x => x.Type.Equals("Actor", StringComparison.OrdinalIgnoreCase))
+									.Select(x => x.Name));
+
 				return _actors;
 			}
-
-			var people = GetPeople();
-
-			_actors = new(people.Where(x => x.Type.Equals("Actor", StringComparison.OrdinalIgnoreCase))
-								.Select(x => x.Name));
-
-			return _actors;
 		}
 	}
 
@@ -46,20 +49,23 @@ public class Operand
 	{
 		get
 		{
-			if (_artists is not null)
+			lock (_locker)
 			{
+				if (_artists is not null)
+				{
+					return _artists;
+				}
+
+
+				_artists = new();
+
+				if (BaseItem is MusicVideo mv)
+				{
+					_artists.AddRange(mv.Artists);
+				}
+
 				return _artists;
 			}
-
-			_artists = new();
-
-
-			if (BaseItem is MusicVideo mv)
-			{
-				_artists.AddRange(mv.Artists);
-			}
-
-			return _artists;
 		}
 	}
 
@@ -67,17 +73,20 @@ public class Operand
 	{
 		get
 		{
-			if (_composers is not null)
+			lock (_locker)
 			{
+				if (_composers is not null)
+				{
+					return _composers;
+				}
+
+				var people = GetPeople();
+
+				_composers = new(people.Where(x => x.Type.Equals("Composer", StringComparison.OrdinalIgnoreCase))
+									   .Select(x => x.Name));
+
 				return _composers;
 			}
-
-			var people = GetPeople();
-
-			_composers = new(people.Where(x => x.Type.Equals("Composer", StringComparison.OrdinalIgnoreCase))
-								   .Select(x => x.Name));
-
-			return _composers;
 		}
 	}
 
@@ -85,17 +94,20 @@ public class Operand
 	{
 		get
 		{
-			if (_directors is not null)
+			lock (_locker)
 			{
+				if (_directors is not null)
+				{
+					return _directors;
+				}
+
+				var people = GetPeople();
+
+				_directors = new(people.Where(x => x.Type.Equals("Director", StringComparison.OrdinalIgnoreCase))
+									   .Select(x => x.Name));
+
 				return _directors;
 			}
-
-			var people = GetPeople();
-
-			_directors = new(people.Where(x => x.Type.Equals("Director", StringComparison.OrdinalIgnoreCase))
-								   .Select(x => x.Name));
-
-			return _directors;
 		}
 	}
 
@@ -103,17 +115,20 @@ public class Operand
 	{
 		get
 		{
-			if (_guestStars is not null)
+			lock (_locker)
 			{
+				if (_guestStars is not null)
+				{
+					return _guestStars;
+				}
+
+				var people = GetPeople();
+
+				_guestStars = new(people.Where(x => x.Type.Equals("GuestStar", StringComparison.OrdinalIgnoreCase))
+										.Select(x => x.Name));
+
 				return _guestStars;
 			}
-
-			var people = GetPeople();
-
-			_guestStars = new(people.Where(x => x.Type.Equals("GuestStar", StringComparison.OrdinalIgnoreCase))
-									.Select(x => x.Name));
-
-			return _guestStars;
 		}
 	}
 
@@ -121,17 +136,20 @@ public class Operand
 	{
 		get
 		{
-			if (_producers is not null)
+			lock (_locker)
 			{
+				if (_producers is not null)
+				{
+					return _producers;
+				}
+
+				var people = GetPeople();
+
+				_producers = new(people.Where(x => x.Type.Equals("Producer", StringComparison.OrdinalIgnoreCase))
+									   .Select(x => x.Name));
+
 				return _producers;
 			}
-
-			var people = GetPeople();
-
-			_producers = new(people.Where(x => x.Type.Equals("Producer", StringComparison.OrdinalIgnoreCase))
-								   .Select(x => x.Name));
-
-			return _producers;
 		}
 	}
 
@@ -139,17 +157,20 @@ public class Operand
 	{
 		get
 		{
-			if (_writers is not null)
+			lock (_locker)
 			{
+				if (_writers is not null)
+				{
+					return _writers;
+				}
+
+				var people = GetPeople();
+
+				_writers = new(people.Where(x => x.Type.Equals("Writer", StringComparison.OrdinalIgnoreCase))
+									 .Select(x => x.Name));
+
 				return _writers;
 			}
-
-			var people = GetPeople();
-
-			_writers = new(people.Where(x => x.Type.Equals("Writer", StringComparison.OrdinalIgnoreCase))
-								 .Select(x => x.Name));
-
-			return _writers;
 		}
 	}
 
@@ -157,15 +178,18 @@ public class Operand
 	{
 		get
 		{
-			if (_genres is not null)
+			lock (_locker)
 			{
+				if (_genres is not null)
+				{
+					return _genres;
+				}
+
+				_genres = new();
+				_genres.AddRange(BaseItem.Genres);
+
 				return _genres;
 			}
-
-			_genres = new();
-			_genres.AddRange(BaseItem.Genres);
-
-			return _genres;
 		}
 	}
 
@@ -173,15 +197,18 @@ public class Operand
 	{
 		get
 		{
-			if (_studios is not null)
+			lock (_locker)
 			{
+				if (_studios is not null)
+				{
+					return _studios;
+				}
+
+				_studios = new();
+				_studios.AddRange(BaseItem.Studios);
+
 				return _studios;
 			}
-
-			_studios = new();
-			_studios.AddRange(BaseItem.Studios);
-
-			return _studios;
 		}
 	}
 
@@ -189,15 +216,18 @@ public class Operand
 	{
 		get
 		{
-			if (_tags is not null)
+			lock (_locker)
 			{
+				if (_tags is not null)
+				{
+					return _tags;
+				}
+
+				_tags = new();
+				_tags.AddRange(BaseItem.Tags);
+
 				return _tags;
 			}
-
-			_tags = new();
-			_tags.AddRange(BaseItem.Tags);
-
-			return _tags;
 		}
 	}
 
@@ -205,17 +235,42 @@ public class Operand
 	{
 		get
 		{
-			if (_pathSegment is not null)
+			lock (_locker)
 			{
+				if (_pathSegment is not null)
+				{
+					return _pathSegment;
+				}
+
+				_pathSegment = new();
+				_pathSegment.AddRange(BaseItem.Path.Split('\\', '/', StringSplitOptions.RemoveEmptyEntries));
+
 				return _pathSegment;
 			}
-
-			_pathSegment = new();
-			_pathSegment.AddRange(BaseItem.Path.Split('\\', '/', StringSplitOptions.RemoveEmptyEntries));
-
-			return _pathSegment;
 		}
 	}
+
+	public int ActorsLength => Actors.Count;
+
+	public int ArtistsLength => Artists.Count;
+
+	public int ComposersLength => Composers.Count;
+
+	public int DirectorsLength => Directors.Count;
+
+	public int GuestStarsLength => GuestStars.Count;
+
+	public int ProducersLength => Producers.Count;
+
+	public int WritersLength => Writers.Count;
+
+	public int GenresLength => Genres.Count;
+
+	public int StudiosLength => Studios.Count;
+
+	public int TagsLength => Tags.Count;
+
+	public int PathSegmentLength => PathSegment.Count;
 
 	public bool Exists => true;
 
@@ -243,11 +298,7 @@ public class Operand
 
 	public double PremiereDate { get; }
 
-	public double? LastPlayedDate { get; }
-
-	public float CommunityRating { get; }
-
-	public float CriticRating { get; }
+	public double LastPlayedDate { get; }
 
 	public int DaysSinceCreated { get; }
 
@@ -259,105 +310,113 @@ public class Operand
 
 	public int DaysSincePremiereDate { get; }
 
-	public int Height { get; }
-
 	public int PlayedCount { get; }
-
-	public int Width { get; }
 
 	public int? AiredSeasonNumber { get; }
 
-	public int? ParentIndexNumber { get; }
-
-	public int? ProductionYear { get; }
-
 	public long PlaybackPositionTicks { get; }
 
-	public string? Album { get; }
+	public string CollectionName { get; }
 
-	public string? CollectionName { get; }
+	public string SeasonName { get; }
 
-	public string? Container { get; }
-
-	public string? FileNameWithoutExtension { get; }
-
-	public string? FolderPath { get; }
-
-	public string? GrandparentName { get; }
-
-	public string? MediaType { get; }
-
-	public string? Name { get; }
-
-	public string? OfficialRating { get; }
-
-	public string? OriginalTitle { get; }
-
-	public string? Overview { get; }
-
-	public string? ParentName { get; }
-
-	public string? SeasonName { get; }
-
-	public string? SeriesName { get; }
-
-	public string? SortName { get; }
-
-	public TimeSpan Length => TimeSpan.FromTicks(LengthTicks);
-
-	public double LengthSeconds => Length.TotalSeconds;
-
-	public double LengthMinutes => Length.TotalMinutes;
-
-	public double LengthHours => Length.TotalHours;
-
-	public long LengthTicks { get; }
+	public string SeriesName { get; }
 
 	public string AllText
 	{
 		get
 		{
-			if (string.IsNullOrEmpty(_allText))
+			lock (_locker)
 			{
-				_allText = GetAllText();
+				return _allText ??= GetAllText(this);
 			}
-
-			return _allText;
 		}
 	}
 
-	public Operand(ILibraryManager libraryManager, BaseItem baseItem, IUserDataManager userDataManager, User user)
+	public int Height => BaseItem.Height;
+
+	public int Width => BaseItem.Width;
+
+	public int? ProductionYear => BaseItem.ProductionYear;
+
+	public int? ParentIndexNumber => BaseItem.ParentIndexNumber;
+
+	public string OriginalTitle => BaseItem.OriginalTitle;
+
+	public string Name => BaseItem.Name;
+
+	public string MediaType => BaseItem.MediaType;
+
+	public string Album => BaseItem.Album;
+
+	public string FolderPath => BaseItem.ContainingFolderPath;
+
+	public string ContainingFolderPath => FolderPath;
+
+	public string FileNameWithoutExtension => BaseItem.FileNameWithoutExtension;
+
+	public string OfficialRating => BaseItem.OfficialRating;
+
+	public string SortName => BaseItem.SortName;
+
+	public string ForcedSortName => BaseItem.ForcedSortName;
+
+	public string Overview => BaseItem.Overview;
+
+	public string Container => BaseItem.Container;
+
+	public string Path => BaseItem.Path;
+
+	public string Tagline => BaseItem.Tagline;
+
+	public string? ParentName => BaseItem.LatestItemsIndexContainer?.Name;
+
+	public string? GrandparentName => BaseItem.LatestItemsIndexContainer?.DisplayParent?.Name;
+
+	public float? CommunityRating => BaseItem.CommunityRating;
+
+	public float? CriticRating => BaseItem.CriticRating;
+
+	public DateTime? EndDate => BaseItem.EndDate;
+
+	public Guid ChannelId => BaseItem.ChannelId;
+
+	public Guid Id => BaseItem.Id;
+
+	public TimeSpan? Length => LengthTicks.HasValue? TimeSpan.FromTicks(LengthTicks.Value) : null;
+
+	public double? LengthSeconds => Length?.TotalSeconds;
+
+	public double? LengthMinutes => Length?.TotalMinutes;
+
+	public double? LengthHours => Length?.TotalHours;
+
+	public long? LengthTicks { get; }
+
+	public long? RunTimeTicks => LengthTicks;
+
+	private Operand(ILibraryManager  libraryManager,
+					BaseItem         baseItem,
+					IUserDataManager userDataManager,
+					User             user)
 	{
 		BaseItem        = baseItem;
 		_libraryManager = libraryManager;
 
-		Name = baseItem.Name.ValueOrEmpty();
-
-		CommunityRating          = baseItem.CommunityRating.GetValueOrDefault();
-		CriticRating             = baseItem.CriticRating.GetValueOrDefault();
-		MediaType                = baseItem.MediaType.ValueOrEmpty();
-		Album                    = baseItem.Album.ValueOrEmpty();
-		FolderPath               = baseItem.ContainingFolderPath.ValueOrEmpty();
-		ProductionYear           = baseItem.ProductionYear;
-		OriginalTitle            = baseItem.OriginalTitle.ValueOrEmpty();
-		Height                   = baseItem.Height;
-		Width                    = baseItem.Width;
-		FileNameWithoutExtension = baseItem.FileNameWithoutExtension.ValueOrEmpty();
-		OfficialRating           = baseItem.OfficialRating.ValueOrEmpty();
-		SortName                 = baseItem.SortName.ValueOrEmpty();
-		DaysSinceCreated         = GetDaysAgo(baseItem.DateCreated);
-		DaysSinceLastRefreshed   = GetDaysAgo(baseItem.DateLastRefreshed);
-		DaysSinceLastSaved       = GetDaysAgo(baseItem.DateLastSaved);
-		DaysSinceLastModified    = GetDaysAgo(baseItem.DateModified);
-		Overview                 = baseItem.Overview.ValueOrEmpty();
-		Container                = baseItem.Container.ValueOrEmpty();
-		ParentName               = baseItem.LatestItemsIndexContainer?.Name.ValueOrEmpty();
-		GrandparentName          = baseItem.LatestItemsIndexContainer?.DisplayParent?.Name.ValueOrEmpty();
+		DaysSinceCreated       = GetDaysAgo(baseItem.DateCreated);
+		DaysSinceLastRefreshed = GetDaysAgo(baseItem.DateLastRefreshed);
+		DaysSinceLastSaved     = GetDaysAgo(baseItem.DateLastSaved);
+		DaysSinceLastModified  = GetDaysAgo(baseItem.DateModified);
 
 		if (baseItem.PremiereDate.HasValue)
 		{
 			DaysSincePremiereDate = GetDaysAgo(baseItem.PremiereDate.Value, DateTime.Now);
 			PremiereDate          = GetUnixSeconds(baseItem.PremiereDate.Value);
+		}
+		else
+		{
+			DaysSincePremiereDate = 0;
+			PremiereDate          = 0;
 		}
 
 		DateCreated       = GetUnixSeconds(baseItem.DateCreated);
@@ -368,23 +427,39 @@ public class Operand
 		switch (baseItem)
 		{
 			case Movie movie:
-				HasSubtitles   = movie.HasSubtitles;
-				CollectionName = movie.CollectionName.ValueOrEmpty();
-				LengthTicks    = movie.RunTimeTicks ?? 0;
+				HasSubtitles      = movie.HasSubtitles;
+				AiredSeasonNumber = 0;
+				CollectionName    = movie.CollectionName;
+				SeasonName        = string.Empty;
+				SeriesName        = string.Empty;
+				LengthTicks       = movie.RunTimeTicks;
 
 				break;
 			case Episode episode:
 				HasSubtitles      = episode.HasSubtitles;
 				AiredSeasonNumber = episode.AiredSeasonNumber;
-				ParentIndexNumber = episode.ParentIndexNumber;
-				SeasonName        = episode.SeasonName.ValueOrEmpty();
-				SeriesName        = episode.SeriesName.ValueOrEmpty();
-				LengthTicks       = episode.RunTimeTicks ?? 0;
+				CollectionName    = string.Empty;
+				SeasonName        = episode.SeasonName;
+				SeriesName        = episode.SeriesName;
+				LengthTicks       = episode.RunTimeTicks;
 
 				break;
 			case MusicVideo musicVideo:
-				HasSubtitles = musicVideo.HasSubtitles;
-				LengthTicks  = musicVideo.RunTimeTicks ?? 0;
+				HasSubtitles      = musicVideo.HasSubtitles;
+				AiredSeasonNumber = 0;
+				CollectionName    = string.Empty;
+				SeasonName        = string.Empty;
+				SeriesName        = string.Empty;
+				LengthTicks       = musicVideo.RunTimeTicks;
+
+				break;
+			default:
+				HasSubtitles      = false;
+				AiredSeasonNumber = 0;
+				CollectionName    = null;
+				SeasonName        = null;
+				SeriesName        = null;
+				LengthTicks       = null;
 
 				break;
 		}
@@ -454,40 +529,42 @@ public class Operand
 		return _people = _libraryManager.GetPeople(BaseItem);
 	}
 
-	private string GetAllText()
+	private static string GetAllText(Operand operand)
 	{
 		var sb = new StringBuilder();
 
-		Actors.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
-
-		foreach (var a in Artists)
-		{
-			sb.AppendLineIfNotNullOrEmpty(a);
-		}
-
-		Composers.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
-		Directors.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
-		GuestStars.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
-		Producers.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
-		Studios.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
-		Writers.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
-		sb.AppendLineIfNotNullOrEmpty(Album);
-		sb.AppendLineIfNotNullOrEmpty(CollectionName);
-		sb.AppendLineIfNotNullOrEmpty(Container);
-		sb.AppendLineIfNotNullOrEmpty(FileNameWithoutExtension);
-		sb.AppendLineIfNotNullOrEmpty(FolderPath);
-		sb.AppendLineIfNotNullOrEmpty(GrandparentName);
-		sb.AppendLineIfNotNullOrEmpty(MediaType);
-		sb.AppendLineIfNotNullOrEmpty(Name);
-		sb.AppendLineIfNotNullOrEmpty(OfficialRating);
-		sb.AppendLineIfNotNullOrEmpty(OriginalTitle);
-		sb.AppendLineIfNotNullOrEmpty(Overview);
-		sb.AppendLineIfNotNullOrEmpty(ParentName);
-		sb.AppendLineIfNotNullOrEmpty(SeasonName);
-		sb.AppendLineIfNotNullOrEmpty(SeriesName);
-		sb.AppendLineIfNotNullOrEmpty(SortName);
+		operand.Actors.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
+		operand.Artists.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
+		operand.Composers.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
+		operand.Directors.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
+		operand.GuestStars.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
+		operand.Producers.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
+		operand.Studios.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
+		operand.Writers.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
+		sb.AppendLineIfNotNullOrEmpty(operand.OriginalTitle);
+		sb.AppendLineIfNotNullOrEmpty(operand.Name);
+		sb.AppendLineIfNotNullOrEmpty(operand.MediaType);
+		sb.AppendLineIfNotNullOrEmpty(operand.Album);
+		sb.AppendLineIfNotNullOrEmpty(operand.FolderPath);
+		sb.AppendLineIfNotNullOrEmpty(operand.ContainingFolderPath);
+		sb.AppendLineIfNotNullOrEmpty(operand.FileNameWithoutExtension);
+		sb.AppendLineIfNotNullOrEmpty(operand.OfficialRating);
+		sb.AppendLineIfNotNullOrEmpty(operand.SortName);
+		sb.AppendLineIfNotNullOrEmpty(operand.ForcedSortName);
+		sb.AppendLineIfNotNullOrEmpty(operand.Overview);
+		sb.AppendLineIfNotNullOrEmpty(operand.Container);
+		sb.AppendLineIfNotNullOrEmpty(operand.Path);
+		sb.AppendLineIfNotNullOrEmpty(operand.Tagline);
+		sb.AppendLineIfNotNullOrEmpty(operand.ParentName);
+		sb.AppendLineIfNotNullOrEmpty(operand.GrandparentName);
 
 		return sb.ToString();
 	}
+
+	public static Operand Create(ILibraryManager  libraryManager,
+								 BaseItem         baseItem,
+								 IUserDataManager userDataManager,
+								 User             user) =>
+			new(libraryManager, baseItem, userDataManager, user);
 }
 #pragma warning restore CA1822 // Mark members as static

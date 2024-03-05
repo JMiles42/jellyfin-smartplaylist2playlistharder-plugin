@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Compiler;
 
 // This was based off of  https://stackoverflow.com/questions/6488034/how-to-implement-a-rule-engine
 // When first written in https://github.com/ankenyr/jellyfin-smartplaylist-plugin which this repo is a fork of
@@ -8,13 +6,13 @@ public static class RulesCompiler
 {
 	private static readonly OperatorManager OperatorManager = new();
 
-	private static ParsedValueExpressions BuildExpr<T>(SmartPlExpression expression,
+	private static ParsedValueExpressions BuildExpr<T>(SmartPlExpression   expression,
 													   ParameterExpression param) =>
 			GetExpression<T>(expression, param);
 
 	private static ParsedValueExpressions GetExpression<T>(SmartPlExpression r, ParameterExpression param)
 	{
-		var left = linqExpression.Property(param, r.MemberName.ToStringFast());
+		var left = LinqExpression.Property(param, r.MemberName.ToStringFast());
 
 		var tProp = typeof(T).GetProperty(r.MemberName.ToStringFast())?.PropertyType;
 		ArgumentNullException.ThrowIfNull(tProp);
@@ -48,7 +46,7 @@ public static class RulesCompiler
 			return results;
 		}
 
-		var sourceTypeParameter = linqExpression.Parameter(typeof(Operand));
+		var sourceTypeParameter = LinqExpression.Parameter(typeof(Operand));
 		var builtExpressionSet  = BuildExpr<T>(plExpression, sourceTypeParameter);
 
 		foreach (var builtExpressionResult in builtExpressionSet)
@@ -58,7 +56,7 @@ public static class RulesCompiler
 
 			try
 			{
-				compiledValueChecker = linqExpression.Lambda<Func<T, bool>>(builtExpressionResult.Expression,
+				compiledValueChecker = LinqExpression.Lambda<Func<T, bool>>(builtExpressionResult.Expression,
 																			sourceTypeParameter)
 													 .Compile();
 			}

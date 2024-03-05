@@ -8,11 +8,9 @@ public abstract record ExpressionValue
 
 	public abstract IEnumerable<object> GetValues();
 
-	public static ExpressionValue Create<T>(T value) => new ExpressionValue<T>(value);
+	public static ExpressionValue<T> Create<T>(T value) => new(value);
 
-	public static ExpressionValue CreateList<T>(IReadOnlyList<T> value) => new ExpressionValueList<T>(value);
-
-	public static ExpressionValue Create(bool value) => value? BoolExpressionValue.True : BoolExpressionValue.False;
+	public static ExpressionValueList<T> CreateList<T>(IReadOnlyList<T> value) => new(value);
 
 	public static ExpressionValue Create() => NullExpressionValue.Instance;
 }

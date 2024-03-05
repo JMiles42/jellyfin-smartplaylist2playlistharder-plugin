@@ -1,4 +1,4 @@
-﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.Serializer;
 
 public class OrderDtoJsonConverter: JsonConverter<OrderDto>
 {

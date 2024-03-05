@@ -15,9 +15,9 @@ public class RandomOrder: Order
 		yield return "DiceRoll";
 	}
 
-	public override IOrderedEnumerable<SortableBaseItem> OrderBy(IEnumerable<SortableBaseItem> items) =>
+	public override IOrderedEnumerable<Operand> OrderBy(IEnumerable<Operand> items) =>
 			items.OrderBy(_ => Random.Shared.Next());
 
-	public override IOrderedEnumerable<SortableBaseItem> ThenBy(IOrderedEnumerable<SortableBaseItem> items) =>
+	public override IOrderedEnumerable<Operand> ThenBy(IOrderedEnumerable<Operand> items) =>
 			items.ThenBy(_ => Random.Shared.Next());
 }

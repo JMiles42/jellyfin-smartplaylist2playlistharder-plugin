@@ -1,4 +1,4 @@
-﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Model;
 
 public record EngineOperatorResult(string Name, EngineOperatorResultKind Kind)
 {

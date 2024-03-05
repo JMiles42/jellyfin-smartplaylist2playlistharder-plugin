@@ -6,14 +6,14 @@ public class OrderStack
 
 	public OrderStack(params Order[] order) => Order = order;
 
-	public IEnumerable<BaseItem> OrderItems(IEnumerable<BaseItem> items)
+	public IEnumerable<BaseItem> OrderItems(IEnumerable<Operand> items)
 	{
 		if (Order.Length == 0)
 		{
-			return items;
+			return items.Select(a => a.BaseItem);
 		}
 
-		var sortableBaseItems = items.Select(bi => new SortableBaseItem(bi));
+		var sortableBaseItems = items;
 
 		if (Order.Length == 1)
 		{
@@ -25,7 +25,7 @@ public class OrderStack
 		return OrderMany(sortableBaseItems);
 	}
 
-	private IEnumerable<BaseItem> OrderMany(IEnumerable<SortableBaseItem> items)
+	private IEnumerable<BaseItem> OrderMany(IEnumerable<Operand> items)
 	{
 		var firstOrder = Order.First();
 

@@ -1,4 +1,4 @@
-﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.Extensions;
 
 public static class ExpressionCombiner
 {
@@ -10,6 +10,6 @@ public static class ExpressionCombiner
 				MatchMode.OnlyOne or MatchMode.One => countMatches == 1,
 				MatchMode.AllButOne                => countMatches == (totalChecks - 1),
 				MatchMode.None or MatchMode.Zero   => countMatches == 0,
-				_                                  => throw new ArgumentOutOfRangeException()
+				_                                  => throw new ArgumentOutOfRangeException(nameof(mode)),
 			};
 }

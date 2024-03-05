@@ -1,3 +1,3 @@
-﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
+﻿namespace Jellyfin.Plugin.SmartPlaylist.QueryEngine.Model;
 
 public record JobGrouping(User? User, BaseItemKind[]? Kinds);

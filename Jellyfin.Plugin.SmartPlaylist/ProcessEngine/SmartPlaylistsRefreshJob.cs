@@ -3,7 +3,7 @@ using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Playlists;
 
-namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure;
+namespace Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
 
 public class SmartPlaylistsRefreshJob
 {
@@ -179,12 +179,12 @@ public class SmartPlaylistsRefreshJob
 		return Sorter.GetResults().ToArray();
 	}
 
-	public async Task CreateOrUpdatePlaylist(IPlaylistManager playlistManager,
-											 IProviderManager providerManager,
-											 IFileSystem      fileSystem,
-											 BaseItem[]       items,
+	public async Task CreateOrUpdatePlaylist(IPlaylistManager                 playlistManager,
+											 IProviderManager                 providerManager,
+											 IFileSystem                      fileSystem,
+											 BaseItem[]                       items,
 											 SmartPlaylistPluginConfiguration config,
-											 CancellationToken token)
+											 CancellationToken                token)
 	{
 		if (HasErrors)
 		{
@@ -218,38 +218,45 @@ public class SmartPlaylistsRefreshJob
 									  SmartPlaylistPluginConfiguration config,
 									  CancellationToken                token)
 	{
-		try {
+		try
+		{
 			_logger.LogInformation("Clearing and adding {Number} files to existing playlist: {FileId}",
 								   items.Length,
 								   FileId);
 
 			JellyfinPlaylist!.LinkedChildren = items.Select(LinkedChild.Create)
-												   .ToArray();
+													.ToArray();
 
 			await JellyfinPlaylist.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, token)
 								  .ConfigureAwait(false);
 
 			providerManager.QueueRefresh(JellyfinPlaylist.Id,
-										 new(new DirectoryService(fileSystem)) {
+										 new(new DirectoryService(fileSystem))
+										 {
 											 ForceSave        = true,
 											 ImageRefreshMode = MetadataRefreshMode.FullRefresh,
 										 },
 										 RefreshPriority.High);
-			if (config.AlwaysSaveFile) {
+
+			if (config.AlwaysSaveFile)
+			{
 				SavePlaylist();
 			}
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			SetError($"Error updating Playlist {FileId}", e);
 		}
 	}
 
 	private async Task CreatePlaylist(IPlaylistManager playlistManager, BaseItem[] items)
 	{
-		try {
+		try
+		{
 			_logger.LogInformation("Creating and Saving Playlist {FileId}", FileId);
 
-			var req = new PlaylistCreationRequest {
+			var req = new PlaylistCreationRequest
+			{
 				Name       = SmartPlaylistDto!.Name,
 				UserId     = User!.Id,
 				ItemIdList = items.Select(baseItem => baseItem.Id).ToArray(),
@@ -260,7 +267,8 @@ public class SmartPlaylistsRefreshJob
 			SmartPlaylistDto.Id = PlaylistId;
 			SavePlaylist();
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			SetError($"Error creating Playlist {FileId}", e);
 		}
 	}
