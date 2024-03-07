@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
+using Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Model;
 using Xunit.Abstractions;
 
 namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;

@@ -17,26 +17,43 @@
         <div class="content-primary">
             <form class="smartPlaylist2PlaylistHarderConfigurationForm">
                 <div class="inputContainer">
-                    <input is="emby-input" type="number" id="playlistSorterThreadCount" pattern="[0-9]*" required="" label="Playlist Sorter Thread Count">
+                    <input is="emby-input" type="number" id="PlaylistSorterThreadCount" pattern="[0-9]*" required="" label="Playlist Sorter Thread Count">
                     <div class="fieldDescription">The number of threads used in the Parallel processing of playlist generation.</div>
                     <span>Warning, don't set to high.</span>
                 </div>
 
                 <div class="checkboxContainer checkboxContainer-withDescription">
                     <label>
-                        <input is="emby-checkbox" type="checkbox" id="playlistDetailedErrors"/>
+                        <input is="emby-checkbox" type="checkbox" id="PlaylistDetailedErrors" />
                         <span>Enable full detailed error messages</span>
                     </label>
                 </div>
 
                 <div class="checkboxContainer checkboxContainer-withDescription">
                     <label>
-                        <input is="emby-checkbox" type="checkbox" id="alwaysSaveFile"/>
+                        <input is="emby-checkbox" type="checkbox" id="AlwaysSaveFile" />
                         <span>Force the saving of playlist files on every run. Will only save valid files.</span>
                     </label>
                 </div>
 
-                <br/>
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="BackupFileOnSave" />
+                        <span>Backup the previous version of a playlist file on save.</span>
+                    </label>
+                </div>
+
+                <div class="inputContainer">
+                    <input is="emby-input" id="PlaylistFolderName" required label="Playlist Folder Name">
+                    <div class="fieldDescription">The folder where the playlist files will be located, defaults to "smartplaylists"</div>
+                </div>
+
+                <div class="inputContainer">
+                    <input is="emby-input" id="PlaylistBackupFolderName" required label="Playlist Backup Folder Name">
+                    <div class="fieldDescription">The folder where the playlist backup files will be located, if enabled, defaults to "smartplaylists_backups"</div>
+                </div>
+
+                <br />
                 <div>
                     <button is="emby-button" type="submit" class="raised button-submit block emby-button">
                         <span>Save</span>
@@ -58,9 +75,12 @@
             Dashboard.showLoadingMsg();
 
             ApiClient.getPluginConfiguration(pluginId).then(function (config) {
-				page.querySelector('#playlistSorterThreadCount').value = config.PlaylistSorterThreadCount;
-				page.querySelector('#playlistDetailedErrors').checked = config.PlaylistDetailedErrors;
-				page.querySelector('#alwaysSaveFile').checked = config.AlwaysSaveFile;
+				page.querySelector('#PlaylistSorterThreadCount').value = config.PlaylistSorterThreadCount;
+				page.querySelector('#PlaylistDetailedErrors').checked = config.PlaylistDetailedErrors;
+				page.querySelector('#AlwaysSaveFile').checked = config.AlwaysSaveFile;
+				page.querySelector('#BackupFileOnSave').checked = config.BackupFileOnSave;
+				page.querySelector('#PlaylistFolderName').value = config.PlaylistFolderName;
+				page.querySelector('#PlaylistBackupFolderName').value = config.PlaylistBackupFolderName;
 
                 Dashboard.hideLoadingMsg();
             });
@@ -73,9 +93,12 @@
             var form = this;
 
             ApiClient.getPluginConfiguration(pluginId).then(function (config) {
-				config.PlaylistSorterThreadCount = form.querySelector('#playlistSorterThreadCount').value;
-				config.PlaylistDetailedErrors = form.querySelector('#playlistDetailedErrors').checked;
-				config.AlwaysSaveFile = form.querySelector('#alwaysSaveFile').checked;
+				config.PlaylistSorterThreadCount = form.querySelector('#PlaylistSorterThreadCount').value;
+				config.PlaylistDetailedErrors = form.querySelector('#PlaylistDetailedErrors').checked;
+				config.AlwaysSaveFile = form.querySelector('#AlwaysSaveFile').checked;
+				config.BackupFileOnSave = form.querySelector('#BackupFileOnSave').checked;
+				config.PlaylistFolderName = form.querySelector('#PlaylistFolderName').value;
+				config.PlaylistBackupFolderName = form.querySelector('#PlaylistBackupFolderName').value;
 
                 ApiClient.updatePluginConfiguration(pluginId, config).then(Dashboard.processPluginConfigurationUpdateResult);
             });

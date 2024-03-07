@@ -19,7 +19,8 @@ public class SmartPlaylistPlugin: BasePlugin<SmartPlaylistPluginConfiguration>, 
 			{
 				new PluginPageInfo
 				{
-					Name = "configPage.html", EmbeddedResourcePath = $"{GetType().Namespace}.Pages.configPage.html",
+					Name = "configPage.html",
+					EmbeddedResourcePath = $"{GetType().Namespace}.Pages.configPage.html",
 				},
 				new PluginPageInfo
 				{

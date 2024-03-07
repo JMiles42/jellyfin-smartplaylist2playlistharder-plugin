@@ -27,15 +27,17 @@ public class SmartPlaylistDto
 	[JsonConverter(typeof(OrderByDtoJsonConverter))]
 	public OrderByDto? Order { get; set; }
 
-	public BaseItemKind[] SupportedItems { get; set; } = SupportedItemDefault;
+	private BaseItemKind[] supportedItems = SupportedItemDefault;
+
+	public BaseItemKind[] SupportedItems
+	{
+		get => supportedItems;
+		set
+		{
+			supportedItems = value ?? SupportedItemDefault;
+			Array.Sort(supportedItems);
+		}
+	}
 
 	public bool IsReadonly { get; set; }
-
-	public SmartPlaylistDto Validate()
-	{
-		SupportedItems ??= SupportedItemDefault;
-		Array.Sort(SupportedItems);
-
-		return this;
-	}
 }

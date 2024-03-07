@@ -1,8 +1,8 @@
 using FluentAssertions;
+using Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine;
 using Jellyfin.Plugin.SmartPlaylist.Models;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 using Jellyfin.Plugin.SmartPlaylist.Models.ExpressionValues;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine;
 
 namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;
 

@@ -1,9 +1,14 @@
 using System.Runtime.CompilerServices;
 using FluentAssertions;
+using Jellyfin.Plugin.SmartPlaylist.Configuration;
+using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
+using Jellyfin.Plugin.SmartPlaylist.Infrastructure.ProcessEngine;
+using Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine;
+using Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Model;
+using Jellyfin.Plugin.SmartPlaylist.Interfaces;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
-using Jellyfin.Plugin.SmartPlaylist.ProcessEngine;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Model;
+using MediaBrowser.Common.Configuration;
+
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 
 namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;
@@ -12,19 +17,46 @@ namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;
 public class ParsingFileTests
 {
     private static readonly string _appFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
-    private static readonly string _dataPath = Path.Combine(_appFolder, "Data", "IO");
+    private static readonly string _dataPath = Path.Combine(_appFolder, "Data");
 
-    private static PlaylistProcessRunData LoadFile([CallerMemberName] string filename = "") {
+    private readonly ISmartPlaylistManager             _smartPlaylistManager;
+
+    class TestHelper: ISmartPlaylistPluginConfiguration
+    {
+        /// <inheritdoc />
+        public int PlaylistSorterThreadCount => 2;
+
+        /// <inheritdoc />
+        public bool PlaylistDetailedErrors => true;
+
+        /// <inheritdoc />
+        public bool AlwaysSaveFile => false;
+
+        /// <inheritdoc />
+        public bool BackupFileOnSave => false;
+
+        /// <inheritdoc />
+        public string PlaylistFolderName => "IO";
+
+        /// <inheritdoc />
+        public string PlaylistBackupFolderName => SmartPlaylistPluginConfiguration.PLAYLIST_BACKUP_FOLDER_NAME;
+    }
+
+    public ParsingFileTests()
+    {
+        var config = new TestHelper();
+        var paths  = new PlaylistApplicationPaths(_dataPath, config);
+        _smartPlaylistManager = new SmartPlaylistManager(paths, config);
+    }
+
+    private PlaylistProcessRunData LoadFile([CallerMemberName] string filename = "") {
         var filename_ext = filename + ".json";
-        var contents     = SmartPlaylistManager.LoadPlaylist(Path.Combine(_dataPath, filename_ext), filename_ext);
+        var contents     = _smartPlaylistManager.LoadPlaylist(filename_ext);
         contents.Should().NotBeNull();
         return contents!;
     }
 
-    private static void SaveFile(SmartPlaylistDto data, [CallerMemberName] string filename = "") {
-        var file = Path.Combine(_dataPath, filename + ".output.json");
-        SmartPlaylistManager.SavePlaylist(file, data);
-    }
+    private void SaveFile(SmartPlaylistDto data, [CallerMemberName] string filename = "") => _smartPlaylistManager.SavePlaylist(filename + ".output.json", data);
 
     [Fact]
     public void Simple_With_StringComparison_AsInt()

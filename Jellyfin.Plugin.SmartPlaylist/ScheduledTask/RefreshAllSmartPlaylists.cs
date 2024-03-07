@@ -1,13 +1,14 @@
+using Jellyfin.Plugin.SmartPlaylist.Interfaces;
 using MediaBrowser.Model.Tasks;
 
 namespace Jellyfin.Plugin.SmartPlaylist.ScheduledTask;
 
 public class RefreshAllSmartPlaylistsScheduledTask: IScheduledTask, IConfigurableScheduledTask
 {
-	private readonly SmartPlaylistsRefreshAll _smartPlaylistsRefresh;
-	private readonly ILogger                  _logger;
+	private readonly ISmartPlaylistsRefreshAll _smartPlaylistsRefresh;
+	private readonly ILogger                   _logger;
 
-	public RefreshAllSmartPlaylistsScheduledTask(SmartPlaylistsRefreshAll                       smartPlaylistsRefresh,
+	public RefreshAllSmartPlaylistsScheduledTask(ISmartPlaylistsRefreshAll                      smartPlaylistsRefresh,
 												 ILogger<RefreshAllSmartPlaylistsScheduledTask> logger)
 	{
 		_smartPlaylistsRefresh = smartPlaylistsRefresh;
@@ -28,7 +29,6 @@ public class RefreshAllSmartPlaylistsScheduledTask: IScheduledTask, IConfigurabl
 
 	public string Category => "Smart Playlist 2 Playlist Harder";
 
-	// TODO check for creation of schedule json file. Isn't created currently and won't execute until it is.
 	public IEnumerable<TaskTriggerInfo> GetDefaultTriggers() =>
 			new[]
 			{
