@@ -82,24 +82,4 @@ public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
         return jobs.Select(a => new GroupedItems(a.GetGrouping(), new[] { a, }))
                    .ToArray();
     }
-
-    private class GroupedItems: IEnumerable<SmartPlaylistsRefreshJob>
-    {
-
-        public GroupedItems(JobGrouping key, IEnumerable<SmartPlaylistsRefreshJob> jobs)
-        {
-            Key  = key;
-            Jobs = jobs;
-        }
-
-        public JobGrouping Key { get; }
-
-        private IEnumerable<SmartPlaylistsRefreshJob> Jobs { get; }
-
-        /// <inheritdoc />
-        public IEnumerator<SmartPlaylistsRefreshJob> GetEnumerator() => Jobs.GetEnumerator();
-
-        /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Jobs).GetEnumerator();
-    }
 }
