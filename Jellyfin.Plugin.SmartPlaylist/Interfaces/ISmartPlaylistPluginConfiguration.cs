@@ -4,7 +4,8 @@ public interface ISmartPlaylistPluginConfiguration
 {
     int PlaylistSorterThreadCount { get; }
 
-    bool PlaylistDetailedErrors { get; }
+    bool PlaylistBatchedProcessing { get; }
+    bool PlaylistDetailedErrors    { get; }
 
     bool AlwaysSaveFile { get; }
 

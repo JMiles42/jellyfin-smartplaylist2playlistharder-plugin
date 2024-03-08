@@ -16,8 +16,17 @@
     <div data-role="content">
         <div class="content-primary">
             <form class="smartPlaylist2PlaylistHarderConfigurationForm">
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="PlaylistBatchedProcessing" />
+                        <div class="fieldDescription">Enable batched processing, this will group all sets of playlists that have the same User and SupportedItems.<br/>
+                            Depending on the library size and amount of playlists may use a large amount of RAM.
+                            Disable it if you encounter issues</div>
+                    </label>
+                </div>
+
                 <div class="inputContainer">
-                    <input is="emby-input" type="number" id="PlaylistSorterThreadCount" pattern="[0-9]*" required="" label="Playlist Sorter Thread Count">
+                    <input is="emby-input" type="number" id="PlaylistSorterThreadCount" pattern="[0-9\-]*" required="" label="Playlist Sorter Thread Count">
                     <div class="fieldDescription">The number of threads used in the Parallel processing of playlist generation.</div>
                     <span>Warning, don't set to high.</span>
                 </div>
@@ -25,14 +34,14 @@
                 <div class="checkboxContainer checkboxContainer-withDescription">
                     <label>
                         <input is="emby-checkbox" type="checkbox" id="PlaylistDetailedErrors" />
-                        <span>Enable full detailed error messages</span>
+                        <div class="fieldDescription">Enable full detailed error messages</div>
                     </label>
                 </div>
 
                 <div class="checkboxContainer checkboxContainer-withDescription">
                     <label>
                         <input is="emby-checkbox" type="checkbox" id="AlwaysSaveFile" />
-                        <span>Force the saving of playlist files on every run. Will only save valid files.</span>
+                        <div class="fieldDescription">Force the saving of playlist files on every run. Will only save valid files.</div>
                     </label>
                 </div>
 
@@ -76,6 +85,7 @@
 
             ApiClient.getPluginConfiguration(pluginId).then(function (config) {
 				page.querySelector('#PlaylistSorterThreadCount').value = config.PlaylistSorterThreadCount;
+				page.querySelector('#PlaylistBatchedProcessing').checked = config.PlaylistBatchedProcessing;
 				page.querySelector('#PlaylistDetailedErrors').checked = config.PlaylistDetailedErrors;
 				page.querySelector('#AlwaysSaveFile').checked = config.AlwaysSaveFile;
 				page.querySelector('#BackupFileOnSave').checked = config.BackupFileOnSave;
@@ -94,6 +104,7 @@
 
             ApiClient.getPluginConfiguration(pluginId).then(function (config) {
 				config.PlaylistSorterThreadCount = form.querySelector('#PlaylistSorterThreadCount').value;
+				config.PlaylistBatchedProcessing = form.querySelector('#PlaylistBatchedProcessing').checked;
 				config.PlaylistDetailedErrors = form.querySelector('#PlaylistDetailedErrors').checked;
 				config.AlwaysSaveFile = form.querySelector('#AlwaysSaveFile').checked;
 				config.BackupFileOnSave = form.querySelector('#BackupFileOnSave').checked;

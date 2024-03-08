@@ -35,7 +35,7 @@ public class SmartPlaylistsRefreshJob
 
     public JobGrouping? JobGrouping { get; private set; }
 
-    public BaseItemKind[]? Kinds => SmartPlaylistDto?.SupportedItems;
+    public BaseItemKind[]? SupportedItems => SmartPlaylistDto?.SupportedItems;
 
     public SmartPlaylistsRefreshJob(PlaylistProcessRunData            playlistProcessRunData,
                                     ILogger<SmartPlaylistsRefreshJob> logger,
@@ -105,7 +105,7 @@ public class SmartPlaylistsRefreshJob
         }
     }
 
-    public JobGrouping GetGrouping() => JobGrouping ??= new(User, Kinds);
+    public JobGrouping GetGrouping() => JobGrouping ??= new(User, SupportedItems);
 
     public void SetupPlaylist(Playlist[] userPlaylists)
     {

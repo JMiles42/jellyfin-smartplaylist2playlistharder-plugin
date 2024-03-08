@@ -8,14 +8,17 @@ public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
     private readonly ISmartPlaylistManager             _smartPlaylistManager;
     private readonly IUserManager                      _userManager;
     private readonly IServiceProvider                  _serviceProvider;
+    private readonly ISmartPlaylistPluginConfiguration _config;
 
     public SmartPlaylistsRefreshAll(IUserManager                      userManager,
                                     ISmartPlaylistManager             smartPlaylistManager,
-                                    IServiceProvider                  serviceProvider)
+                                    IServiceProvider                  serviceProvider,
+                                    ISmartPlaylistPluginConfiguration config)
     {
         _smartPlaylistManager = smartPlaylistManager;
         _userManager          = userManager;
         _serviceProvider      = serviceProvider;
+        this._config           = config;
     }
 
     public async Task ExecuteAsync(IProgress<double> progress,
@@ -33,13 +36,16 @@ public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
             job.SetUser();
         }
 
-        var jobGroups = jobs.GroupBy(a => a.GetGrouping()).ToArray();
+        var jobGroups = GetGroupings(jobs);
 
         var tracker = new ProgressTracker(progress, jobGroups.Length);
 
         foreach (var group in jobGroups)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
 
             if (group.Key.User is null || group.Key.Kinds is null)
             {
@@ -58,5 +64,37 @@ public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
 
             tracker.Increment();
         }
+    }
+
+    private GroupedItems[] GetGroupings(IEnumerable<SmartPlaylistsRefreshJob> jobs)
+    {
+        if (_config.PlaylistBatchedProcessing)
+        {
+            return jobs.GroupBy(a => a.GetGrouping())
+                       .Select(a => new GroupedItems()
+                       {
+                           Key  = a.Key,
+                           Jobs = a,
+                       }).ToArray();
+        }
+
+        return jobs.Select(a => new GroupedItems()
+                   {
+                       Jobs = new[] { a, },
+                       Key  = a.GetGrouping(),
+                   })
+                   .ToArray();
+    }
+
+    class GroupedItems : IEnumerable<SmartPlaylistsRefreshJob> {
+
+        public JobGrouping                           Key  { get; init; }
+        public IEnumerable<SmartPlaylistsRefreshJob> Jobs { get; init; }
+
+        /// <inheritdoc />
+        public IEnumerator<SmartPlaylistsRefreshJob> GetEnumerator() => Jobs.GetEnumerator();
+
+        /// <inheritdoc />
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Jobs).GetEnumerator();
     }
 }

@@ -28,6 +28,7 @@ public class ParsingFileTests
 
         /// <inheritdoc />
         public bool PlaylistDetailedErrors => true;
+        public bool PlaylistBatchedProcessing => true;
 
         /// <inheritdoc />
         public bool AlwaysSaveFile => false;

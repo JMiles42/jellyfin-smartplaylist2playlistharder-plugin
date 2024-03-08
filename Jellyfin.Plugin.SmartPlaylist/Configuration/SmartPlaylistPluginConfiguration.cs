@@ -5,7 +5,8 @@ namespace Jellyfin.Plugin.SmartPlaylist.Configuration;
 public class SmartPlaylistPluginConfiguration: BasePluginConfiguration, ISmartPlaylistPluginConfiguration {
 	public int PlaylistSorterThreadCount { get; set; } = 5;
 
-	public bool PlaylistDetailedErrors { get; set; } = false;
+	public bool PlaylistBatchedProcessing { get; set; } = true;
+	public bool PlaylistDetailedErrors    { get; set; } = false;
 
 	public bool AlwaysSaveFile { get; set; } = false;
 
