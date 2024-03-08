@@ -6,6 +6,7 @@ public class SmartPlaylistPluginConfiguration: BasePluginConfiguration, ISmartPl
 	public int PlaylistSorterThreadCount { get; set; } = 5;
 
 	public bool PlaylistBatchedProcessing { get; set; } = true;
+
 	public bool PlaylistDetailedErrors    { get; set; } = false;
 
 	public bool AlwaysSaveFile { get; set; } = false;

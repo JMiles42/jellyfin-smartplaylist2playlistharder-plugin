@@ -21,9 +21,9 @@ public class PlaylistUpdaterFactory
 		_serviceProvider = serviceProvider;
 	}
 
-	public PlaylistUpdater BuildUpdater(User              users,
-										BaseItemKind[]    supportedItems,
-										IProgress<double> progress) =>
+	public PlaylistUpdater BuildUpdater(User                  users,
+										BaseItemKind[]        supportedItems,
+										NestedProgressTracker progress) =>
 			new(users,
 				supportedItems,
 				progress,

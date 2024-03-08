@@ -7,7 +7,6 @@ using Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Model;
 using Jellyfin.Plugin.SmartPlaylist.Interfaces;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
-using MediaBrowser.Common.Configuration;
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 
@@ -21,13 +20,14 @@ public class ParsingFileTests
 
     private readonly ISmartPlaylistManager             _smartPlaylistManager;
 
-    class TestHelper: ISmartPlaylistPluginConfiguration
+    private class TestHelper: ISmartPlaylistPluginConfiguration
     {
         /// <inheritdoc />
         public int PlaylistSorterThreadCount => 2;
 
         /// <inheritdoc />
         public bool PlaylistDetailedErrors => true;
+
         public bool PlaylistBatchedProcessing => true;
 
         /// <inheritdoc />

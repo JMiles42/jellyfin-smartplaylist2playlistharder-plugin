@@ -6,9 +6,9 @@ namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.ProcessEngine;
 
 public class PlaylistUpdater
 {
-    private readonly User              _user;
-    private readonly BaseItemKind[]    _supportedItems;
-    private readonly IProgress<double> _progress;
+    private readonly User                  _user;
+    private readonly BaseItemKind[]        _supportedItems;
+    private readonly NestedProgressTracker _progress;
 
     private readonly ILibraryManager                   _libraryManager;
     private readonly IPlaylistManager                  _playlistManager;
@@ -17,7 +17,7 @@ public class PlaylistUpdater
 
     public PlaylistUpdater(User                              user,
                            BaseItemKind[]                    supportedItems,
-                           IProgress<double>                 progress,
+                           NestedProgressTracker             progress,
                            ILibraryManager                   libraryManager,
                            IPlaylistManager                  playlistManager,
                            ISmartPlaylistPluginConfiguration config,
@@ -49,18 +49,18 @@ public class PlaylistUpdater
         var jobs          = jobsIn.ToArray();
         var userPlaylists = GetUserPlaylists().ToArray();
         var items         = GetAllUserMedia();
-
         //Set the percent to calculate all items though all playlists
-        var totalThingsToProcess = items.Count * jobs.Length;
+        double totalThingsToProcess = items.Count * jobs.Length;
 
         //Add Each jobs separate steps
         totalThingsToProcess += jobs.Length * 3;
+        double i = 0D;
 
-        var progress = new ProgressTracker(_progress, totalThingsToProcess);
+        //var progress = new ProgressTracker2(_progress, totalThingsToProcess);
 
         foreach (var job in jobs)
         {
-            progress.Increment();
+            _progress.Report(i++, totalThingsToProcess);
             job.SetupPlaylist(userPlaylists);
         }
 
@@ -74,7 +74,7 @@ public class PlaylistUpdater
 
         foreach (var job in jobs)
         {
-            progress.Increment();
+            _progress.Report(i++, totalThingsToProcess);
             var newItems = job.GetItems();
 
             await job.CreateOrUpdatePlaylist(newItems, cancellationToken);
@@ -82,7 +82,7 @@ public class PlaylistUpdater
 
         foreach (var job in jobs)
         {
-            progress.Increment();
+            _progress.Report(i++, totalThingsToProcess);
 
             if (job.HasErrors)
             {
@@ -102,8 +102,9 @@ public class PlaylistUpdater
 
             foreach (var job in jobs)
             {
-                progress.Increment();
+                _progress.Report(i++, totalThingsToProcess);
                 job.ProcessItem(opp);
+                Task.Delay(100).GetAwaiter().GetResult();
             }
 
             return ValueTask.CompletedTask;

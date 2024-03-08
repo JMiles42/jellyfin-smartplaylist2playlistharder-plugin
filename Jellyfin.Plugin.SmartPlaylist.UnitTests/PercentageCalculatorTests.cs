@@ -15,17 +15,20 @@ public class PercentageCalculatorTests
 	[Fact]
 	public async Task TestNestedCalculation()
 	{
-		var progress       = new Progress<double>();
+		var progress = new Progress<double>();
 
 		progress.ProgressChanged += LogValue;
-		var progressTracer = new ProgressTracker(progress, 10);
 
-		foreach (var x in Enumerable.Range(0, 2))
+		const int X_TOTAL = 2;
+		const int Y_TOTAL = 4;
+
+
+		for (int x = 0; x < X_TOTAL; x++)
 		{
-			progressTracer.Increment();
-			await Task.Delay(10);
-			foreach (var y in Enumerable.Range(0, 4)) {
-				progressTracer.Increment();
+			var pro = new NestedProgressTracker(progress, 1D, X_TOTAL, x, X_TOTAL);
+			for (int y = 0; y < Y_TOTAL; y++)
+			{
+				pro.Report(y, Y_TOTAL);
 				await Task.Delay(10);
 			}
 		}

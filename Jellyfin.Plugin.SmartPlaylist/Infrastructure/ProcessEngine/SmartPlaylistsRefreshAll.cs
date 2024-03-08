@@ -6,19 +6,16 @@ namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.ProcessEngine;
 public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
 {
     private readonly ISmartPlaylistManager             _smartPlaylistManager;
-    private readonly IUserManager                      _userManager;
     private readonly IServiceProvider                  _serviceProvider;
     private readonly ISmartPlaylistPluginConfiguration _config;
 
-    public SmartPlaylistsRefreshAll(IUserManager                      userManager,
-                                    ISmartPlaylistManager             smartPlaylistManager,
+    public SmartPlaylistsRefreshAll(ISmartPlaylistManager             smartPlaylistManager,
                                     IServiceProvider                  serviceProvider,
                                     ISmartPlaylistPluginConfiguration config)
     {
         _smartPlaylistManager = smartPlaylistManager;
-        _userManager          = userManager;
         _serviceProvider      = serviceProvider;
-        this._config           = config;
+        _config               = config;
     }
 
     public async Task ExecuteAsync(IProgress<double> progress,
@@ -38,7 +35,7 @@ public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
 
         var jobGroups = GetGroupings(jobs);
 
-        var tracker = new ProgressTracker(progress, jobGroups.Length);
+        int    i             = 0;
 
         foreach (var group in jobGroups)
         {
@@ -57,12 +54,19 @@ public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
                 continue;
             }
 
+            var tracker = new NestedProgressTracker(progress,
+                                                    1,
+                                                    jobGroups.Length,
+                                                    i,
+                                                    jobGroups.Length);
+
             var sorter = _serviceProvider.GetRequiredService<PlaylistUpdaterFactory>()
                                          .BuildUpdater(group.Key.User, group.Key.Kinds, tracker);
 
             await sorter.ProcessPlaylists(group, cancellationToken).ConfigureAwait(false);
 
-            tracker.Increment();
+            i++;
+            progress.Report((i + 1D) / jobGroups.Length);
         }
     }
 
@@ -71,25 +75,26 @@ public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
         if (_config.PlaylistBatchedProcessing)
         {
             return jobs.GroupBy(a => a.GetGrouping())
-                       .Select(a => new GroupedItems()
-                       {
-                           Key  = a.Key,
-                           Jobs = a,
-                       }).ToArray();
+                       .Select(a => new GroupedItems(a.Key, a))
+                       .ToArray();
         }
 
-        return jobs.Select(a => new GroupedItems()
-                   {
-                       Jobs = new[] { a, },
-                       Key  = a.GetGrouping(),
-                   })
+        return jobs.Select(a => new GroupedItems(a.GetGrouping(), new[] { a, }))
                    .ToArray();
     }
 
-    class GroupedItems : IEnumerable<SmartPlaylistsRefreshJob> {
+    private class GroupedItems: IEnumerable<SmartPlaylistsRefreshJob>
+    {
 
-        public JobGrouping                           Key  { get; init; }
-        public IEnumerable<SmartPlaylistsRefreshJob> Jobs { get; init; }
+        public GroupedItems(JobGrouping key, IEnumerable<SmartPlaylistsRefreshJob> jobs)
+        {
+            Key  = key;
+            Jobs = jobs;
+        }
+
+        public JobGrouping Key { get; }
+
+        private IEnumerable<SmartPlaylistsRefreshJob> Jobs { get; }
 
         /// <inheritdoc />
         public IEnumerator<SmartPlaylistsRefreshJob> GetEnumerator() => Jobs.GetEnumerator();

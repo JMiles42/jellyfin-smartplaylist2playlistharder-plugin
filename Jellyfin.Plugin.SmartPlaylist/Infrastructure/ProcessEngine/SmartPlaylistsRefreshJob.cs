@@ -243,7 +243,7 @@ public class SmartPlaylistsRefreshJob
         }
 
 
-        if (JellyfinPlaylist is not null)
+        if (JellyfinPlaylist is null)
         {
             await CreatePlaylist(items);
         }
