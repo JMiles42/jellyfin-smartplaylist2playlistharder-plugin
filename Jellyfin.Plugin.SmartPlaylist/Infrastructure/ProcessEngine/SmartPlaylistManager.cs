@@ -118,7 +118,11 @@ public class SmartPlaylistManager: ISmartPlaylistManager {
     private void BackupFile(string file)
     {
         var date = DateTime.Now;
-        var dir = Path.GetDirectoryName(file)?.Replace(_paths.PlaylistPath, "");
+
+        var dir = Path.GetDirectoryName(file)
+                      ?.Replace(_paths.PlaylistPath, "")
+                      .TrimStart(Path.DirectorySeparatorChar)
+                      .TrimStart(Path.AltDirectorySeparatorChar);
 
         if (dir is null)
         {
@@ -127,14 +131,14 @@ public class SmartPlaylistManager: ISmartPlaylistManager {
 
         var filename = Path.GetFileName(file);
 
-        var backupFolder = Path.Combine(_paths.PlaylistBackupPath, date.ToString("yyyy-MM-dd"), dir);
+        var backupFolder = Path.Combine(_paths.PlaylistBackupPath, date.ToString("yyyy-MM-dd"), date.ToString("HH"), dir);
         Directory.CreateDirectory(backupFolder);
 
-        var backupName = Path.Combine(backupFolder, $"{DateTime.Now:HHmmss-fffff}.{filename}.pl.bkup");
-
-        if (File.Exists(backupName))
+        var backupName = Path.Combine(backupFolder, $"{filename}.pl.bkup");
+        int i = 1;
+        while (File.Exists(backupName))
         {
-            File.Delete(backupName);
+            backupName += i;
         }
 
         File.Move(file, backupName);
