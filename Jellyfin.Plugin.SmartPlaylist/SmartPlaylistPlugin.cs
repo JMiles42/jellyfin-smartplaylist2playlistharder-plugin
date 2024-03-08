@@ -24,7 +24,7 @@ public class SmartPlaylistPlugin: BasePlugin<SmartPlaylistPluginConfiguration>, 
 				},
 				new PluginPageInfo
 				{
-					DisplayName          = SmartPlaylistConsts.PLUGIN_NAME,
+					DisplayName          = SmartPlaylistConsts.PLUGIN_NAME + " Jobs",
 					EnableInMainMenu     = true,
 					EmbeddedResourcePath = $"{GetType().Namespace}.Pages.pluginDataPage.html",
 					Name                 = "pluginDataPage.html",

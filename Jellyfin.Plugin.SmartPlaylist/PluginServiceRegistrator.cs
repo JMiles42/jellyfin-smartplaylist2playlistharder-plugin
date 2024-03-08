@@ -15,6 +15,6 @@ public class PluginServiceRegistrator: IPluginServiceRegistrator
 		serviceCollection.AddTransient<PlaylistUpdaterFactory>();
 		serviceCollection.AddTransient<SmartPlaylistsRefreshJobFactory>();
 		serviceCollection.AddTransient<OperandFactory>();
-		serviceCollection.AddTransient<ISmartPlaylistPluginConfiguration>((sp) => SmartPlaylistPlugin.Instance!.Configuration);
+		serviceCollection.AddTransient<ISmartPlaylistPluginConfiguration>((sp) => new SmartPlaylistPluginConfigReadonly(SmartPlaylistPlugin.Instance!.Configuration));
 	}
 }

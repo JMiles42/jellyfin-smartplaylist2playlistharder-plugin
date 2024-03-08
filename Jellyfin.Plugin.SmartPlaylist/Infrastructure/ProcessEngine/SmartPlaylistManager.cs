@@ -102,16 +102,7 @@ public class SmartPlaylistManager: ISmartPlaylistManager {
 
         if (_config.BackupFileOnSave)
         {
-            var dir = Path.GetDirectoryName(file);
-
-            var backupFolder = Path.Combine(_paths.PlaylistBackupPath, $"{DateTime.Now:yyyy-MM-dd_hhmmss}");
-
-            var backupName = $"{file}.pl.bkup";
-
-            if (File.Exists(file))
-            {
-                File.Move(file, backupName);
-            }
+            BackupFile(file);
         }
 
         if (File.Exists(file))
@@ -122,6 +113,31 @@ public class SmartPlaylistManager: ISmartPlaylistManager {
         using var writer = File.OpenWrite(file);
 
         JsonSerializer.Serialize(writer, dto, SmartPlaylistDtoJsonContext.WithConverters.SmartPlaylistDto);
+    }
+
+    private void BackupFile(string file)
+    {
+        var date = DateTime.Now;
+        var dir = Path.GetDirectoryName(file)?.Replace(_paths.PlaylistPath, "");
+
+        if (dir is null)
+        {
+            return;
+        }
+
+        var filename = Path.GetFileName(file);
+
+        var backupFolder = Path.Combine(_paths.PlaylistBackupPath, date.ToString("yyyy-MM-dd"), dir);
+        Directory.CreateDirectory(backupFolder);
+
+        var backupName = Path.Combine(backupFolder, $"{DateTime.Now:HHmmss-fffff}.{filename}.pl.bkup");
+
+        if (File.Exists(backupName))
+        {
+            File.Delete(backupName);
+        }
+
+        File.Move(file, backupName);
     }
 
     public static void SetErrorStatus(string jobFileId,
