@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jellyfin.Plugin.SmartPlayli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jellyfin.Plugin.SmartPlaylist.UnitTests", "Jellyfin.Plugin.SmartPlaylist.UnitTests\Jellyfin.Plugin.SmartPlaylist.UnitTests.csproj", "{04716270-0947-4567-AFF9-A36F021868BF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration", "Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration\Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration.csproj", "{90FA86BB-CA08-4E43-ABF2-605268E81AEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{04716270-0947-4567-AFF9-A36F021868BF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{04716270-0947-4567-AFF9-A36F021868BF}.Release|x64.ActiveCfg = Release|Any CPU
 		{04716270-0947-4567-AFF9-A36F021868BF}.Release|x64.Build.0 = Release|Any CPU
+		{90FA86BB-CA08-4E43-ABF2-605268E81AEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90FA86BB-CA08-4E43-ABF2-605268E81AEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90FA86BB-CA08-4E43-ABF2-605268E81AEF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{90FA86BB-CA08-4E43-ABF2-605268E81AEF}.Debug|x64.Build.0 = Debug|Any CPU
+		{90FA86BB-CA08-4E43-ABF2-605268E81AEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90FA86BB-CA08-4E43-ABF2-605268E81AEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90FA86BB-CA08-4E43-ABF2-605268E81AEF}.Release|x64.ActiveCfg = Release|Any CPU
+		{90FA86BB-CA08-4E43-ABF2-605268E81AEF}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -66,7 +66,7 @@ public class ParsingFileTests
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(nameof(Operand.Directors));
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
     }
 
@@ -77,7 +77,7 @@ public class ParsingFileTests
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(nameof(Operand.Directors));
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
     }
 
@@ -88,7 +88,7 @@ public class ParsingFileTests
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(nameof(Operand.Directors));
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.CurrentCulture);
     }
 
@@ -99,7 +99,7 @@ public class ParsingFileTests
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(nameof(Operand.Directors));
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.CurrentCulture);
         dto.SupportedItems.Should().NotBeNullOrEmpty().And.HaveCount(3).And.BeEquivalentTo(SmartPlaylistDto.SupportedItemDefault);
     }
@@ -110,7 +110,7 @@ public class ParsingFileTests
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(nameof(Operand.Directors));
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
         dto.SupportedItems.Should().NotBeNullOrEmpty().And.HaveCount(3).And.BeEquivalentTo(SmartPlaylistDto.SupportedItemDefault);
     }
@@ -121,7 +121,7 @@ public class ParsingFileTests
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(nameof(Operand.Directors));
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
         dto.SupportedItems.Should().NotBeNullOrEmpty().And.HaveCount(3).And.BeEquivalentTo(SmartPlaylistDto.SupportedItemDefault);
     }
@@ -132,7 +132,7 @@ public class ParsingFileTests
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(nameof(Operand.Directors));
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
         dto.SupportedItems.Should().NotBeNullOrEmpty().And.HaveCount(3).And.BeEquivalentTo(SmartPlaylistDto.SupportedItemDefault);
         SaveFile(dto);
@@ -144,7 +144,7 @@ public class ParsingFileTests
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
-        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Directors);
+        dto.ExpressionSets[0].Expressions[0].MemberName.Should().Be(nameof(Operand.Directors));
         dto.ExpressionSets[0].Expressions[0].StringComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
         dto.SupportedItems.Should().NotBeNullOrEmpty().And.HaveCount(3).And.BeEquivalentTo(SmartPlaylistDto.SupportedItemDefault);
         SaveFile(dto);

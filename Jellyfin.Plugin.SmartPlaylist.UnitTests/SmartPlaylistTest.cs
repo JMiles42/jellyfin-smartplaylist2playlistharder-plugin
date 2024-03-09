@@ -13,10 +13,10 @@ public class SmartPlaylistTest {
         var dto = new SmartPlaylistDto {
             Id   = PlaylistId,
             Name = "Foo",
-            User = "Rob"
+            User = "Rob",
         };
 
-        var es = new ExpressionSet { Expressions = new() { new(OperandMember.Name, "bar", ExpressionValue.Create("biz")) } };
+        var es = new ExpressionSet { Expressions = new() { new(nameof(Operand.Name), "bar", ExpressionValue.Create("biz")) } };
 
         dto.ExpressionSets = new() { es };
 
@@ -31,7 +31,7 @@ public class SmartPlaylistTest {
         smartPlaylist.Id.Should().Be(PlaylistId);
         smartPlaylist.Name.Should().Be("Foo");
         smartPlaylist.User.Should().Be("Rob");
-        smartPlaylist.ExpressionSets[0].Expressions[0].MemberName.Should().Be(OperandMember.Name);
+        smartPlaylist.ExpressionSets[0].Expressions[0].MemberName.Should().Be(nameof(Operand.Name));
         smartPlaylist.ExpressionSets[0].Expressions[0].Operator.Should().Be("bar");
         smartPlaylist.ExpressionSets[0].Expressions[0].TargetValue.Should().Be("biz".ToExpressionValue());
         smartPlaylist.Order.Order[0].Names().First().Should().Be("PremiereDate");
@@ -45,7 +45,7 @@ public class SmartPlaylistTest {
             User = "Rob"
         };
 
-        var es = new ExpressionSet { Expressions = new() { new(OperandMember.Directors, "StringListContainsSubstring", "CGP".ToExpressionValue()) } };
+        var es = new ExpressionSet { Expressions = new() { new(nameof(Operand.Directors), "StringListContainsSubstring", "CGP".ToExpressionValue()) } };
 
         dto.ExpressionSets = new() { es };
 
@@ -65,12 +65,12 @@ public class SmartPlaylistTest {
         var dto = new SmartPlaylistDto {
             Id   = PlaylistId,
             Name = "Foo",
-            User = "Rob"
+            User = "Rob",
         };
 
         var es = new ExpressionSet {
                 Expressions = new() {
-                        new(OperandMember.Name,
+                        new(nameof(Operand.Name),
                             "Contains",
                             "CGP".ToExpressionValue(),
                             MatchMode.All,
