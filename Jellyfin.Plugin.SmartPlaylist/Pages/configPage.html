@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Smart Playlist 2 Playlist Harder</title>
+</head>
+<body>
+<div data-role="page" class="page type-interior smartPlaylist2PlaylistHarderConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+    <div class="fieldDescription">
+        <h1>Smart Playlist 2 Playlist Harder Configuration Page</h1>
+        <p>For information on how to setup your libraries, see the Github page&nbsp;</p>
+        <p>
+            <a href="https://github.com/JMiles42/jellyfin-smartplaylist2playlistharder-plugin/">https://github.com/JMiles42/jellyfin-smartplaylist2playlistharder-plugin/</a>
+        </p>
+    </div>
+    <div data-role="content">
+        <div class="content-primary">
+            <form class="smartPlaylist2PlaylistHarderConfigurationForm">
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="PlaylistBatchedProcessing" />
+                        <span>Enable batch playlist generation</span>
+                    </label>
+                    <div class="fieldDescription">
+                        Enable batched processing, this will group all sets of playlists that have the same User and SupportedItems.<br />
+                        Depending on the library size and amount of playlists may use a large amount of RAM.
+                        Disable it if you encounter issues
+                    </div>
+                </div>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="PlaylistDetailedErrors" />
+                        <span>Enable Detailed Errors on the Jobs page</span>
+                    </label>
+                    <div class="fieldDescription">Enable the full stack trace of the error.</div>
+                </div>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="AlwaysSaveFile" />
+                        <span>Always save file</span>
+                    </label>
+                    <div class="fieldDescription">Force the saving of playlist files on every run. Will only save valid files.</div>
+                </div>
+
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="BackupFileOnSave" />
+                        <span>Backup Files on save</span>
+                    </label>
+                </div>
+
+                <div class="inputContainer">
+                    <input is="emby-input" id="PlaylistFolderName" required label="Playlist Folder Name">
+                    <div class="fieldDescription">The folder where the playlist files will be located, defaults to "smartplaylists"</div>
+                </div>
+
+                <div class="inputContainer">
+                    <input is="emby-input" id="PlaylistBackupFolderName" required label="Playlist Backup Folder Name">
+                    <div class="fieldDescription">The folder where the playlist backup files will be located, if enabled, defaults to "smartplaylists_backups"</div>
+                </div>
+
+                <div class="inputContainer">
+                    <input is="emby-input" type="number" id="PlaylistSorterThreadCount" pattern="[0-9\-]*" required="" label="Playlist Sorter Thread Count">
+                    <div class="fieldDescription">The number of threads used in the Parallel processing of playlist generation.<br/><strong>Warning, don't set to high.</strong></div>
+                </div>
+
+                <br />
+                <div>
+                    <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                        <span>Save</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    (function () {
+
+		var pluginId = "5A63FE63-765F-43F7-A129-661E839F83D5";
+
+        $('.smartPlaylist2PlaylistHarderConfigurationPage')
+            .on('pageshow', function (event) {
+            var page = this;
+
+            Dashboard.showLoadingMsg();
+
+            ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+				page.querySelector('#PlaylistSorterThreadCount').value = config.PlaylistSorterThreadCount;
+				page.querySelector('#PlaylistBatchedProcessing').checked = config.PlaylistBatchedProcessing;
+				page.querySelector('#PlaylistDetailedErrors').checked = config.PlaylistDetailedErrors;
+				page.querySelector('#AlwaysSaveFile').checked = config.AlwaysSaveFile;
+				page.querySelector('#BackupFileOnSave').checked = config.BackupFileOnSave;
+				page.querySelector('#PlaylistFolderName').value = config.PlaylistFolderName;
+				page.querySelector('#PlaylistBackupFolderName').value = config.PlaylistBackupFolderName;
+
+                Dashboard.hideLoadingMsg();
+            });
+        });
+
+        $('.smartPlaylist2PlaylistHarderConfigurationForm')
+            .off('submit.plugin')
+            .on('submit.plugin', function (e) {
+
+            Dashboard.showLoadingMsg();
+
+            var form = this;
+
+            ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+				config.PlaylistSorterThreadCount = form.querySelector('#PlaylistSorterThreadCount').value;
+				config.PlaylistBatchedProcessing = form.querySelector('#PlaylistBatchedProcessing').checked;
+				config.PlaylistDetailedErrors = form.querySelector('#PlaylistDetailedErrors').checked;
+				config.AlwaysSaveFile = form.querySelector('#AlwaysSaveFile').checked;
+				config.BackupFileOnSave = form.querySelector('#BackupFileOnSave').checked;
+				config.PlaylistFolderName = form.querySelector('#PlaylistFolderName').value;
+				config.PlaylistBackupFolderName = form.querySelector('#PlaylistBackupFolderName').value;
+
+                ApiClient.updatePluginConfiguration(pluginId, config)
+                    .then(Dashboard.processPluginConfigurationUpdateResult);
+            });
+
+            return false;
+        });
+
+    })();
+
+        </script>
+</div>
+
+</body>
+</html>

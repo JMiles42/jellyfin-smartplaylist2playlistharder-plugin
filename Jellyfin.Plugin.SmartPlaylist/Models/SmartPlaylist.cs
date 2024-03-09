@@ -1,129 +1,87 @@
-using Jellyfin.Data.Entities;
-using Jellyfin.Data.Enums;
-using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
-using Jellyfin.Plugin.SmartPlaylist.QueryEngine.Ordering;
-using MediaBrowser.Controller.Entities;
-using MediaBrowser.Controller.Library;
-
 namespace Jellyfin.Plugin.SmartPlaylist.Models;
 
-public class SmartPlaylist {
-    public string Id { get; set; }
+public class SmartPlaylist
+{
+	public Guid? Id { get; set; }
 
-    public string Name { get; set; }
+	public string? Name { get; set; }
 
-    public string FileName { get; set; }
+	public string? FileName { get; set; }
 
-    public string User { get; set; }
+	public string? User { get; set; }
 
-    public IReadOnlyList<ExpressionSet> ExpressionSets { get; set; }
+	public IReadOnlyList<ExpressionSet> ExpressionSets { get; set; }
 
-    public int MaxItems { get; set; }
+	public int MaxItems { get; set; }
 
-    public bool IsReadonly { get; set; }
+	public bool IsReadonly { get; set; }
 
-    public OrderStack Order { get; set; }
+	public MatchMode Match { get; set; }
 
-    public BaseItemKind[] SupportedItems { get; set; }
+	public OrderStack Order { get; set; }
 
-    private CompiledRule     CompiledRule { get; set; }
-    public  SmartPlaylistDto Dto          { get; set; }
+	public BaseItemKind[] SupportedItems { get; set; }
 
-    public SmartPlaylist(SmartPlaylistDto dto) {
-        Dto            = dto;
-        Id             = dto.Id;
-        Name           = dto.Name;
-        FileName       = dto.FileName;
-        User           = dto.User;
-        ExpressionSets = Engine.FixRuleSets(dto.ExpressionSets);
+	public CompiledPlaylistExpressionSets? CompiledPlaylistExpressionSets { get; set; }
 
-        if (dto.MaxItems > 0) {
-            MaxItems = dto.MaxItems;
-        }
-        else {
-            MaxItems = 0;
-        }
+	public SmartPlaylistDto Dto { get; set; }
 
-        Order = GenerateOrderStack(dto.Order);
-        SupportedItems = dto.SupportedItems;
-    }
+	public SmartPlaylist(SmartPlaylistDto dto)
+	{
+		Dto            = dto;
+		Id             = dto.Id;
+		Name           = dto.Name;
+		FileName       = dto.FileName;
+		User           = dto.User;
+		MaxItems       = dto.MaxItems;
+		SupportedItems = dto.SupportedItems;
+		IsReadonly     = dto.IsReadonly;
+		Match          = dto.Match;
 
-    private static OrderStack GenerateOrderStack(OrderByDto dtoOrder) {
-        var result = new List<Order>(1 + (dtoOrder.ThenBy?.Count ?? 0)) {
-                OrderManager.GetOrder(dtoOrder)
-        };
+		Order          = GenerateOrderStack(dto.Order);
+		ExpressionSets = RulesCompiler.FixRuleSets(dto.ExpressionSets);
+	}
 
-        if (dtoOrder.ThenBy?.Count > 0) {
-            foreach (var order in dtoOrder.ThenBy) {
-                result.Add(OrderManager.GetOrder(order));
-            }
-        }
+	private static OrderStack GenerateOrderStack(OrderByDto? dtoOrder)
+	{
+		if (dtoOrder is null)
+		{
+			return OrderManager.Default;
+		}
 
-        return new(result.ToArray());
-    }
+		return new(dtoOrder.Where(a => !a.IsInValid)
+						   .Select(OrderManager.GetOrder)
+						   .ToArray());
+	}
 
-    internal void CompileRules() {
-        CompiledRule = new ();
+	internal CompiledPlaylistExpressionSets CompilePlaylistExpressionSets()
+	{
+		CompiledPlaylistExpressionSets compiledPlaylistExpressionSets = new();
 
-        foreach (var set in ExpressionSets) {
-            CompiledRule.CompiledRuleSets.Add(set.Expressions.Where(a => !a.IsInValid).Select(Engine.CompileRule<Operand>).ToList());
-        }
-    }
+		foreach (var set in ExpressionSets)
+		{
+			var listOfCompiledExpressions = set.Expressions
+											   .Where(a => !a.IsInValid)
+											   .Select(RulesCompiler.CompileRule<Operand>)
+											   .ToList();
 
-    internal List<List<Func<Operand, bool>>> GetCompiledRules() {
-        if (CompiledRule is not null) {
-            return CompiledRule.CompiledRuleSets;
-        }
+			compiledPlaylistExpressionSets.CompiledExpressionSets.Add(new(set.Match, listOfCompiledExpressions));
+		}
 
-        CompileRules();
+		return compiledPlaylistExpressionSets;
+	}
 
-        return CompiledRule!.CompiledRuleSets;
-    }
+	internal List<CompiledExpressionSet<Operand>> GetCompiledRules()
+	{
+		if (CompiledPlaylistExpressionSets is not null)
+		{
+			return CompiledPlaylistExpressionSets.CompiledExpressionSets;
+		}
 
-    // Returns the BaseItems that match the filter, if order is provided the IDs are sorted.
-    public IEnumerable<Guid> FilterPlaylistItems(IEnumerable<BaseItem> items,
-                                                 ILibraryManager       libraryManager,
-                                                 User                  user) {
-        var sorter = new Sorter(this);
+		CompiledPlaylistExpressionSets = CompilePlaylistExpressionSets();
 
-        foreach (var i in items) {
-            sorter.SortItem(i, libraryManager, user);
-        }
+		return CompiledPlaylistExpressionSets!.CompiledExpressionSets;
+	}
 
-        return sorter.GetResults();
-    }
-
-    public Sorter GetSorter() => new(this);
-
-    private static bool ProcessRule(List<Func<Operand, bool>> set, Operand operand) {
-        return set.All(rule => rule(operand));
-    }
-
-    public class Sorter
-    {
-        private readonly List<BaseItem>                  Items = new (1000);
-        private readonly SmartPlaylist                   _owner;
-        private readonly List<List<Func<Operand, bool>>> _rules;
-
-        internal Sorter(SmartPlaylist owner) {
-            _owner = owner;
-            _rules = _owner.GetCompiledRules();
-        }
-
-        public void SortItem(BaseItem item,
-                             ILibraryManager       libraryManager,
-                             User                  user) {
-            var operand = OperandFactory.GetMediaType(libraryManager, item, user);
-
-            if (_rules.Any(set => ProcessRule(set, operand))) {
-                Items.Add(item);
-            }
-        }
-
-        public IEnumerable<Guid> GetResults() {
-            var enumerable = _owner.Order.OrderItems(Items);
-
-            return enumerable.Select(bi => bi.Id);
-        }
-    }
+	public Sorter GetSorter() => new(this);
 }

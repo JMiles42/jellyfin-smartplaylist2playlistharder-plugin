@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Smart Playlist 2 Playlist Harder</title>
+</head>
+<body>
+<div data-role="page" class="page type-interior smartPlaylist2PlaylistHarderConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+    <div class="fieldDescription">
+        <h1>Smart Playlist 2 Playlist Harder Status Page</h1>
+        <p>For information on how to setup your libraries, see the Github page&nbsp;</p>
+        <p>The data for this page is reset on a reboot of Jellyfin</p>
+        <p>The data may not load properly, if playlists have been generated since the reboot, try refreshing this page while it is open. Will try to resolve this at some point.</p>
+        <p>
+            <a href="https://github.com/JMiles42/jellyfin-smartplaylist2playlistharder-plugin/">https://github.com/JMiles42/jellyfin-smartplaylist2playlistharder-plugin/</a>
+        </p>
+    </div>
+    <div data-role="content">
+        <div class="content-primary">
+            <table style="white-space: pre-wrap;">
+                <thead>
+                <tr>
+                    <th style="width:20%;">Playlist File ID</th>
+                    <th style="width:80%;">Status Details</th>
+                </tr>
+                </thead>
+                <tbody class="smartPlaylist2PlaylistHarderData sp2phAlternate">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <style type="text/css">
+			tbody.sp2phAlternate tr:nth-child(odd) {
+				background-color: #bebebe25;
+				border: solid;
+				border-width: 10px 0;
+			}
+
+			tbody.sp2phAlternate tr:nth-child(even) {
+				background-color: #40404040;
+				border: solid;
+				border-width: 10px 0;
+			}
+		</style>
+
+    <script type="text/javascript">
+			(function () {
+				var pluginId = "5A63FE63-765F-43F7-A129-661E839F83D5";
+
+				$('.smartPlaylist2PlaylistHarderConfigurationPage').on('pageshow', function (event) {
+					var page = this;
+
+					Dashboard.showLoadingMsg();
+
+					function createJobRunListItem(dataObject) {
+						let tr = document.createElement('tr');
+
+						let tdId = document.createElement('td');
+						tdId.textContent = dataObject.PlaylistId;
+						tdId.style.width = "20%";
+						tdId.style.paddingLeft = "30px";
+						let tdStatus = document.createElement('td');
+						tdStatus.textContent = dataObject.Status;
+						if (dataObject.Errors) {
+							dataObject.Errors.forEach(a => {
+								tdStatus.textContent += '\n' + a;
+							})
+						}
+
+						tdStatus.style.width = "80%";
+
+						tr.appendChild(tdId);
+						tr.appendChild(tdStatus);
+
+						return tr;
+					}
+
+					const request = {
+						url: ApiClient.getUrl('SmartPlaylist/GetAllPlaylistRunDetails'),
+						dataType: 'json',
+						type: 'GET',
+						headers: { accept: 'application/json' }
+					}
+					ApiClient.fetch(request).then(function (data) {
+						console.log(data);
+
+						data.forEach(element => {
+							//document.body.appendChild(createMenuItem(element));
+							$('.smartPlaylist2PlaylistHarderData')[0].appendChild(createJobRunListItem(element));
+						});
+
+						console.log(data);
+						Dashboard.hideLoadingMsg();
+					});
+				});
+
+			})();
+
+		</script>
+</div>
+
+</body>
+</html>

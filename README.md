@@ -2,7 +2,6 @@
 
 This is a more recent forked & upgraded version of [ankenyr](https://github.com/ankenyr/jellyfin-smartplaylist-plugin) plugin, which hadn't had updates in quite a while, and I found it a quite useful plugin and wanted to improve it.
 
-
 ## Overview
 
 This plugin allows you to setup a series of rules to auto generate and update playlists within Jellyfin.
@@ -12,9 +11,19 @@ The json format currently in use, may not be the final version while I continue 
 Currently I am trying to keep backwards compatability in mind. For example with the ordering, instead of changing the base OrderBy to an array I added the nested ThenBy field, to allow old ones to work.
 If I do make breaking changes, for my own sake as well, I will try to allow the older version to be compatable as well, but no guarantees. 
 
+
+## Warning as of the release of 2.* the save format has had changes.
+The format has had some updates, to the best of my knowledge the old formats should still be readable, and saved they will be written in the new format.
+Changes to the format include
+ - Removal of "FileName" element. It now users the path relative to the smartplaylist folder, and no longer relies on this field.
+ - GUIDs eg the ID, now saves with dashes
+ - Order, is now an array, rather then an Object with a ThenBy array.
+   - Order objects can be read as a single string of the order property name, this will default to be ascending
+ - Removed the OperandMember enum, replaced with just a string, which gets validated on inital read.
+
 ## How to Install
 
-To use this plugin download the DLL and place it in your plugin directory. Once launched you should find in your data directory a folder called "smartplaylist". Your JSON files describing a playlist go in here.
+To use this plugin download the DLL and place it in your plugin directory. Once launched you should find in your data directory a folder called "smartplaylist" (as of 2.* configurable via the plugin config page). Your JSON files describing a playlist go in here, or any subfolders.
 
 ## Configuration
 
@@ -22,49 +31,58 @@ To create a new playlist, create a json file in this directory having a format s
 
 ```json
 {
-  "Name": "CGP Grey",
-  "FileName": "cgp_grey",
-  "User": "rob",
+  "Id": "7be77ebb-859b-34ee-ecfd-f56a7cc8bdd4",
+  "Name": "Unplayed Youtube or X user",
+  "User": "JMiles42",
   "ExpressionSets": [
     {
       "Expressions": [
         {
           "MemberName": "Directors",
-          "Operator": "Contains",
-          "TargetValue": "CGP Grey"
+          "Operator": "StringListContainsSubstring",
+          "TargetValue": "CGP Grey",
+          "StringComparison": "OrdinalIgnoreCase"
         },
         {
           "MemberName": "IsPlayed",
           "Operator": "Equal",
           "TargetValue": "False"
         }
-      ]
+      ],
+      "Match": "All"
     },
     {
       "Expressions": [
         {
           "MemberName": "Directors",
-          "Operator": "Contains",
-          "TargetValue": "Nerdwriter1"
-        },
-        {
-          "MemberName": "IsPlayed",
-          "Operator": "Equal",
-          "TargetValue": "False"
+          "Operator": "StringListContainsSubstring",
+          "TargetValue": [
+            "Nerdwriter1",
+            "The Spiffing Brit"
+          ],
+          "StringComparison": "OrdinalIgnoreCase",
+          "Match": "Any"
         }
       ]
     }
   ],
-  "Order": {
-    "Name": "ReleaseDate",
-    "Ascending": true,
-    "ThenBy":[
-      {
-        "Name": "OriginalTitle",
-        "Ascending": true
-      }
-    ]
-  }
+  "Order": [
+    "ReleaseDate",
+    "OriginalTitle",
+    {
+      "Name": "RunTimeTicks",
+      "Ascending": false
+    },
+    {
+      "Name": "HasSubtitles",
+      "Ascending": true
+    }
+  ],
+  "SupportedItems": [
+    "Audio",
+    "Episode",
+    "Movie"
+  ]
 }
 ```
 

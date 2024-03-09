@@ -1,18 +1,41 @@
-using System.Text.Json.Serialization;
-
 namespace Jellyfin.Plugin.SmartPlaylist.Models.Dto;
 
-public class OrderDto
+public interface IOrderDetails
 {
-    [JsonPropertyOrder(0)]
-    public string Name { get; set; }
-
-    [JsonPropertyOrder(1)]
-    public bool Ascending { get; set; } = true;
+	public string Name { get; set; }
+	public bool Ascending { get; set; }
+	public bool IsInValid { get; }
 }
 
-public class OrderByDto : OrderDto
+public class OrderDto: IOrderDetails
 {
-    [JsonPropertyOrder(3)]
-    public List<OrderDto> ThenBy { get; set; } = new();
+	public string Name { get; set; }
+	public bool Ascending { get; set; } = true;
+	public bool IsInValid { get; } = false;
+}
+
+public class OrderByDto: IOrderDetails, IEnumerable<IOrderDetails>
+{
+	public List<OrderDto> ThenBy { get; set; } = new();
+
+	/// <inheritdoc />
+	public IEnumerator<IOrderDetails> GetEnumerator()
+	{
+		yield return this;
+
+		foreach (var orderDto in ThenBy)
+		{
+			yield return orderDto;
+		}
+	}
+
+	/// <inheritdoc />
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+	public string Name { get; set; }
+
+	public bool Ascending { get; set; } = true;
+
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+	public bool IsInValid => !OrderManager.IsValidOrderName(Name);
 }

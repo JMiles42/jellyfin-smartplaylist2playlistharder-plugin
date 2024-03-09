@@ -2,16 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>1.6.3.1</Version>
+    <Version>2.0.0.0</Version>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Configuration\configPage.html" />
+    <None Remove="Configuration\pluginDataPage.html" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Configuration\configPage.html" />
+    <EmbeddedResource Include="Pages\pluginDataPage.html" />
+    <EmbeddedResource Include="Pages\configPage.html" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,5 +27,10 @@
   <ItemGroup>
     <PackageReference Include="Jellyfin.Controller" Version="10.8.12" />
     <PackageReference Include="Jellyfin.Data" Version="10.8.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Jellyfin.Plugin.SmartPlaylist.UnitTests" />
+    <InternalsVisibleTo Include="Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 name: "SmartPlaylist2PlaylistHarder"
 guid: "5A63FE63-765F-43F7-A129-661E839F83D5"
 imageUrl: ""
-version: "1.6.3.1"
+version: "2.0.0.0"
 targetAbi: "10.8.0.0"
 framework: "net6.0"
 owner: "JMiles42"
@@ -14,10 +14,22 @@ category: "Playlist"
 artifacts:
   - "Jellyfin.Plugin.SmartPlaylist.dll"
 changelog: |
-  Removed IsValid from being saved into the json file
-  Fixed removing of OperandMember.Name from saving to json
-  Added Tags to OperandMember
-  Re-added progress tracking
-  Added Tags
-  Fixed Timespan operations
-  
+  v2.* Changes have been made to the JSON schema, old files should still be read correctly, and when saved will use the new format.
+  Added a Jobs page to the dashboard, to allow an admin to see the status of the playlist generation, it will include errors if they failed.
+  Changed TargetValue, to be one or many values. You can either have it a  single json value like a string, number or bool. Or an array of values. This allows a single Expression to match multiple values, rather then needing many single Expressions.
+  Added a MatchMode option, to allow selection of how sets of values are considered to be valid.
+    Modes are, Any, All, OnlyOne, AllButOne, None, Half, HalfOrMore, HalfOrLess.
+    Defualts 
+     SmartPlaylist is Any, meaning as long as one ExpressionSet matches the item is included.
+     ExpressionSet is All, meaning all Expressions must match for the item to be included.
+     Expression is Any, meaning only one of the TargetValues must match for the item to be included.
+  Added config options to the Plugin config page.
+    Options include
+      PlaylistBatchedProcessing - Batch playlists by user and ItemKinds, allows processing of multiple playlits at once (may have performace impacts)
+      PlaylistDetailedErrors - Show the whole StackTrace of an error on the jobs details page.
+      AlwaysSaveFile - Always save the json file, when processing the playlist.
+      BackupFileOnSave - Backup files on save
+      PlaylistFolderName - Allow you to specify the folder within the Jellyfin Data folder to store playlists
+      PlaylistBackupFolderName - Allow you to specify the folder within the Jellyfin Data folder to store backups playlists
+      PlaylistSorterThreadCount - Set the thread count for how many Items are processed in parallel
+      
