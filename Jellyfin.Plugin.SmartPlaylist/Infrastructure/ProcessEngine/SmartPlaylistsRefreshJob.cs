@@ -203,25 +203,34 @@ public class SmartPlaylistsRefreshJob
 
     public BaseItem[] GetItems()
     {
-        if (HasErrors)
+        try
         {
-            return Array.Empty<BaseItem>();
-        }
+            if (HasErrors)
+            {
+                return Array.Empty<BaseItem>();
+            }
 
-        if (Sorter is null)
-        {
-            return Array.Empty<BaseItem>();
-        }
+            if (Sorter is null)
+            {
+                return Array.Empty<BaseItem>();
+            }
 
-        if (SmartPlaylistDto?.MaxItems > 0)
-        {
+            if (SmartPlaylistDto?.MaxItems > 0)
+            {
+                return Sorter.GetResults()
+                             .Take(SmartPlaylistDto.MaxItems)
+                             .ToArray();
+            }
+
             return Sorter.GetResults()
-                         .Take(SmartPlaylistDto.MaxItems)
                          .ToArray();
         }
+        catch (Exception e)
+        {
+            SetError("Error ordering items", e);
+        }
 
-        return Sorter.GetResults()
-                     .ToArray();
+        return Array.Empty<BaseItem>();
     }
 
     public async Task CreateOrUpdatePlaylist(BaseItem[]        items,
@@ -258,7 +267,7 @@ public class SmartPlaylistsRefreshJob
     {
         try
         {
-            _logger.LogInformation("Clearing and adding {Number} files to existing playlist: {FileId}",
+            _logger.LogInformation("Clearing and adding {Number} items to existing playlist: {FileId}",
                                    items.Length,
                                    FileId);
 
@@ -291,7 +300,9 @@ public class SmartPlaylistsRefreshJob
     {
         try
         {
-            _logger.LogInformation("Creating and Saving Playlist {FileId}", FileId);
+            _logger.LogInformation("Creating and Saving Playlist with {Number} items {FileId}",
+                                   items.Length,
+                                   FileId);
 
             var req = new PlaylistCreationRequest
             {

@@ -56,11 +56,9 @@ public class PlaylistUpdater
         totalThingsToProcess += jobs.Length * 3;
         double i = 0D;
 
-        //var progress = new ProgressTracker2(_progress, totalThingsToProcess);
-
         foreach (var job in jobs)
         {
-            _progress.Report(i++, totalThingsToProcess);
+            ReportProcess(i++, totalThingsToProcess);
             job.SetupPlaylist(userPlaylists);
         }
 
@@ -74,7 +72,7 @@ public class PlaylistUpdater
 
         foreach (var job in jobs)
         {
-            _progress.Report(i++, totalThingsToProcess);
+            ReportProcess(i++, totalThingsToProcess);
             var newItems = job.GetItems();
 
             await job.CreateOrUpdatePlaylist(newItems, cancellationToken);
@@ -82,7 +80,7 @@ public class PlaylistUpdater
 
         foreach (var job in jobs)
         {
-            _progress.Report(i++, totalThingsToProcess);
+            ReportProcess(i++, totalThingsToProcess);
 
             if (job.HasErrors)
             {
@@ -102,14 +100,23 @@ public class PlaylistUpdater
 
             foreach (var job in jobs)
             {
-                _progress.Report(i++, totalThingsToProcess);
                 job.ProcessItem(opp);
-                Task.Delay(100).GetAwaiter().GetResult();
+
+                ReportProcess(i++, totalThingsToProcess);
             }
 
             return ValueTask.CompletedTask;
         }
     }
+
+    private void ReportProcess(double index, double length)
+    {
+        lock (_progress)
+        {
+            _progress.Report(index, length);
+        }
+    }
+
 
     private int GetThreadLimit()
     {

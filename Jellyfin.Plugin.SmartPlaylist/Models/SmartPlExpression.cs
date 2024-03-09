@@ -3,7 +3,7 @@
 public class SmartPlExpression
 {
 
-	public static SmartPlExpression Empty = new(OperandMember.Name,
+	public static SmartPlExpression Empty = new(nameof(Operand.Name),
 												"IfYouSeeThisSomethingHasGoneWrong",
 												NullExpressionValue.Instance);
 
@@ -11,7 +11,7 @@ public class SmartPlExpression
 	[IgnoreDataMember]
 	private string _operator;
 
-	public OperandMember MemberName { get; set; }
+	public string MemberName { get; set; }
 
 	public string Operator
 	{
@@ -41,7 +41,7 @@ public class SmartPlExpression
 	[IgnoreDataMember]
 	public bool IsInValid { get; }
 
-	public SmartPlExpression(OperandMember    memberName,
+	public SmartPlExpression(string           memberName,
 							 string           @operator,
 							 ExpressionValue  targetValue,
 							 MatchMode        match            = MatchMode.Any,
@@ -61,7 +61,7 @@ public class SmartPlExpression
 		InvertResult     = invertResult;
 		StringComparison = stringComparison;
 		Match            = match;
-		IsInValid        = MemberName == OperandMember.Invalid;
+		IsInValid        = !OperandHelper.IsValidPropertyName(MemberName);
 	}
 
 	/// <inheritdoc />

@@ -12,9 +12,9 @@ public static class RulesCompiler
 
     private static ParsedValueExpressions GetExpression<T>(SmartPlExpression r, ParameterExpression param)
     {
-        var left = LinqExpression.Property(param, r.MemberName.ToStringFast());
+        var left = LinqExpression.Property(param, r.MemberName);
 
-        var tProp = typeof(T).GetProperty(r.MemberName.ToStringFast())?.PropertyType;
+        var tProp = typeof(T).GetProperty(r.MemberName)?.PropertyType;
         ArgumentNullException.ThrowIfNull(tProp);
 
 

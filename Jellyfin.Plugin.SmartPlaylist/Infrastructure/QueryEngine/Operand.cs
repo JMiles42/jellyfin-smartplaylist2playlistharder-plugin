@@ -314,6 +314,8 @@ public record Operand
 
     public int? AiredSeasonNumber { get; }
 
+    public int AiredSeasonNumberNotNull => AiredSeasonNumber ?? 0;
+
     public long PlaybackPositionTicks { get; }
 
     public string? CollectionName { get; }
@@ -337,9 +339,12 @@ public record Operand
 
     public int Width => BaseItem.Width;
 
-    public int? ProductionYear => BaseItem.ProductionYear;
+    public int? ProductionYear        => BaseItem.ProductionYear;
+    public int  ProductionYearNotNull => BaseItem.ProductionYear ?? 0;
 
     public int? ParentIndexNumber => BaseItem.ParentIndexNumber;
+
+    public int ParentIndexNumberNotNull => BaseItem.ParentIndexNumber ?? 0;
 
     public string OriginalTitle => BaseItem.OriginalTitle;
 
@@ -373,27 +378,38 @@ public record Operand
 
     public string? GrandparentName => BaseItem.LatestItemsIndexContainer?.DisplayParent?.Name;
 
-    public float? CommunityRating => BaseItem.CommunityRating;
+    public float? CommunityRating        => BaseItem.CommunityRating;
+    public float  CommunityRatingNotNull => BaseItem.CommunityRating ?? 0;
 
-    public float? CriticRating => BaseItem.CriticRating;
+    public float? CriticRating        => BaseItem.CriticRating;
+    public float  CriticRatingNotNull => BaseItem.CriticRating ?? 0;
 
-    public DateTime? EndDate => BaseItem.EndDate;
+    public DateTime? EndDate        => BaseItem.EndDate;
+    public DateTime  EndDateNotNull => BaseItem.EndDate ?? DateTime.MinValue;
 
     public Guid ChannelId => BaseItem.ChannelId;
 
     public Guid Id => BaseItem.Id;
 
-    public TimeSpan? Length => LengthTicks.HasValue ? TimeSpan.FromTicks(LengthTicks.Value) : null;
+    public TimeSpan? Length        => LengthTicks.HasValue ? TimeSpan.FromTicks(LengthTicks.Value) : null;
+    public TimeSpan  LengthNotNull => LengthTicks.HasValue ? TimeSpan.FromTicks(LengthTicks.Value) : TimeSpan.Zero;
 
-    public double? LengthSeconds => Length?.TotalSeconds;
+    public double? LengthSeconds        => Length?.TotalSeconds;
+    public double LengthSecondsNotNull => Length?.TotalSeconds ?? 0;
 
-    public double? LengthMinutes => Length?.TotalMinutes;
+    public double? LengthMinutes        => Length?.TotalMinutes;
+    public double LengthMinutesNotNull => Length?.TotalMinutes ?? 0;
 
-    public double? LengthHours => Length?.TotalHours;
+    public double? LengthHours        => Length?.TotalHours;
+    public double LengthHoursNotNull => Length?.TotalHours ?? 0;
 
-    public long? LengthTicks { get; }
+    public long? LengthTicks        { get; }
 
-    public long? RunTimeTicks => LengthTicks;
+    public long LengthTicksNotNull => LengthTicks ?? 0;
+
+    public long? RunTimeTicks        => LengthTicks;
+
+    public long RunTimeTicksNotNull => RunTimeTicks ?? 0;
 
     public Operand(BaseItem         baseItem,
                    User             user,

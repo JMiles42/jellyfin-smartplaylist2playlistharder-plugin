@@ -31,5 +31,6 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Jellyfin.Plugin.SmartPlaylist.UnitTests" />
+    <InternalsVisibleTo Include="Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration" />
   </ItemGroup>
 </Project>

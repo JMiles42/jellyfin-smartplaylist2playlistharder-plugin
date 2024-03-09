@@ -49,7 +49,9 @@ public class SmartPlaylist
 			return OrderManager.Default;
 		}
 
-		return new(dtoOrder.Select(OrderManager.GetOrder).ToArray());
+		return new(dtoOrder.Where(a => !a.IsInValid)
+						   .Select(OrderManager.GetOrder)
+						   .ToArray());
 	}
 
 	internal CompiledPlaylistExpressionSets CompilePlaylistExpressionSets()

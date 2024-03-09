@@ -3,10 +3,10 @@
 public static class ExpressionFixerManager
 {
 
-    private static readonly IReadOnlyDictionary<OperandMember, IExpressionFixer> Fixers =
-            new Dictionary<OperandMember, IExpressionFixer>
+    private static readonly IReadOnlyDictionary<string, IExpressionFixer> Fixers =
+            new Dictionary<string, IExpressionFixer>
             {
-                { OperandMember.PremiereDate, new PremiereDateExpressionFixer() },
+                { nameof(Operand.PremiereDate), new PremiereDateExpressionFixer() },
             };
 
     public static void FixRules(List<SmartPlExpression> rulesExpressions)
