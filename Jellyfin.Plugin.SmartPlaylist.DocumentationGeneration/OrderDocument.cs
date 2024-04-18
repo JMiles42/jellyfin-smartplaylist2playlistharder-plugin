@@ -30,7 +30,7 @@ public static class OrderDocument
 		}
 
 		document.Root.Add(table);
-		document.Save("Ordering.md");
+		document.Save(Program.OUTPUTPATH + "Ordering.md");
 	}
 
 	private static MdTableRow GetMdTableRowForOrder(string name, string aliases, string objectType) => new(name, aliases, objectType);

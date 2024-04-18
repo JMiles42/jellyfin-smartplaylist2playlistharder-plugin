@@ -8,6 +8,6 @@ public static class ExpressionsDocument
 		document.Root.Add(new MdHeading("How to use the expressions", 1));
 		document.Root.Add(new MdParagraph("This document is WIP, and needs details added."));
 
-		document.Save("Expressions.md");
+		document.Save(Program.OUTPUTPATH + "Expressions.md");
 	}
 }

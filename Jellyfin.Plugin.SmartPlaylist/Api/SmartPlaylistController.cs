@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Jellyfin.Plugin.SmartPlaylist.Api.Models;
+using Jellyfin.Plugin.SmartPlaylist.Infrastructure.Factories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Api;
 
@@ -11,20 +14,76 @@ namespace Jellyfin.Plugin.SmartPlaylist.Api;
 [Route("SmartPlaylist")]
 public class SmartPlaylistController: ControllerBase
 {
+	private readonly ILibraryManager                  _libraryManager;
+	private readonly OperandFactory                   _operandFactory;
+	private readonly IUserManager                     _userManager;
+	private readonly ILogger<SmartPlaylistController> _logger;
+
+	public SmartPlaylistController(ILibraryManager libraryManager,
+								   OperandFactory  operandFactory,
+								   IUserManager userManager,
+								   ILogger<SmartPlaylistController> logger)
+	{
+		_libraryManager = libraryManager;
+		_operandFactory = operandFactory;
+		_userManager    = userManager;
+		_logger     = logger;
+	}
+
+
 	[Authorize(Policy = "DefaultAuthorization")]
-	[HttpGet(nameof(GetAllPlaylistRunDetails))]
+	[HttpGet("[Action]")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[Produces("application/javascript")]
-	public IActionResult GetAllPlaylistRunDetails()
-	{
+	public IActionResult GetAllPlaylistRunDetails() {
 		var all = SmartPlaylistManager.GetAllRunDetails()
 									  .OrderBy(a => a,
-											   SmartPlaylistLastRunDetailsComparer
-													   .Instance)
+											   SmartPlaylistLastRunDetailsComparer.Instance)
 									  .Select(GetResultObject);
 
 		return new JsonResult(all);
 	}
+
+	////TODO: Test this works
+	//[Authorize(Policy = "DefaultAuthorization")]
+	//[HttpGet("[Action]/{userId}/{itemId}")]
+	//[ProducesResponseType(StatusCodes.Status200OK)]
+	//[Produces("application/javascript")]
+	//public IActionResult GetOperandFromItemIdAndUserId([FromRoute] Guid userId, [FromRoute] Guid itemId) {
+	//	try {
+	//		var baseItem = _libraryManager.GetItemById(itemId);
+	//		var user     = _userManager.GetUserById(userId);
+	//
+	//		if (baseItem is null || user is null) {
+	//			return new JsonResult(new { Error = new { Message = "No user or baseItem found", }, });
+	//		}
+	//
+	//		return new JsonResult(new { Item = _operandFactory.Create(baseItem, user), });
+	//	}
+	//	catch (Exception exception) {
+	//		return new JsonResult(new { Error = exception, });
+	//	}
+	//}
+
+	//[Authorize(Policy = "DefaultAuthorization")]
+	//[HttpGet("[Action]/{userName}/{itemId}")]
+	//[ProducesResponseType(StatusCodes.Status200OK)]
+	//[Produces("application/javascript")]
+	//public IActionResult GetOperandFromItemIdAndUserName([FromRoute] string userName, [FromRoute] Guid itemId) {
+	//	try {
+	//		var baseItem = _libraryManager.GetItemById(itemId);
+	//		var user     = _userManager.GetUserByName(userName);
+	//
+	//		if (baseItem is null || user is null) {
+	//			return new JsonResult(new { Error = new { Message = "No user or baseItem found", }, });
+	//		}
+	//
+	//		return new JsonResult(new { Item = _operandFactory.Create(baseItem, user), });
+	//	}
+	//	catch (Exception exception) {
+	//		return new JsonResult(new { Error = exception, });
+	//	}
+	//}
 
 	private static SmartPlaylistLastRunDetailsDto GetResultObject(SmartPlaylistLastRunDetails runDetails)
 	{
@@ -53,9 +112,4 @@ public class SmartPlaylistController: ControllerBase
 
 		return e.ErrorPrefix + " " + e.Exception?.Message;
 	}
-
-	public record SmartPlaylistLastRunDetailsDto(string               PlaylistId,
-												 string               Status,
-												 IEnumerable<string>? Errors             = null,
-												 Guid?                JellyfinPlaylistId = null);
 }
