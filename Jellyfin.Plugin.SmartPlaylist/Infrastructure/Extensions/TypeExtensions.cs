@@ -27,14 +27,19 @@ public static class TypeExtensions {
 			return primitiveResult;
 		}
 
-		string result = type.Name.Replace('+', '.');
 
-		if (!type.IsGenericType)
-		{
+		var    elementType = type.GetElementType();
+		if (type.IsArray && elementType is not null) {
+			return GetCSharpName(elementType) + "[]";
+		}
+
+		string result      = type.Name.Replace('+', '.');
+
+		if (!type.IsGenericType) {
 			return result;
 		}
 
-		if (type.IsNested && type.DeclaringType.IsGenericType)
+		if (type is { IsNested: true, DeclaringType.IsGenericType: true, })
 		{
 			throw new NotImplementedException();
 		}

@@ -56,7 +56,6 @@ public record Operand
                     return _artists;
                 }
 
-
                 _artists = new();
 
                 if (BaseItem is MusicVideo mv)
@@ -340,11 +339,16 @@ public record Operand
     public int Width => BaseItem.Width;
 
     public int? ProductionYear        => BaseItem.ProductionYear;
+
     public int  ProductionYearNotNull => BaseItem.ProductionYear ?? 0;
 
     public int? ParentIndexNumber => BaseItem.ParentIndexNumber;
 
     public int ParentIndexNumberNotNull => BaseItem.ParentIndexNumber ?? 0;
+
+    public int? IndexNumber => BaseItem.IndexNumber;
+
+    public int IndexNumberNotNull => BaseItem.IndexNumber ?? 0;
 
     public string OriginalTitle => BaseItem.OriginalTitle;
 
@@ -410,6 +414,50 @@ public record Operand
     public long? RunTimeTicks        => LengthTicks;
 
     public long RunTimeTicksNotNull => RunTimeTicks ?? 0;
+
+    public long? Size        => BaseItem.Size;
+
+    public long SizeNotNull => Size ?? 0;
+
+    public int? TotalBitrate => BaseItem.TotalBitrate;
+
+    public int TotalBitrateNotNull => TotalBitrate ?? 0;
+
+    public bool IsUnaired => BaseItem.IsUnaired;
+
+    public bool SupportsAddingToPlaylist => BaseItem.SupportsAddingToPlaylist;
+
+    public Guid OwnerId              => BaseItem.OwnerId;
+
+    public Guid DisplayPreferencesId => BaseItem.DisplayPreferencesId;
+
+    public string ServiceName => BaseItem.ServiceName;
+
+    public string ExternalId => BaseItem.ExternalId;
+
+    public string ExternalSeriesId => BaseItem.ExternalSeriesId;
+
+    public bool IsHidden => BaseItem.IsHidden;
+
+    public bool IsHD => BaseItem.IsHD;
+
+    public bool IsLocked => BaseItem.IsLocked;
+
+    public Guid ParentId => BaseItem.ParentId;
+
+    public Guid DisplayParentId => BaseItem.DisplayParentId;
+
+    public int InheritedParentalRatingValue => BaseItem.InheritedParentalRatingValue;
+
+    public string CustomRating => BaseItem.CustomRating;
+
+    public string HomePageUrl => BaseItem.HomePageUrl;
+
+    public bool HasLocalAlternateVersions => BaseItem.HasLocalAlternateVersions;
+
+    public string OfficialRatingForComparison => BaseItem.OfficialRatingForComparison;
+
+    public string CustomRatingForComparison => BaseItem.CustomRatingForComparison;
 
     public Operand(BaseItem         baseItem,
                    User             user,
