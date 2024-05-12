@@ -37,7 +37,7 @@ public record Operand
 
                 var people = GetPeople();
 
-                _actors = new(people.Where(x => x.Type.Equals("Actor", StringComparison.OrdinalIgnoreCase))
+                _actors = new(people.Where(x => x.Type == PersonKind.Actor)
                                     .Select(x => x.Name));
 
                 return _actors;
@@ -81,7 +81,7 @@ public record Operand
 
                 var people = GetPeople();
 
-                _composers = new(people.Where(x => x.Type.Equals("Composer", StringComparison.OrdinalIgnoreCase))
+                _composers = new(people.Where(x => x.Type == PersonKind.Composer)
                                        .Select(x => x.Name));
 
                 return _composers;
@@ -102,7 +102,7 @@ public record Operand
 
                 var people = GetPeople();
 
-                _directors = new(people.Where(x => x.Type.Equals("Director", StringComparison.OrdinalIgnoreCase))
+                _directors = new(people.Where(x => x.Type == PersonKind.Director)
                                        .Select(x => x.Name));
 
                 return _directors;
@@ -123,7 +123,7 @@ public record Operand
 
                 var people = GetPeople();
 
-                _guestStars = new(people.Where(x => x.Type.Equals("GuestStar", StringComparison.OrdinalIgnoreCase))
+                _guestStars = new(people.Where(x => x.Type == PersonKind.GuestStar)
                                         .Select(x => x.Name));
 
                 return _guestStars;
@@ -144,7 +144,7 @@ public record Operand
 
                 var people = GetPeople();
 
-                _producers = new(people.Where(x => x.Type.Equals("Producer", StringComparison.OrdinalIgnoreCase))
+                _producers = new(people.Where(x => x.Type == PersonKind.Producer)
                                        .Select(x => x.Name));
 
                 return _producers;
@@ -165,7 +165,7 @@ public record Operand
 
                 var people = GetPeople();
 
-                _writers = new(people.Where(x => x.Type.Equals("Writer", StringComparison.OrdinalIgnoreCase))
+                _writers = new(people.Where(x => x.Type == PersonKind.Writer)
                                      .Select(x => x.Name));
 
                 return _writers;
@@ -354,7 +354,7 @@ public record Operand
 
     public string Name => BaseItem.Name;
 
-    public string MediaType => BaseItem.MediaType;
+    public MediaType MediaType => BaseItem.MediaType;
 
     public string Album => BaseItem.Album;
 
@@ -447,7 +447,7 @@ public record Operand
 
     public Guid DisplayParentId => BaseItem.DisplayParentId;
 
-    public int InheritedParentalRatingValue => BaseItem.InheritedParentalRatingValue;
+    public int? InheritedParentalRatingValue => BaseItem.InheritedParentalRatingValue;
 
     public string CustomRating => BaseItem.CustomRating;
 
@@ -609,7 +609,7 @@ public record Operand
         operand.Writers.ForEach(a => sb.AppendLineIfNotNullOrEmpty(a));
         sb.AppendLineIfNotNullOrEmpty(operand.OriginalTitle);
         sb.AppendLineIfNotNullOrEmpty(operand.Name);
-        sb.AppendLineIfNotNullOrEmpty(operand.MediaType);
+        sb.AppendLine(operand.MediaType.ToString());
         sb.AppendLineIfNotNullOrEmpty(operand.Album);
         sb.AppendLineIfNotNullOrEmpty(operand.FolderPath);
         sb.AppendLineIfNotNullOrEmpty(operand.ContainingFolderPath);

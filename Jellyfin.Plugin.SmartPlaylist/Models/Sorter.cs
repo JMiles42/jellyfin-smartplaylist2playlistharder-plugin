@@ -39,16 +39,27 @@ public class Sorter
 
 			continue;
 
-			bool EvaluateExpression(CompiledExpressionResult<Operand> a)
+			bool EvaluateExpression(CompiledExpressionResult<Operand> compiledExpression)
 			{
-				var value = a.Expression(operand);
-
-				if (a.ParsedValueExpression.SourceExpression.InvertResult)
+				//TODO: Change return type to allow errors to be handled
+				try
 				{
-					return !value;
-				}
+					var value = compiledExpression.Expression(operand);
 
-				return value;
+					if (compiledExpression
+						.ParsedValueExpression
+						.SourceExpression
+						.InvertResult)
+					{
+						return !value;
+					}
+
+					return value;
+				}
+				catch (Exception ex)
+				{
+					throw new CompiledExpressionException(compiledExpression, ex);
+				}
 			}
 		}
 
