@@ -4,9 +4,9 @@
 public class SmartPlaylistDto
 {
 	public static readonly BaseItemKind[] SupportedItemDefault =
-	{
+	[
 		BaseItemKind.Audio, BaseItemKind.Episode, BaseItemKind.Movie,
-	};
+	];
 
 	[JsonConverter(typeof(GuidNullableConverter))]
 	public Guid? Id { get; set; }

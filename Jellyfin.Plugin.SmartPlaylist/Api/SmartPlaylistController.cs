@@ -1,9 +1,9 @@
 ﻿using Jellyfin.Plugin.SmartPlaylist.Api.Models;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure.Factories;
+using MediaBrowser.Common.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Api;
 
@@ -11,6 +11,7 @@ namespace Jellyfin.Plugin.SmartPlaylist.Api;
 ///     Controller for accessing SmartPlaylist data.
 /// </summary>
 [ApiController]
+[Authorize(Policy = Policies.RequiresElevation)]
 [Route("SmartPlaylist")]
 public class SmartPlaylistController: ControllerBase
 {
@@ -30,8 +31,6 @@ public class SmartPlaylistController: ControllerBase
 		_logger     = logger;
 	}
 
-
-	[Authorize(Policy = "DefaultAuthorization")]
 	[HttpGet("[Action]")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[Produces("application/javascript")]

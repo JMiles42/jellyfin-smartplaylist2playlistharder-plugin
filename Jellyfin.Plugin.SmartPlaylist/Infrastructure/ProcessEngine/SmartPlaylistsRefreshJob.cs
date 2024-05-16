@@ -207,12 +207,12 @@ public class SmartPlaylistsRefreshJob
         {
             if (HasErrors)
             {
-                return Array.Empty<BaseItem>();
+                return [];
             }
 
             if (Sorter is null)
             {
-                return Array.Empty<BaseItem>();
+                return [];
             }
 
             if (SmartPlaylistDto?.MaxItems > 0)
@@ -230,7 +230,7 @@ public class SmartPlaylistsRefreshJob
             SetError("Error ordering items", e);
         }
 
-        return Array.Empty<BaseItem>();
+        return [];
     }
 
     public async Task CreateOrUpdatePlaylist(BaseItem[]        items,

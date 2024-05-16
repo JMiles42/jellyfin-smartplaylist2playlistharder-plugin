@@ -4,6 +4,8 @@
 							 WriteIndented = true,
 							 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault)]
 [JsonSerializable(typeof(SmartPlaylistDto))]
+[JsonSerializable(typeof(OrderByDto))]
+[JsonSerializable(typeof(OrderDto))]
 public partial class SmartPlaylistDtoJsonContext: JsonSerializerContext
 {
 	public static SmartPlaylistDtoJsonContext WithConverters = new(new()
