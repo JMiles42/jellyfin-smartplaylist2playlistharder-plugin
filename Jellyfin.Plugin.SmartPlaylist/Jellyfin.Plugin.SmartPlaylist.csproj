@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Version>2.1.1.0</Version>
+    <Version>2.1.1.1</Version>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <Nullable>enable</Nullable>
@@ -33,4 +33,22 @@
     <InternalsVisibleTo Include="Jellyfin.Plugin.SmartPlaylist.UnitTests" />
     <InternalsVisibleTo Include="Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="meta.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="Zip" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <FilesToDelete Include="$(BaseOutputPath)Jellyfin.SmartPlaylist*.zip" />
+      <TempZipDirectory Include="$(OutputPath)output" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="@(TempZipDirectory)" />
+    <Copy SourceFiles="$(OutputPath)\meta.json" DestinationFolder="@(TempZipDirectory)" />
+    <ZipDirectory SourceDirectory="@(TempZipDirectory)" DestinationFile="$(BaseOutputPath)Jellyfin.SmartPlaylist@v$(Version).zip" />
+    <RemoveDir Directories="@(TempZipDirectory)" />
+  </Target>
 </Project>

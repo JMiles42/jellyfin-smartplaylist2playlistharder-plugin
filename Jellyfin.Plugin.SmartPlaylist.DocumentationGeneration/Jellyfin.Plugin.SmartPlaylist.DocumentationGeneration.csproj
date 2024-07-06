@@ -5,7 +5,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-		<IsPackable>false</IsPackable>
+	<IsPackable>false</IsPackable>
+	<IsPublishable>False</IsPublishable>
   </PropertyGroup>
 
   <ItemGroup>
