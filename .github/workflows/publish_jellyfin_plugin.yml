@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - test
   workflow_dispatch:
 
 env:
@@ -68,7 +69,7 @@ jobs:
         shell: pwsh
         run: |
           ${{ env.MANIFEST_REPO_NAME }}/scripts/EditMetaJson.ps1 -targetAbi "${{ env.TARGET_ABI }}"`
-            -timestamp "${{ steps.variables.outputs.version }}"`
+            -timestamp "${{ steps.variables.outputs.timestamp }}"`
             -version "${{ steps.variables.outputs.version }}"`
             -metaFile "${{ env.CSPROJ_NAME }}/meta.json";
 
@@ -90,7 +91,7 @@ jobs:
             -pluginGuid "${{ env.PLUGIN_GUID }}"`
             -filename "$zipFilePath"`
             -targetAbi "${{ env.TARGET_ABI }}"`
-            -timestamp "${{ steps.variables.outputs.version }}"`
+            -timestamp "${{ steps.variables.outputs.timestamp }}"`
             -version "${{ steps.variables.outputs.version }}"`
             -manifestFile "${{ steps.variables.outputs.manifest }}";
 
