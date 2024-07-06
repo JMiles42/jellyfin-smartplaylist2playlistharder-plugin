@@ -2,26 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Version>2.1.1.1</Version>
+    <Version>2.1.1.2</Version>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Configuration\configPage.html" />
-    <None Remove="Configuration\pluginDataPage.html" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Pages\pluginDataPage.html" />
     <EmbeddedResource Include="Pages\configPage.html" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>Jellyfin.Plugin.SmartPlaylist.UnitTests</_Parameter1>
-    </AssemblyAttribute>
   </ItemGroup>
 
   <ItemGroup>
