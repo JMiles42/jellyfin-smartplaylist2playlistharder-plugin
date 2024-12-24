@@ -53,7 +53,7 @@ jobs:
           {
             $Manifest="manifest.prerelease.json";
             $PreRelease = "true";
-            $changeLog = ((Get-Content .\${{ env.CSPROJ_NAME }}\meta.json) | Out-String | ConvertFrom-Json).changelog
+            $changeLog = ((Get-Content .\${{ env.CSPROJ_NAME }}\meta.json) | Out-String | ConvertFrom-Json).changelog.Replace([System.Environment]::NewLine, "\n")
             $version = [System.DateTime]::UtcNow.ToString("yyyy.MMdd.HHmm");
           }
           echo "MANIFEST=$Manifest" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append;
@@ -118,7 +118,7 @@ jobs:
             -targetAbi "${{ env.TARGET_ABI }}"`
             -timestamp "${{ steps.variables.outputs.timestamp }}"`
             -version "${{ steps.variables.outputs.version }}"`
-            -changelog "${{ steps.variables.outputs.changelog }}"`
+            -changelog "${{ steps.variables.outputs.change_log }}"`
             -manifestFile "${{ steps.variables.outputs.manifest }}";
 
           git config --global user.name  'jmiles42-bot'
