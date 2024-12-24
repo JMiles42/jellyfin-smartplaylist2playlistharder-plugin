@@ -1,7 +1,7 @@
 ﻿{
   SmartPlaylist: {
     Name: OP Strats,
-    FileName: {CurrentDirectory}Data\IO\Simple_Without_SupportedItems.json,
+    FileName: {CurrentDirectory}Data/IO/Simple_Without_SupportedItems.json,
     User: UnitTest,
     ExpressionSets: [
       {

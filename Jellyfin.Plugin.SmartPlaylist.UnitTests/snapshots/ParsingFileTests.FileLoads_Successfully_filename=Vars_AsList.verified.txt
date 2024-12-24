@@ -1,7 +1,7 @@
 ﻿{
   SmartPlaylist: {
     Name: OP Strats,
-    FileName: {CurrentDirectory}Data\IO\Vars_AsList.json,
+    FileName: {CurrentDirectory}Data/IO/Vars_AsList.json,
     User: UnitTest,
     ExpressionSets: [
       {

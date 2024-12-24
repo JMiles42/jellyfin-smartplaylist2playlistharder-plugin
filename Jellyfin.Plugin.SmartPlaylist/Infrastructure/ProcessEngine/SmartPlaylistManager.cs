@@ -82,7 +82,7 @@ public sealed class SmartPlaylistManager : ISmartPlaylistManager
 
             if (playlist is not null)
             {
-                playlist.FileName = filepath;
+                playlist.FileName = filepath.Replace("\\","/");
             }
         }
         catch (Exception e)

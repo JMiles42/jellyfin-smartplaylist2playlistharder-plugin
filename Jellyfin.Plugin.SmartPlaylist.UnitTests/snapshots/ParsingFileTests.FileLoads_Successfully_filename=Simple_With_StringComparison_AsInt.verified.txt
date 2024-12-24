@@ -1,7 +1,7 @@
 ﻿{
   SmartPlaylist: {
     Name: OP Strats,
-    FileName: {CurrentDirectory}Data\IO\Simple_With_StringComparison_AsInt.json,
+    FileName: {CurrentDirectory}Data/IO/Simple_With_StringComparison_AsInt.json,
     User: UnitTest,
     ExpressionSets: [
       {
