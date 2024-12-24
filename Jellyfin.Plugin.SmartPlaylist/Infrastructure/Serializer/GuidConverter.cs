@@ -2,9 +2,8 @@
 
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
 
-public class GuidConverter : JsonConverter<Guid>
+public sealed class GuidConverter : JsonConverter<Guid>
 {
-
     /// <inheritdoc />
     public override Guid Read(ref Utf8JsonReader reader,
                               Type typeToConvert,
@@ -18,9 +17,8 @@ public class GuidConverter : JsonConverter<Guid>
             writer.WriteStringValue(value.ToString());
 }
 
-public class GuidNullableConverter : JsonConverter<Guid?>
+public sealed class GuidNullableConverter : JsonConverter<Guid?>
 {
-
     /// <inheritdoc />
     public override Guid? Read(ref Utf8JsonReader reader,
                                Type typeToConvert,

@@ -3,19 +3,19 @@ using Jellyfin.Plugin.SmartPlaylist.Interfaces;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.ProcessEngine;
 
-public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
+public sealed class SmartPlaylistsRefreshAll : ISmartPlaylistsRefreshAll
 {
-    private readonly ISmartPlaylistManager             _smartPlaylistManager;
-    private readonly IServiceProvider                  _serviceProvider;
+    private readonly ISmartPlaylistManager _smartPlaylistManager;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ISmartPlaylistPluginConfiguration _config;
 
-    public SmartPlaylistsRefreshAll(ISmartPlaylistManager             smartPlaylistManager,
-                                    IServiceProvider                  serviceProvider,
+    public SmartPlaylistsRefreshAll(ISmartPlaylistManager smartPlaylistManager,
+                                    IServiceProvider serviceProvider,
                                     ISmartPlaylistPluginConfiguration config)
     {
         _smartPlaylistManager = smartPlaylistManager;
-        _serviceProvider      = serviceProvider;
-        _config               = config;
+        _serviceProvider = serviceProvider;
+        _config = config;
     }
 
     public async Task ExecuteAsync(IProgress<double> progress,
@@ -35,7 +35,7 @@ public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
 
         var jobGroups = GetGroupings(jobs);
 
-        int    i             = 0;
+        int i = 0;
 
         foreach (var group in jobGroups)
         {
@@ -79,7 +79,7 @@ public class SmartPlaylistsRefreshAll: ISmartPlaylistsRefreshAll
                        .ToArray();
         }
 
-        return jobs.Select(a => new GroupedItems(a.GetGrouping(), new[] { a, }))
+        return jobs.Select(a => new GroupedItems(a.GetGrouping(), [a]))
                    .ToArray();
     }
 }

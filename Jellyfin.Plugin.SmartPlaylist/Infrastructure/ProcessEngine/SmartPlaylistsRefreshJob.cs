@@ -5,15 +5,15 @@ using MediaBrowser.Model.Playlists;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.ProcessEngine;
 
-public class SmartPlaylistsRefreshJob
+public sealed class SmartPlaylistsRefreshJob
 {
-    private readonly ILogger                           _logger;
-    private readonly ISmartPlaylistManager             _smartPlaylistManager;
-    private readonly IPlaylistManager                  _playlistManager;
-    private readonly IProviderManager                  _providerManager;
-    private readonly IDirectoryService                 _directoryService;
+    private readonly ILogger _logger;
+    private readonly ISmartPlaylistManager _smartPlaylistManager;
+    private readonly IPlaylistManager _playlistManager;
+    private readonly IProviderManager _providerManager;
+    private readonly IDirectoryService _directoryService;
     private readonly ISmartPlaylistPluginConfiguration _config;
-    private readonly IUserManager                      _userManager;
+    private readonly IUserManager _userManager;
 
     public PlaylistProcessRunData PlaylistProcessRunData { get; set; } = default!;
 
@@ -25,7 +25,7 @@ public class SmartPlaylistsRefreshJob
 
     public Sorter? Sorter { get; set; }
 
-    public List<SmartPlaylistsRefreshError> ProcessErrors { get; } = new();
+    public List<SmartPlaylistsRefreshError> ProcessErrors { get; } = [];
 
     public string FileId => PlaylistProcessRunData.FileId;
 
@@ -37,26 +37,26 @@ public class SmartPlaylistsRefreshJob
 
     public BaseItemKind[]? SupportedItems => SmartPlaylistDto?.SupportedItems;
 
-    public SmartPlaylistsRefreshJob(PlaylistProcessRunData            playlistProcessRunData,
+    public SmartPlaylistsRefreshJob(PlaylistProcessRunData playlistProcessRunData,
                                     ILogger<SmartPlaylistsRefreshJob> logger,
-                                    IPlaylistManager                  playlistManager,
-                                    ISmartPlaylistManager             smartPlaylistManager,
-                                    IProviderManager                  providerManager,
-                                    IDirectoryService                 directoryService,
+                                    IPlaylistManager playlistManager,
+                                    ISmartPlaylistManager smartPlaylistManager,
+                                    IProviderManager providerManager,
+                                    IDirectoryService directoryService,
                                     ISmartPlaylistPluginConfiguration config,
-                                    IUserManager                      userManager)
+                                    IUserManager userManager)
     {
-        _logger               = logger;
+        _logger = logger;
         _smartPlaylistManager = smartPlaylistManager;
-        _playlistManager      = playlistManager;
-        _providerManager      = providerManager;
-        _directoryService     = directoryService;
-        _config               = config;
-        _userManager          = userManager;
+        _playlistManager = playlistManager;
+        _providerManager = providerManager;
+        _directoryService = directoryService;
+        _config = config;
+        _userManager = userManager;
 
         PlaylistProcessRunData = playlistProcessRunData;
-        SmartPlaylistDto       = playlistProcessRunData.SmartPlaylist;
-        PlaylistId             = playlistProcessRunData.SmartPlaylist?.Id;
+        SmartPlaylistDto = playlistProcessRunData.SmartPlaylist;
+        PlaylistId = playlistProcessRunData.SmartPlaylist?.Id;
 
         if (PlaylistProcessRunData.ErrorDetails is not null)
         {
@@ -136,7 +136,7 @@ public class SmartPlaylistsRefreshJob
     {
         try
         {
-            pl                                = new(SmartPlaylistDto);
+            pl = new(SmartPlaylistDto);
             pl.CompiledPlaylistExpressionSets = pl.CompilePlaylistExpressionSets();
         }
         catch (Exception ex)
@@ -233,7 +233,7 @@ public class SmartPlaylistsRefreshJob
         return [];
     }
 
-    public async Task CreateOrUpdatePlaylist(BaseItem[]        items,
+    public async Task CreateOrUpdatePlaylist(BaseItem[] items,
                                              CancellationToken token)
     {
         if (HasErrors)
@@ -251,7 +251,6 @@ public class SmartPlaylistsRefreshJob
             return;
         }
 
-
         if (JellyfinPlaylist is null)
         {
             await CreatePlaylist(items);
@@ -262,7 +261,7 @@ public class SmartPlaylistsRefreshJob
         }
     }
 
-    private async Task UpdatePlaylist(BaseItem[]        items,
+    private async Task UpdatePlaylist(BaseItem[] items,
                                       CancellationToken token)
     {
         try
@@ -280,7 +279,7 @@ public class SmartPlaylistsRefreshJob
             _providerManager.QueueRefresh(JellyfinPlaylist.Id,
                                           new(_directoryService)
                                           {
-                                              ForceSave        = true,
+                                              ForceSave = true,
                                               ImageRefreshMode = MetadataRefreshMode.FullRefresh,
                                           },
                                           RefreshPriority.High);
@@ -306,13 +305,13 @@ public class SmartPlaylistsRefreshJob
 
             var req = new PlaylistCreationRequest
             {
-                Name       = SmartPlaylistDto!.Name,
-                UserId     = User!.Id,
+                Name = SmartPlaylistDto!.Name,
+                UserId = User!.Id,
                 ItemIdList = items.Select(baseItem => baseItem.Id).ToArray(),
             };
 
             var foo = await _playlistManager.CreatePlaylist(req);
-            PlaylistId          = Guid.Parse(foo.Id);
+            PlaylistId = Guid.Parse(foo.Id);
             SmartPlaylistDto.Id = PlaylistId;
             SavePlaylist();
         }

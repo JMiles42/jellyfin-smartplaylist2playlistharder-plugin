@@ -2,7 +2,7 @@
 
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
 
-public class OrderByDtoJsonConverter : JsonConverter<OrderByDto>
+public sealed class OrderByDtoJsonConverter : JsonConverter<OrderByDto>
 {
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <inheritdoc />

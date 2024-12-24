@@ -1,8 +1,8 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Models;
 
-public class ExpressionSet
+public sealed class ExpressionSet
 {
-	public List<SmartPlExpression> Expressions { get; set; } = new ();
+    public List<SmartPlExpression> Expressions { get; set; } = [];
 
-	public MatchMode Match { get; set; } = MatchMode.All;
+    public MatchMode Match { get; set; } = MatchMode.All;
 }

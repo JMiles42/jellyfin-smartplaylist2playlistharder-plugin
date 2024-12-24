@@ -9,6 +9,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jellyfin.Plugin.SmartPlayli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration", "Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration\Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration.csproj", "{90FA86BB-CA08-4E43-ABF2-605268E81AEF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C649C7C3-CD68-4E78-949C-E2BB1414C946}"
+	ProjectSection(SolutionItems) = preProject
+		build.yaml = build.yaml
+		build_plugin.sh = build_plugin.sh
+		Expressions.md = Expressions.md
+		LICENSE = LICENSE
+		OperandProperties.md = OperandProperties.md
+		Ordering.md = Ordering.md
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

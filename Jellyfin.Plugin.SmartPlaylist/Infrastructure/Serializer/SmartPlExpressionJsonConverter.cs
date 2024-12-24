@@ -2,7 +2,7 @@
 
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
 
-public class ExpressionValueJsonConverter : JsonConverter<ExpressionValue>
+public sealed class ExpressionValueJsonConverter : JsonConverter<ExpressionValue>
 {
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <inheritdoc />

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using FluentAssertions;
 using Jellyfin.Plugin.SmartPlaylist.Configuration;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure;
@@ -7,6 +6,7 @@ using Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Model;
 using Jellyfin.Plugin.SmartPlaylist.Interfaces;
 using Jellyfin.Plugin.SmartPlaylist.Models.Dto;
+using System.Runtime.CompilerServices;
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 
@@ -18,9 +18,9 @@ public class ParsingFileTests
     private static readonly string _appFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
     private static readonly string _dataPath = Path.Combine(_appFolder, "Data");
 
-    private readonly ISmartPlaylistManager             _smartPlaylistManager;
+    private readonly ISmartPlaylistManager _smartPlaylistManager;
 
-    private class TestHelper: ISmartPlaylistPluginConfiguration
+    private class TestHelper : ISmartPlaylistPluginConfiguration
     {
         /// <inheritdoc />
         public int PlaylistSorterThreadCount => 2;
@@ -46,13 +46,14 @@ public class ParsingFileTests
     public ParsingFileTests()
     {
         var config = new TestHelper();
-        var paths  = new PlaylistApplicationPaths(_dataPath, config);
+        var paths = new PlaylistApplicationPaths(_dataPath, config);
         _smartPlaylistManager = new SmartPlaylistManager(paths, config);
     }
 
-    private PlaylistProcessRunData LoadFile([CallerMemberName] string filename = "") {
+    private PlaylistProcessRunData LoadFile([CallerMemberName] string filename = "")
+    {
         var filename_ext = filename + ".json";
-        var contents     = _smartPlaylistManager.LoadPlaylist(filename_ext);
+        var contents = _smartPlaylistManager.LoadPlaylist(filename_ext);
         contents.Should().NotBeNull();
         return contents!;
     }
@@ -62,7 +63,7 @@ public class ParsingFileTests
     [Fact]
     public void Simple_With_StringComparison_AsInt()
     {
-        var io  = LoadFile();
+        var io = LoadFile();
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
@@ -73,7 +74,7 @@ public class ParsingFileTests
     [Fact]
     public void Simple_With_StringComparison_AsString()
     {
-        var io  = LoadFile();
+        var io = LoadFile();
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
@@ -84,7 +85,7 @@ public class ParsingFileTests
     [Fact]
     public void Simple_Without_StringComparison()
     {
-        var io  = LoadFile();
+        var io = LoadFile();
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
@@ -95,7 +96,7 @@ public class ParsingFileTests
     [Fact]
     public void Simple_Without_SupportedItems()
     {
-        var io  = LoadFile();
+        var io = LoadFile();
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
@@ -105,8 +106,9 @@ public class ParsingFileTests
     }
 
     [Fact]
-    public void TargetValue_AsList() {
-        var io  = LoadFile();
+    public void TargetValue_AsList()
+    {
+        var io = LoadFile();
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
@@ -116,8 +118,9 @@ public class ParsingFileTests
     }
 
     [Fact]
-    public void TargetValue_AsString() {
-        var io  = LoadFile();
+    public void TargetValue_AsString()
+    {
+        var io = LoadFile();
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
@@ -127,8 +130,9 @@ public class ParsingFileTests
     }
 
     [Fact]
-    public void TargetValue_AsList_SaveIsEqual() {
-        var io  = LoadFile();
+    public void TargetValue_AsList_SaveIsEqual()
+    {
+        var io = LoadFile();
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");
@@ -139,8 +143,9 @@ public class ParsingFileTests
     }
 
     [Fact]
-    public void TargetValue_AsString_SaveIsEqual() {
-        var io  = LoadFile();
+    public void TargetValue_AsString_SaveIsEqual()
+    {
+        var io = LoadFile();
         var dto = io.SmartPlaylist;
         dto.Should().NotBeNull();
         dto.Name.Should().BeEquivalentTo("OP Strats");

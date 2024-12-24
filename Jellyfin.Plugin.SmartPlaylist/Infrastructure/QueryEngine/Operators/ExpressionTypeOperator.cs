@@ -1,8 +1,7 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Operators;
 
-public class ExpressionTypeOperator : IOperator
+public sealed class ExpressionTypeOperator : IOperator
 {
-
     private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression plExpression,
                                                                               MemberExpression sourceExpression,
                                                                               LinqExpressionType tBinary,
@@ -48,7 +47,6 @@ public class ExpressionTypeOperator : IOperator
                                                  Type parameterPropertyType)
     {
         Enum.TryParse(plExpression.Operator, out LinqExpressionType tBinary);
-
 
         if (plExpression.TargetValue.IsSingleValue)
         {

@@ -1,6 +1,6 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Api.Models;
 
-internal class SmartPlaylistLastRunDetailsComparer : IComparer<SmartPlaylistLastRunDetails>
+internal sealed class SmartPlaylistLastRunDetailsComparer : IComparer<SmartPlaylistLastRunDetails>
 {
     public static readonly SmartPlaylistLastRunDetailsComparer Instance = new();
 
@@ -26,8 +26,7 @@ internal class SmartPlaylistLastRunDetailsComparer : IComparer<SmartPlaylistLast
 
         return leftIsSuccess switch
         {
-            true when rightIsSuccess => StringComparer.OrdinalIgnoreCase.Compare(left.PlaylistId,
-                     right.PlaylistId),
+            true when rightIsSuccess => StringComparer.OrdinalIgnoreCase.Compare(left.PlaylistId, right.PlaylistId),
             true when !rightIsSuccess => -1,
             false when rightIsSuccess => 1,
             _ => StringComparer.OrdinalIgnoreCase.Compare(left.PlaylistId, right.PlaylistId) +

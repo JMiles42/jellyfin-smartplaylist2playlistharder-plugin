@@ -1,8 +1,7 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Containers;
 
-public class ParsedValueExpressions : IReadOnlyCollection<ParsedValueExpressionResult>
+public sealed class ParsedValueExpressions : IReadOnlyCollection<ParsedValueExpressionResult>
 {
-
     private readonly List<ParsedValueExpressionResult> _builtExpressionResult;
 
     public SmartPlExpression PlaylistExpression { get; init; }
@@ -14,19 +13,19 @@ public class ParsedValueExpressions : IReadOnlyCollection<ParsedValueExpressionR
     public ParsedValueExpressions(SmartPlExpression playlistExpression)
     {
         PlaylistExpression = playlistExpression;
-        _builtExpressionResult = new();
+        _builtExpressionResult = [];
     }
 
     public ParsedValueExpressions(SmartPlExpression playlistExpression, ParsedValueExpressionResult singleResult)
     {
         PlaylistExpression = playlistExpression;
-        _builtExpressionResult = new() { singleResult, };
+        _builtExpressionResult = [singleResult];
     }
 
     public ParsedValueExpressions(SmartPlExpression playlistExpression, IEnumerable<ParsedValueExpressionResult> builtRange)
     {
         PlaylistExpression = playlistExpression;
-        _builtExpressionResult = new(builtRange);
+        _builtExpressionResult = [.. builtRange];
     }
 
     public void Add(ParsedValueExpressionResult expression) => _builtExpressionResult.Add(expression);

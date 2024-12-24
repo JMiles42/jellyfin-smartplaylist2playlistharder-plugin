@@ -25,7 +25,7 @@ public static class OrderManager
         RegisterOrder(item => item.ForcedSortName);
         RegisterOrder(item => item.Path);
         RegisterOrder(item => item.PremiereDate, "ReleaseDate", "Release Date");
-        RegisterOrder(item => item.ProductionYearNotNull,    nameof(Operand.ProductionYear),    "Year");
+        RegisterOrder(item => item.ProductionYearNotNull, nameof(Operand.ProductionYear), "Year");
         RegisterOrder(item => item.ParentIndexNumberNotNull, nameof(Operand.ParentIndexNumber), "ParentIndex");
         RegisterOrder(item => item.OriginalTitle);
         RegisterOrder(item => item.MediaType);
@@ -78,20 +78,20 @@ public static class OrderManager
         RegisterOrder(item => item.ParentName);
         RegisterOrder(item => item.GrandparentName);
         RegisterOrder(item => item.CommunityRatingNotNull, nameof(Operand.CommunityRating));
-        RegisterOrder(item => item.CriticRatingNotNull,    nameof(Operand.CriticRating));
-        RegisterOrder(item => item.EndDateNotNull,         nameof(Operand.EndDate));
+        RegisterOrder(item => item.CriticRatingNotNull, nameof(Operand.CriticRating));
+        RegisterOrder(item => item.EndDateNotNull, nameof(Operand.EndDate));
         RegisterOrder(item => item.ChannelId);
         RegisterOrder(item => item.Id);
-        RegisterOrder(item => item.LengthNotNull,        nameof(Operand.Length));
+        RegisterOrder(item => item.LengthNotNull, nameof(Operand.Length));
         RegisterOrder(item => item.LengthSecondsNotNull, nameof(Operand.LengthSeconds));
         RegisterOrder(item => item.LengthMinutesNotNull, nameof(Operand.LengthMinutes));
-        RegisterOrder(item => item.LengthHoursNotNull,   nameof(Operand.LengthHours));
-        RegisterOrder(item => item.LengthTicksNotNull,   nameof(Operand.LengthTicks));
-        RegisterOrder(item => item.RunTimeTicksNotNull,  nameof(Operand.RunTimeTicks));
+        RegisterOrder(item => item.LengthHoursNotNull, nameof(Operand.LengthHours));
+        RegisterOrder(item => item.LengthTicksNotNull, nameof(Operand.LengthTicks));
+        RegisterOrder(item => item.RunTimeTicksNotNull, nameof(Operand.RunTimeTicks));
     }
 
     private static void RegisterOrder<TKey>(Expression<Func<Operand, TKey>> keySelector) =>
-            RegisterOrder(keySelector, Array.Empty<string>());
+            RegisterOrder(keySelector, []);
 
     private static void RegisterOrder<TKey>(Expression<Func<Operand, TKey>> keySelector,
                                             params string[] orderIds)

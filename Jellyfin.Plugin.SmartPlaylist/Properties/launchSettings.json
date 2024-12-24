@@ -1,8 +1,8 @@
 {
   "profiles": {
-	"SmartPlaylist2PlaylistHarder": {
-	  "commandName": "Executable",
-	  "executablePath": "C:\\dev\\Jellyfin\\jellyfin.exe"
-	}
+    "SmartPlaylist2PlaylistHarder": {
+      "commandName": "Executable",
+      "executablePath": "C:\\dev\\Jellyfin\\jellyfin.exe"
+    }
   }
 }

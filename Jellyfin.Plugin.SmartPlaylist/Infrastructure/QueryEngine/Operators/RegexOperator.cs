@@ -1,8 +1,8 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Operators;
 
-public class RegexOperator : IOperator
+public sealed class RegexOperator : IOperator
 {
-    private static readonly Type[] StringTypeArray = { typeof(string) };
+    private static readonly Type[] StringTypeArray = [typeof(string)];
     private static readonly MethodInfo RegexIsMatch = typeof(Regex)!.GetMethod(nameof(Regex.IsMatch), StringTypeArray);
 
     private static bool IsValidIshRegex(string pattern)
@@ -46,7 +46,7 @@ public class RegexOperator : IOperator
 
         var callInstance = regex.ToConstantExpression();
 
-        var toStringMethod = propertyType.GetMethod(nameof(string.ToString), Array.Empty<Type>())!;
+        var toStringMethod = propertyType.GetMethod(nameof(string.ToString), [])!;
 
         var methodParam = LinqExpression.Call(sourceExpression, toStringMethod);
 

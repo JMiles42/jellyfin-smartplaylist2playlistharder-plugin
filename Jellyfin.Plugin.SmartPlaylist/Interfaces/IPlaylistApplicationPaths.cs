@@ -2,8 +2,8 @@
 
 public interface IPlaylistApplicationPaths
 {
-	string PlaylistPath { get; }
-	string PlaylistBackupPath { get; }
+    string PlaylistPath { get; }
+    string PlaylistBackupPath { get; }
 
-	void EnsureExists();
+    void EnsureExists();
 }

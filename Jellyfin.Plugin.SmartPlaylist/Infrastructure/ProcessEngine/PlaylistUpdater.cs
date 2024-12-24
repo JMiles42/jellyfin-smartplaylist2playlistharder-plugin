@@ -4,31 +4,31 @@ using MediaBrowser.Controller.Playlists;
 
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.ProcessEngine;
 
-public class PlaylistUpdater
+public sealed class PlaylistUpdater
 {
-    private readonly User                  _user;
-    private readonly BaseItemKind[]        _supportedItems;
+    private readonly User _user;
+    private readonly BaseItemKind[] _supportedItems;
     private readonly NestedProgressTracker _progress;
 
-    private readonly ILibraryManager                   _libraryManager;
-    private readonly IPlaylistManager                  _playlistManager;
+    private readonly ILibraryManager _libraryManager;
+    private readonly IPlaylistManager _playlistManager;
     private readonly ISmartPlaylistPluginConfiguration _config;
-    private readonly IServiceProvider                  _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
 
-    public PlaylistUpdater(User                              user,
-                           BaseItemKind[]                    supportedItems,
-                           NestedProgressTracker             progress,
-                           ILibraryManager                   libraryManager,
-                           IPlaylistManager                  playlistManager,
+    public PlaylistUpdater(User user,
+                           BaseItemKind[] supportedItems,
+                           NestedProgressTracker progress,
+                           ILibraryManager libraryManager,
+                           IPlaylistManager playlistManager,
                            ISmartPlaylistPluginConfiguration config,
-                           IServiceProvider                  serviceProvider)
+                           IServiceProvider serviceProvider)
     {
-        _user            = user;
-        _supportedItems  = supportedItems;
-        _libraryManager  = libraryManager;
+        _user = user;
+        _supportedItems = supportedItems;
+        _libraryManager = libraryManager;
         _playlistManager = playlistManager;
-        _progress        = progress;
-        _config          = config;
+        _progress = progress;
+        _config = config;
         _serviceProvider = serviceProvider;
     }
 
@@ -37,18 +37,18 @@ public class PlaylistUpdater
         var query = new InternalItemsQuery(_user)
         {
             IncludeItemTypes = _supportedItems,
-            Recursive        = true,
+            Recursive = true,
         };
 
         return _libraryManager.GetItemsResult(query).Items;
     }
 
     public async Task ProcessPlaylists(IEnumerable<SmartPlaylistsRefreshJob> jobsIn,
-                                       CancellationToken                     cancellationToken)
+                                       CancellationToken cancellationToken)
     {
-        var jobs          = jobsIn.ToArray();
+        var jobs = jobsIn.ToArray();
         var userPlaylists = GetUserPlaylists().ToArray();
-        var items         = GetAllUserMedia();
+        var items = GetAllUserMedia();
         //Set the percent to calculate all items though all playlists
         double totalThingsToProcess = items.Count * jobs.Length;
 
@@ -64,7 +64,7 @@ public class PlaylistUpdater
 
         var options = new ParallelOptions
         {
-            CancellationToken      = cancellationToken,
+            CancellationToken = cancellationToken,
             MaxDegreeOfParallelism = GetThreadLimit(),
         };
 
@@ -116,7 +116,6 @@ public class PlaylistUpdater
             _progress.Report(index, length);
         }
     }
-
 
     private int GetThreadLimit()
     {

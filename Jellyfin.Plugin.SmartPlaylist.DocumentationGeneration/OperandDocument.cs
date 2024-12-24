@@ -1,11 +1,11 @@
-﻿using System.Reflection;
-using Jellyfin.Plugin.SmartPlaylist.Extensions;
+﻿using Jellyfin.Plugin.SmartPlaylist.Extensions;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine;
 using MediaBrowser.Controller.Entities;
+using System.Reflection;
 
 namespace Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration;
 
-public class OperandDocument
+public sealed class OperandDocument
 {
     private const string NOT_EXIST_TEXT = "null";
     public static void Generate()
@@ -22,9 +22,9 @@ public class OperandDocument
         foreach (var pair in pairs)
         {
 
-            table.Add(GetMdTableRowForOrder(pair.Operand?.Name                          ?? NOT_EXIST_TEXT,
-                                            pair.Operand?.PropertyType.GetCSharpName()  ?? NOT_EXIST_TEXT,
-                                            pair.BaseItem?.Name                         ?? NOT_EXIST_TEXT,
+            table.Add(GetMdTableRowForOrder(pair.Operand?.Name ?? NOT_EXIST_TEXT,
+                                            pair.Operand?.PropertyType.GetCSharpName() ?? NOT_EXIST_TEXT,
+                                            pair.BaseItem?.Name ?? NOT_EXIST_TEXT,
                                             pair.BaseItem?.PropertyType.GetCSharpName() ?? NOT_EXIST_TEXT
                                             ));
         }
@@ -33,7 +33,7 @@ public class OperandDocument
         document.Save(Program.OUTPUTPATH + "OperandProperties.md");
     }
 
-    static IEnumerable<(PropertyInfo? Operand, PropertyInfo? BaseItem)> GetPairs()
+    private static IEnumerable<(PropertyInfo? Operand, PropertyInfo? BaseItem)> GetPairs()
     {
         var opProps = typeof(Operand).GetProperties();
         var biProps = typeof(BaseItem).GetProperties();

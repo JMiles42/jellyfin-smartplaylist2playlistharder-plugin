@@ -1,6 +1,6 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Operators;
 
-public class IsNullOperator : IOperator
+public sealed class IsNullOperator : IOperator
 {
     private static readonly ConstantExpression NullExpression = LinqExpression.Constant(null);
 
@@ -26,7 +26,6 @@ public class IsNullOperator : IOperator
     {
         var builtExpression =
                 LinqExpression.MakeBinary(LinqExpressionType.Equal, sourceExpression, NullExpression);
-
 
         return new(plExpression, new ParsedValueExpressionResult(builtExpression, plExpression, null!));
     }

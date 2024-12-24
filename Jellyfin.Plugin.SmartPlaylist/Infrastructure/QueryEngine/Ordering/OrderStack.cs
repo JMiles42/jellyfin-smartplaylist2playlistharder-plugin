@@ -1,6 +1,6 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Ordering;
 
-public class OrderStack
+public sealed class OrderStack
 {
     public Order[] Order { get; }
 

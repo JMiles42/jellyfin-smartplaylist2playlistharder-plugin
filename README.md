@@ -98,15 +98,15 @@ To create a new playlist, create a json file in this directory having a format s
   - Regex operators: MatchRegex, NotMatchRegex.
   - StringListContainsSubstring: This is basically a string contains, but searches all entries in a list, such as Directors, Genres or Tags.
 
-- MemberName: This is a reference to the properties in [Operand](https://github.com/ankenyr/jellyfin-smartplaylist-plugin/blob/master/Jellyfin.Plugin.SmartPlaylist/QueryEngine/Operand.cs "Operand"). You set this string to one of the property names to reference what you wish to filter on.
+- MemberName: This is a reference to the properties in [Operand](https://github.com/JMiles42/jellyfin-smartplaylist2playlistharder-plugin/blob/master/Jellyfin.Plugin.SmartPlaylist/Infrastructure/QueryEngine/Operand.cs "Operand"). You set this string to one of the property names to reference what you wish to filter on.
 - Operator: An operation used to compare the TargetValue to the property of each piece of media. The above example would match anything with the director set as CGP Grey with a Premiere Date less than 2020/07/01
 - TargetValue: The value to be compared to. Most things are converted into strings, booleans, or numbers. A date in the above example is converted to seconds since epoch.
-- InvertResult: This allows you to invert any Expression, reguardless of it's type, name or operator.
+- InvertResult: This allows you to invert any Expression, regardless of it's type, name or operator.
 - StringComparison: Only used specifically on string comparisons, this can allow you to ignore case, when using a value such as OrdinalIgnoreCase [Microsoft Docs](https://learn.microsoft.com/en-us/dotnet/api/system.stringcomparer.ordinalignorecase?view=net-6.0)
 
 
 - Order: Provides the type of sorting you wish for the playlist. The following are a list of valid sorting methods so far.
-- These generally match the property name in the BaseItem object, if it accepts muliple names, they will  be split by |
+- These generally match the property name in the BaseItem object, if it accepts multiple names, they will  be split by |
   - Album
   - ChannelId
   - Container

@@ -15,22 +15,21 @@ public interface ISmartPlaylistManager
     void SavePlaylist(string file, SmartPlaylistDto dto);
 }
 
-public class SmartPlaylistManager: ISmartPlaylistManager {
-    private readonly IPlaylistApplicationPaths         _paths;
+public sealed class SmartPlaylistManager : ISmartPlaylistManager
+{
+    private readonly IPlaylistApplicationPaths _paths;
     private readonly ISmartPlaylistPluginConfiguration _config;
 
     private static ConcurrentDictionary<string, SmartPlaylistLastRunDetails> Data { get; } = new();
 
     public static SmartPlaylistLastRunDetails[] GetAllRunDetails() => Data.Values.ToArray();
 
-
     public SmartPlaylistManager(IPlaylistApplicationPaths paths,
                                 ISmartPlaylistPluginConfiguration config)
     {
-        _paths   = paths;
+        _paths = paths;
         _config = config;
     }
-
 
     public IEnumerable<PlaylistProcessRunData> GetAllPlaylists() => GetAllPlaylists(_paths.PlaylistPath);
 
@@ -72,9 +71,9 @@ public class SmartPlaylistManager: ISmartPlaylistManager {
 
     public PlaylistProcessRunData LoadPlaylist(string fileId)
     {
-        var               filepath  = Path.Combine(_paths.PlaylistPath, fileId);
-        SmartPlaylistDto? playlist  = null;
-        Exception?        exception = null;
+        var filepath = Path.Combine(_paths.PlaylistPath, fileId);
+        SmartPlaylistDto? playlist = null;
+        Exception? exception = null;
 
         try
         {
@@ -149,7 +148,7 @@ public class SmartPlaylistManager: ISmartPlaylistManager {
                                       List<SmartPlaylistsRefreshError>? jobProcessErrors = null,
                                       Guid? jellyfinPlaylistId = null)
     {
-        jobProcessErrors ??= new();
+        jobProcessErrors ??= [];
 
         Data[jobFileId] = new(jobFileId, status, jobProcessErrors, jellyfinPlaylistId);
     }

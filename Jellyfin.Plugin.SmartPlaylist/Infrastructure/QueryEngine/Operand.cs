@@ -37,8 +37,11 @@ public record Operand
 
                 var people = GetPeople();
 
-                _actors = new(people.Where(x => x.Type == PersonKind.Actor)
-                                    .Select(x => x.Name));
+                _actors =
+                [
+                    ..people.Where(x => x.Type == PersonKind.Actor)
+                        .Select(x => x.Name)
+                ];
 
                 return _actors;
             }
@@ -56,7 +59,7 @@ public record Operand
                     return _artists;
                 }
 
-                _artists = new();
+                _artists = [];
 
                 if (BaseItem is MusicVideo mv)
                 {
@@ -81,8 +84,11 @@ public record Operand
 
                 var people = GetPeople();
 
-                _composers = new(people.Where(x => x.Type == PersonKind.Composer)
-                                       .Select(x => x.Name));
+                _composers =
+                [
+                    ..people.Where(x => x.Type == PersonKind.Composer)
+                        .Select(x => x.Name)
+                ];
 
                 return _composers;
             }
@@ -102,8 +108,11 @@ public record Operand
 
                 var people = GetPeople();
 
-                _directors = new(people.Where(x => x.Type == PersonKind.Director)
-                                       .Select(x => x.Name));
+                _directors =
+                [
+                    ..people.Where(x => x.Type == PersonKind.Director)
+                        .Select(x => x.Name)
+                ];
 
                 return _directors;
             }
@@ -123,8 +132,11 @@ public record Operand
 
                 var people = GetPeople();
 
-                _guestStars = new(people.Where(x => x.Type == PersonKind.GuestStar)
-                                        .Select(x => x.Name));
+                _guestStars =
+                [
+                    ..people.Where(x => x.Type == PersonKind.GuestStar)
+                        .Select(x => x.Name)
+                ];
 
                 return _guestStars;
             }
@@ -144,8 +156,11 @@ public record Operand
 
                 var people = GetPeople();
 
-                _producers = new(people.Where(x => x.Type == PersonKind.Producer)
-                                       .Select(x => x.Name));
+                _producers =
+                [
+                    ..people.Where(x => x.Type == PersonKind.Producer)
+                        .Select(x => x.Name)
+                ];
 
                 return _producers;
             }
@@ -165,8 +180,11 @@ public record Operand
 
                 var people = GetPeople();
 
-                _writers = new(people.Where(x => x.Type == PersonKind.Writer)
-                                     .Select(x => x.Name));
+                _writers =
+                [
+                    ..people.Where(x => x.Type == PersonKind.Writer)
+                        .Select(x => x.Name)
+                ];
 
                 return _writers;
             }
@@ -184,8 +202,7 @@ public record Operand
                     return _genres;
                 }
 
-                _genres = new();
-                _genres.AddRange(BaseItem.Genres);
+                _genres = [.. BaseItem.Genres];
 
                 return _genres;
             }
@@ -203,8 +220,7 @@ public record Operand
                     return _studios;
                 }
 
-                _studios = new();
-                _studios.AddRange(BaseItem.Studios);
+                _studios = [.. BaseItem.Studios];
 
                 return _studios;
             }
@@ -222,8 +238,7 @@ public record Operand
                     return _tags;
                 }
 
-                _tags = new();
-                _tags.AddRange(BaseItem.Tags);
+                _tags = [.. BaseItem.Tags];
 
                 return _tags;
             }
@@ -241,8 +256,7 @@ public record Operand
                     return _pathSegment;
                 }
 
-                _pathSegment = new();
-                _pathSegment.AddRange(BaseItem.Path.Split('\\', '/', StringSplitOptions.RemoveEmptyEntries));
+                _pathSegment = [.. BaseItem.Path.Split('\\', '/', StringSplitOptions.RemoveEmptyEntries)];
 
                 return _pathSegment;
             }
@@ -338,9 +352,9 @@ public record Operand
 
     public int Width => BaseItem.Width;
 
-    public int? ProductionYear        => BaseItem.ProductionYear;
+    public int? ProductionYear => BaseItem.ProductionYear;
 
-    public int  ProductionYearNotNull => BaseItem.ProductionYear ?? 0;
+    public int ProductionYearNotNull => BaseItem.ProductionYear ?? 0;
 
     public int? ParentIndexNumber => BaseItem.ParentIndexNumber;
 
@@ -382,40 +396,40 @@ public record Operand
 
     public string? GrandparentName => BaseItem.LatestItemsIndexContainer?.DisplayParent?.Name;
 
-    public float? CommunityRating        => BaseItem.CommunityRating;
-    public float  CommunityRatingNotNull => BaseItem.CommunityRating ?? 0;
+    public float? CommunityRating => BaseItem.CommunityRating;
+    public float CommunityRatingNotNull => BaseItem.CommunityRating ?? 0;
 
-    public float? CriticRating        => BaseItem.CriticRating;
-    public float  CriticRatingNotNull => BaseItem.CriticRating ?? 0;
+    public float? CriticRating => BaseItem.CriticRating;
+    public float CriticRatingNotNull => BaseItem.CriticRating ?? 0;
 
-    public DateTime? EndDate        => BaseItem.EndDate;
-    public DateTime  EndDateNotNull => BaseItem.EndDate ?? DateTime.MinValue;
+    public DateTime? EndDate => BaseItem.EndDate;
+    public DateTime EndDateNotNull => BaseItem.EndDate ?? DateTime.MinValue;
 
     public Guid ChannelId => BaseItem.ChannelId;
 
     public Guid Id => BaseItem.Id;
 
-    public TimeSpan? Length        => LengthTicks.HasValue ? TimeSpan.FromTicks(LengthTicks.Value) : null;
-    public TimeSpan  LengthNotNull => LengthTicks.HasValue ? TimeSpan.FromTicks(LengthTicks.Value) : TimeSpan.Zero;
+    public TimeSpan? Length => LengthTicks.HasValue ? TimeSpan.FromTicks(LengthTicks.Value) : null;
+    public TimeSpan LengthNotNull => LengthTicks.HasValue ? TimeSpan.FromTicks(LengthTicks.Value) : TimeSpan.Zero;
 
-    public double? LengthSeconds        => Length?.TotalSeconds;
+    public double? LengthSeconds => Length?.TotalSeconds;
     public double LengthSecondsNotNull => Length?.TotalSeconds ?? 0;
 
-    public double? LengthMinutes        => Length?.TotalMinutes;
+    public double? LengthMinutes => Length?.TotalMinutes;
     public double LengthMinutesNotNull => Length?.TotalMinutes ?? 0;
 
-    public double? LengthHours        => Length?.TotalHours;
+    public double? LengthHours => Length?.TotalHours;
     public double LengthHoursNotNull => Length?.TotalHours ?? 0;
 
-    public long? LengthTicks        { get; }
+    public long? LengthTicks { get; }
 
     public long LengthTicksNotNull => LengthTicks ?? 0;
 
-    public long? RunTimeTicks        => LengthTicks;
+    public long? RunTimeTicks => LengthTicks;
 
     public long RunTimeTicksNotNull => RunTimeTicks ?? 0;
 
-    public long? Size        => BaseItem.Size;
+    public long? Size => BaseItem.Size;
 
     public long SizeNotNull => Size ?? 0;
 
@@ -427,7 +441,7 @@ public record Operand
 
     public bool SupportsAddingToPlaylist => BaseItem.SupportsAddingToPlaylist;
 
-    public Guid OwnerId              => BaseItem.OwnerId;
+    public Guid OwnerId => BaseItem.OwnerId;
 
     public Guid DisplayPreferencesId => BaseItem.DisplayPreferencesId;
 
@@ -459,71 +473,71 @@ public record Operand
 
     public string CustomRatingForComparison => BaseItem.CustomRatingForComparison;
 
-    public Operand(BaseItem         baseItem,
-                   User             user,
-                   ILibraryManager  libraryManager,
+    public Operand(BaseItem baseItem,
+                   User user,
+                   ILibraryManager libraryManager,
                    IUserDataManager userDataManager)
     {
-        BaseItem        = baseItem;
+        BaseItem = baseItem;
         _libraryManager = libraryManager;
 
-        DaysSinceCreated       = GetDaysAgo(baseItem.DateCreated);
+        DaysSinceCreated = GetDaysAgo(baseItem.DateCreated);
         DaysSinceLastRefreshed = GetDaysAgo(baseItem.DateLastRefreshed);
-        DaysSinceLastSaved     = GetDaysAgo(baseItem.DateLastSaved);
-        DaysSinceLastModified  = GetDaysAgo(baseItem.DateModified);
+        DaysSinceLastSaved = GetDaysAgo(baseItem.DateLastSaved);
+        DaysSinceLastModified = GetDaysAgo(baseItem.DateModified);
 
         if (baseItem.PremiereDate.HasValue)
         {
             DaysSincePremiereDate = GetDaysAgo(baseItem.PremiereDate.Value, DateTime.Now);
-            PremiereDate          = GetUnixSeconds(baseItem.PremiereDate.Value);
+            PremiereDate = GetUnixSeconds(baseItem.PremiereDate.Value);
         }
         else
         {
             DaysSincePremiereDate = 0;
-            PremiereDate          = 0;
+            PremiereDate = 0;
         }
 
-        DateCreated       = GetUnixSeconds(baseItem.DateCreated);
-        DateLastSaved     = GetUnixSeconds(baseItem.DateLastSaved);
-        DateModified      = GetUnixSeconds(baseItem.DateModified);
+        DateCreated = GetUnixSeconds(baseItem.DateCreated);
+        DateLastSaved = GetUnixSeconds(baseItem.DateLastSaved);
+        DateModified = GetUnixSeconds(baseItem.DateModified);
         DateLastRefreshed = GetUnixSeconds(baseItem.DateLastRefreshed);
 
         switch (baseItem)
         {
             case Movie movie:
-                HasSubtitles      = movie.HasSubtitles;
+                HasSubtitles = movie.HasSubtitles;
                 AiredSeasonNumber = 0;
-                CollectionName    = movie.CollectionName;
-                SeasonName        = null;
-                SeriesName        = null;
-                LengthTicks       = movie.RunTimeTicks;
+                CollectionName = movie.CollectionName;
+                SeasonName = null;
+                SeriesName = null;
+                LengthTicks = movie.RunTimeTicks;
 
                 break;
             case Episode episode:
-                HasSubtitles      = episode.HasSubtitles;
+                HasSubtitles = episode.HasSubtitles;
                 AiredSeasonNumber = episode.AiredSeasonNumber;
-                CollectionName    = null;
-                SeasonName        = episode.SeasonName;
-                SeriesName        = episode.SeriesName;
-                LengthTicks       = episode.RunTimeTicks;
+                CollectionName = null;
+                SeasonName = episode.SeasonName;
+                SeriesName = episode.SeriesName;
+                LengthTicks = episode.RunTimeTicks;
 
                 break;
             case MusicVideo musicVideo:
-                HasSubtitles      = musicVideo.HasSubtitles;
+                HasSubtitles = musicVideo.HasSubtitles;
                 AiredSeasonNumber = 0;
-                CollectionName    = null;
-                SeasonName        = null;
-                SeriesName        = null;
-                LengthTicks       = musicVideo.RunTimeTicks;
+                CollectionName = null;
+                SeasonName = null;
+                SeriesName = null;
+                LengthTicks = musicVideo.RunTimeTicks;
 
                 break;
             default:
-                HasSubtitles      = false;
+                HasSubtitles = false;
                 AiredSeasonNumber = 0;
-                CollectionName    = null;
-                SeasonName        = null;
-                SeriesName        = null;
-                LengthTicks       = null;
+                CollectionName = null;
+                SeasonName = null;
+                SeriesName = null;
+                LengthTicks = null;
 
                 break;
         }
@@ -535,7 +549,7 @@ public record Operand
             return;
         }
 
-        IsPlayed    = userData.Played;
+        IsPlayed = userData.Played;
         PlayedCount = userData.PlayCount;
 
         if (userData.LastPlayedDate.HasValue)
@@ -543,7 +557,7 @@ public record Operand
             LastPlayedDate = GetUnixSeconds(userData.LastPlayedDate.Value);
         }
 
-        IsFavoriteOrLiked     = userData.IsFavorite;
+        IsFavoriteOrLiked = userData.IsFavorite;
         PlaybackPositionTicks = userData.PlaybackPositionTicks;
 
 
