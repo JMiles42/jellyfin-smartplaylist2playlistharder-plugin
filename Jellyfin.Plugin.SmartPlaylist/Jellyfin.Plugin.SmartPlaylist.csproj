@@ -37,8 +37,7 @@
     <Delete Files="@(FilesToDelete)" />
     <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="@(TempZipDirectory)" />
     <Copy SourceFiles="$(OutputPath)\meta.json" DestinationFolder="@(TempZipDirectory)" />
-	  <ZipDirectory SourceDirectory="@(TempZipDirectory)" DestinationFile="$(BaseOutputPath)/$(Configuration)/Jellyfin.SmartPlaylist@v$(Version).zip" />
-	  <ZipDirectory SourceDirectory="@(TempZipDirectory)" DestinationFile="$(BaseOutputPath)/Jellyfin.SmartPlaylist@v$(Version).zip" />
+	<ZipDirectory SourceDirectory="@(TempZipDirectory)" DestinationFile="$(BaseOutputPath)/$(Configuration)/Jellyfin.SmartPlaylist@v$(Version).zip" />
     <RemoveDir Directories="@(TempZipDirectory)" />
   </Target>
 </Project>
