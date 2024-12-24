@@ -5,11 +5,18 @@ This is a more recent forked & upgraded version of [ankenyr](https://github.com/
 ## Overview
 
 This plugin allows you to setup a series of rules to auto generate and update playlists within Jellyfin.
-With the current implimentation these are limited to an individual user.
+With the current implementation these are limited to an individual user.
 
 The json format currently in use, may not be the final version while I continue to work on this forked version.
-Currently I am trying to keep backwards compatability in mind. For example with the ordering, instead of changing the base OrderBy to an array I added the nested ThenBy field, to allow old ones to work.
-If I do make breaking changes, for my own sake as well, I will try to allow the older version to be compatable as well, but no guarantees. 
+Currently I am trying to keep backwards compatibility in mind. For example with the ordering, instead of changing the base OrderBy to an array I added the nested ThenBy field, to allow old ones to work.
+If I do make breaking changes, for my own sake as well, I will try to allow the older version to be compatible as well, but no guarantees. 
+
+
+## 2.2 ExpressionVars, more values less writing
+WARNING: This update technically breaks any TargetValues that is a single string that starts with `$(` and ends with `)`. I currently don't have an option to escape this.
+In this update adds reusable vars, you can now set any uniquely named entries in the ExpressionVars section, then to use set the TargetValue of "$(KeyName)",
+Where KeyName is the key you chose to assign the value ExpressionValue you would like to use. See the now updated json example below.
+I slightly tweaked how the files are parsed, based on my limited testing, all existing files should still work identically, however may save slightly differently, by adding the new ExpressionVars
 
 
 ## Warning as of the release of 2.* the save format has had changes.
@@ -56,16 +63,19 @@ To create a new playlist, create a json file in this directory having a format s
         {
           "MemberName": "Directors",
           "Operator": "StringListContainsSubstring",
-          "TargetValue": [
-            "Nerdwriter1",
-            "The Spiffing Brit"
-          ],
+          "TargetValue": "$(DirectorNames)",
           "StringComparison": "OrdinalIgnoreCase",
           "Match": "Any"
         }
       ]
     }
   ],
+  "ExpressionVars"{
+    "DirectorNames": [
+        "Nerdwriter1",
+        "The Spiffing Brit"
+    ]
+  },
   "Order": [
     "ReleaseDate",
     "OriginalTitle",
@@ -91,6 +101,7 @@ To create a new playlist, create a json file in this directory having a format s
 - FileName: The actual filename. If you create a file named cgpgrey_playlist.json then this should be cgpgrey_playlist
 - User: Name of the user for the playlist
 - ExpressionSets: This is a list of Expressions. Each expression is OR'ed together.
+- ExpressionVars: This is a dictionary of values to be used inplace of in line TargetValues with the "$(KeyName)" syntax
 - Expressions: This is the meat of the plugin. Expressions are a list of maps containing MemberName, Operator, and TargetValue. I am working on a list of all valid things. Currently there are three sets of expressions:
 
   - Universal LINQ expression operators: [This link](https://docs.microsoft.com/en-us/dotnet/api/system.linq.expressions.expressiontype?redirectedfrom=MSDN&view=net-6.0) is a list of all valid operators within expression trees but only a subset are valid for a specific operand.
