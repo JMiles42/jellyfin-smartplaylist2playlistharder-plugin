@@ -1,10 +1,10 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Model;
 
-public class GroupedItems: IEnumerable<SmartPlaylistsRefreshJob>
+public sealed class GroupedItems : IEnumerable<SmartPlaylistsRefreshJob>
 {
     public GroupedItems(JobGrouping key, IEnumerable<SmartPlaylistsRefreshJob> jobs)
     {
-        Key  = key;
+        Key = key;
         Jobs = jobs;
     }
 

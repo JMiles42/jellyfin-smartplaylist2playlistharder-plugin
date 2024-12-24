@@ -2,7 +2,7 @@
 
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.Serializer;
 
-public class ExpressionValueJsonConverter : JsonConverter<ExpressionValue>
+public sealed class ExpressionValueJsonConverter : JsonConverter<ExpressionValue>
 {
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <inheritdoc />
@@ -15,21 +15,26 @@ public class ExpressionValueJsonConverter : JsonConverter<ExpressionValue>
             return NullExpressionValue.Instance;
         }
 
-        if (doc.RootElement.ValueKind is JsonValueKind.Array)
-        {
-            return ProcessArray(doc);
-        }
-
         return doc.RootElement.ValueKind switch
         {
             JsonValueKind.Array => ProcessArray(doc),
-            JsonValueKind.String => ExpressionValue.Create(doc.RootElement.GetString()!),
+            JsonValueKind.String => ProcessString(doc.RootElement.GetString()!),
             JsonValueKind.Number => ExpressionValue.Create(doc.RootElement.GetInt32()),
             JsonValueKind.True => ExpressionValue.Create(true),
             JsonValueKind.False => ExpressionValue.Create(false),
             JsonValueKind.Null => ExpressionValue.Create(),
             _ => throw new ArgumentOutOfRangeException(),
         };
+    }
+
+    private static ExpressionValue ProcessString(string value)
+    {
+        if (value.StartsWith("$(") && value.EndsWith(')'))
+        {
+            return LinkedExpressionValue.Create(value);
+        }
+
+        return ExpressionValue.Create(value);
     }
 
     private static ExpressionValue ProcessArray(JsonDocument doc)
@@ -62,6 +67,12 @@ public class ExpressionValueJsonConverter : JsonConverter<ExpressionValue>
                                ExpressionValue value,
                                JsonSerializerOptions options)
     {
+        if (value is LinkedExpressionValue linkedExpression)
+        {
+            writer.WriteRawValue(Serialize(linkedExpression.VarSource, options));
+            return;
+        }
+
         if (value.IsSingleValue)
         {
             writer.WriteRawValue(Serialize(value.SingleValue, options));

@@ -1,0 +1,38 @@
+﻿{
+  SmartPlaylist: {
+    Name: OP Strats,
+    FileName: {CurrentDirectory}Data/IO/Simple_With_StringComparison_AsString.json,
+    User: UnitTest,
+    ExpressionSets: [
+      {
+        Expressions: [
+          {
+            MemberName: Directors,
+            Operator: Contains,
+            TargetValue: {
+              Value: The Spiffing Brit,
+              SingleValue: The Spiffing Brit,
+              IsSingleValue: true
+            },
+            InvertResult: false,
+            StringComparison: OrdinalIgnoreCase
+          }
+        ],
+        Match: All
+      }
+    ],
+    Order: [
+      {
+        Name: OriginalTitle,
+        Ascending: true,
+        IsInValid: false
+      }
+    ],
+    SupportedItems: [
+      Episode,
+      Movie
+    ],
+    IsReadonly: false
+  },
+  FileId: Simple_With_StringComparison_AsString.json
+}

@@ -4,19 +4,12 @@
 // When first written in https://github.com/ankenyr/jellyfin-smartplaylist-plugin which this repo is a fork of
 public static class RulesCompiler
 {
-    private static readonly OperatorManager OperatorManager = new();
-
-    private static ParsedValueExpressions BuildExpr<T>(SmartPlExpression expression,
-                                                       ParameterExpression param) =>
-            GetExpression<T>(expression, param);
-
-    private static ParsedValueExpressions GetExpression<T>(SmartPlExpression r, ParameterExpression param)
+    private static ParsedValueExpressions BuildExpr<T>(SmartPlExpression r, ParameterExpression param)
     {
         var left = LinqExpression.Property(param, r.MemberName);
 
         var tProp = typeof(T).GetProperty(r.MemberName)?.PropertyType;
         ArgumentNullException.ThrowIfNull(tProp);
-
 
         foreach (var engineOperator in OperatorManager.EngineOperators)
         {
@@ -56,9 +49,7 @@ public static class RulesCompiler
 
             try
             {
-                compiledValueChecker = LinqExpression.Lambda<Func<T, bool>>(builtExpressionResult.Expression,
-                                                                            sourceTypeParameter)
-                                                     .Compile();
+                compiledValueChecker = LinqExpression.Lambda<Func<T, bool>>(builtExpressionResult.Expression, sourceTypeParameter).Compile();
             }
             catch (Exception ex)
             {
@@ -71,11 +62,11 @@ public static class RulesCompiler
         return results;
     }
 
-    public static List<ExpressionSet>? FixRuleSets(List<ExpressionSet>? ruleSets)
+    public static List<ExpressionSet> FixRuleSets(List<ExpressionSet>? ruleSets)
     {
         if (ruleSets is null)
         {
-            return null;
+            return [];
         }
 
         foreach (var rules in ruleSets)

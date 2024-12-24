@@ -1,8 +1,8 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Operators;
 
-public class StringOperator : IOperator
+public sealed class StringOperator : IOperator
 {
-    private static readonly Type[] StringAndComparisonTypeArray = { typeof(string), typeof(StringComparison), };
+    private static readonly Type[] StringAndComparisonTypeArray = [typeof(string), typeof(StringComparison)];
 
     private static MethodInfo? GetMethod(SmartPlExpression plExpression, Type parameterPropertyType) =>
             parameterPropertyType.GetMethod(plExpression.Operator, StringAndComparisonTypeArray);
@@ -63,7 +63,6 @@ public class StringOperator : IOperator
     {
         var method = GetMethod(plExpression, parameterPropertyType);
         var methodParameterType = method.GetParameters()[0].ParameterType;
-
 
         if (plExpression.TargetValue.IsSingleValue)
         {

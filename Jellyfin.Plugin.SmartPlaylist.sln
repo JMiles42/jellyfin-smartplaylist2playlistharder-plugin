@@ -9,6 +9,24 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jellyfin.Plugin.SmartPlayli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration", "Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration\Jellyfin.Plugin.SmartPlaylist.DocumentationGeneration.csproj", "{90FA86BB-CA08-4E43-ABF2-605268E81AEF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C649C7C3-CD68-4E78-949C-E2BB1414C946}"
+	ProjectSection(SolutionItems) = preProject
+		build.yaml = build.yaml
+		build_plugin.sh = build_plugin.sh
+		Expressions.md = Expressions.md
+		LICENSE = LICENSE
+		OperandProperties.md = OperandProperties.md
+		Ordering.md = Ordering.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{95F0AD41-13BB-4992-8CB9-7CB8AC91E599}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{714F67D4-F1E3-4E8B-8308-1F709970C5DF}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\publish_jellyfin_plugin.yml = .github\workflows\publish_jellyfin_plugin.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +62,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{714F67D4-F1E3-4E8B-8308-1F709970C5DF} = {95F0AD41-13BB-4992-8CB9-7CB8AC91E599}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AB0CAC20-A449-45F3-B2A5-6B2E5FC02771}

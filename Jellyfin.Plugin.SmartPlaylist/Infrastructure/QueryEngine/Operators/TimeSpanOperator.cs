@@ -1,8 +1,7 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Operators;
 
-public class TimeSpanOperator : IOperator
+public sealed class TimeSpanOperator : IOperator
 {
-
     private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression plExpression,
                                                                               MemberExpression sourceExpression,
                                                                               LinqExpressionType tBinary,

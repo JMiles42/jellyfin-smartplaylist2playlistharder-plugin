@@ -1,8 +1,7 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.RuleFixers;
 
-public class PremiereDateExpressionFixer : IExpressionFixer
+public sealed class PremiereDateExpressionFixer : IExpressionFixer
 {
-
     /// <inheritdoc />
     public void FixExpression(SmartPlExpression expression)
     {

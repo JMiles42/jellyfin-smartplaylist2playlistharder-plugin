@@ -1,6 +1,6 @@
 namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Model;
 
-internal class OrderPair
+internal sealed class OrderPair
 {
     private Order Ascending { get; }
 

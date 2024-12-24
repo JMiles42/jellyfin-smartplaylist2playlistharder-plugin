@@ -1,0 +1,55 @@
+﻿{
+  SmartPlaylist: {
+    Name: OP Strats,
+    FileName: {CurrentDirectory}Data/IO/TargetValue_AsList_SaveIsEqual.json,
+    User: UnitTest,
+    ExpressionSets: [
+      {
+        Expressions: [
+          {
+            MemberName: Directors,
+            Operator: Contains,
+            TargetValue: {
+              Value: [
+                The Spiffing Brit,
+                CGP Grey,
+                RTGame
+              ],
+              Count: 3,
+              SingleValue: The Spiffing Brit,
+              SingleValueT: The Spiffing Brit,
+              IsSingleValue: false
+            },
+            InvertResult: false,
+            StringComparison: OrdinalIgnoreCase
+          }
+        ],
+        Match: All
+      }
+    ],
+    Order: [
+      {
+        Name: OriginalTitle,
+        Ascending: false,
+        IsInValid: false
+      },
+      {
+        Name: ReleaseDate,
+        Ascending: false,
+        IsInValid: false
+      },
+      {
+        Name: ReleaseDate,
+        Ascending: true,
+        IsInValid: false
+      }
+    ],
+    SupportedItems: [
+      Audio,
+      Episode,
+      Movie
+    ],
+    IsReadonly: false
+  },
+  FileId: TargetValue_AsList_SaveIsEqual.json
+}

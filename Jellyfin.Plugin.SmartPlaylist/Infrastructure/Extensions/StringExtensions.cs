@@ -2,5 +2,5 @@
 
 public static class StringExtensions
 {
-	public static string ValueOrEmpty(this string? value) => value ?? string.Empty;
+    public static string ValueOrEmpty(this string? value) => value ?? string.Empty;
 }

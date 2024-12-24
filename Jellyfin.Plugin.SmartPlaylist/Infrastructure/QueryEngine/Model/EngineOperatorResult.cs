@@ -2,7 +2,6 @@
 
 public record EngineOperatorResult(string Name, EngineOperatorResultKind Kind)
 {
-
     public static EngineOperatorResult Success() => new(nameof(Success), EngineOperatorResultKind.Success);
 
     public static EngineOperatorResult Success(string message) => new(message, EngineOperatorResultKind.Success);

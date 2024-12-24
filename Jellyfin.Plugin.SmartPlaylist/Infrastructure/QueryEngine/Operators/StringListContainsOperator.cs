@@ -1,8 +1,7 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Operators;
 
-public class StringListContainsOperator : IOperator
+public sealed class StringListContainsOperator : IOperator
 {
-
     private static IEnumerable<ParsedValueExpressionResult> GetAllExpressions(SmartPlExpression expression,
                                                                               MemberExpression sourceExpression) =>
             expression.TargetValue.GetValues()

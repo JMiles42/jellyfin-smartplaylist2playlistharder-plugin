@@ -1,10 +1,12 @@
 ﻿namespace Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine.Ordering;
 
-public class RandomOrder : Order
+public sealed class RandomOrder : Order
 {
     public static RandomOrder Instance { get; } = new();
 
-    public RandomOrder() : base(true) { }
+    public RandomOrder() : base(true)
+    {
+    }
 
     public override IEnumerable<string> Names()
     {

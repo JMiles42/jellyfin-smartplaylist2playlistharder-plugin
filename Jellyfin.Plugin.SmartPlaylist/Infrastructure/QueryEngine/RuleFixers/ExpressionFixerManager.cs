@@ -2,7 +2,6 @@
 
 public static class ExpressionFixerManager
 {
-
     private static readonly IReadOnlyDictionary<string, IExpressionFixer> Fixers =
             new Dictionary<string, IExpressionFixer>
             {

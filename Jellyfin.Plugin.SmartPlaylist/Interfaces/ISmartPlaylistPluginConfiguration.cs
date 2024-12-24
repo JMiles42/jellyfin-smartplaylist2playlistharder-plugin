@@ -6,7 +6,7 @@ public interface ISmartPlaylistPluginConfiguration
 
     bool PlaylistBatchedProcessing { get; }
 
-    bool PlaylistDetailedErrors    { get; }
+    bool PlaylistDetailedErrors { get; }
 
     bool AlwaysSaveFile { get; }
 
@@ -14,6 +14,5 @@ public interface ISmartPlaylistPluginConfiguration
 
     string PlaylistFolderName { get; }
 
-    string PlaylistBackupFolderName  { get; }
-
+    string PlaylistBackupFolderName { get; }
 }
