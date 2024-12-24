@@ -7,8 +7,7 @@ public sealed class GuidConverter : JsonConverter<Guid>
     /// <inheritdoc />
     public override Guid Read(ref Utf8JsonReader reader,
                               Type typeToConvert,
-                              JsonSerializerOptions options) =>
-            Guid.Parse(reader.GetString());
+                              JsonSerializerOptions options) => reader.GetString() is { } str ? Guid.Parse(str) : Guid.Empty;
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer,
@@ -29,7 +28,7 @@ public sealed class GuidNullableConverter : JsonConverter<Guid?>
             return null;
         }
 
-        return Guid.Parse(reader.GetString());
+        return reader.GetString() is { } str ? Guid.Parse(str) : null;
     }
 
     /// <inheritdoc />
