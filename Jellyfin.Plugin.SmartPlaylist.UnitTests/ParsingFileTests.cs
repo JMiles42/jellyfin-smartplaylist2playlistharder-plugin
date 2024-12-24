@@ -58,6 +58,30 @@ public class ParsingFileTests
         return contents!;
     }
 
+    [Theory]
+    [InlineData("Simple_With_StringComparison_AsInt")]
+    [InlineData("Simple_With_StringComparison_AsString")]
+    [InlineData("Simple_Without_StringComparison")]
+    [InlineData("Simple_Without_SupportedItems")]
+    [InlineData("TargetValue_AsList")]
+    [InlineData("TargetValue_AsList_SaveIsEqual")]
+    [InlineData("TargetValue_AsString")]
+    [InlineData("TargetValue_AsString_SaveIsEqual")]
+    [InlineData("Vars_AsList")]
+    [InlineData("Vars_AsList_SaveIsEqual")]
+    [InlineData("Vars_AsString")]
+    [InlineData("Vars_AsString_SaveIsEqual")]
+    public async Task FileLoads_Successfully(string filename)
+    {
+        var file = LoadFile(filename);
+
+        var settings = new VerifySettings();
+        settings.UseDirectory("snapshots");
+        settings.UseParameters(filename);
+
+        await Verify(file, settings);
+    }
+
     private void SaveFile(SmartPlaylistDto data, [CallerMemberName] string filename = "") => _smartPlaylistManager.SavePlaylist(filename + ".output.json", data);
 
     [Fact]

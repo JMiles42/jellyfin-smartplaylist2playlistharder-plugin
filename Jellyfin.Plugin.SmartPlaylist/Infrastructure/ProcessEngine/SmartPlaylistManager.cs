@@ -78,8 +78,7 @@ public sealed class SmartPlaylistManager : ISmartPlaylistManager
         try
         {
             using var reader = File.OpenRead(filepath);
-
-            playlist = JsonSerializer.Deserialize(reader, SmartPlaylistDtoJsonContext.WithConverters.SmartPlaylistDto);
+            playlist = SmartPlaylistDtoJsonContext.Deserialize(reader);
 
             if (playlist is not null)
             {

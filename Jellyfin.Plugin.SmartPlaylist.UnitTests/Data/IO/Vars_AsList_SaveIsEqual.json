@@ -8,13 +8,20 @@
         {
           "MemberName": "Directors",
           "Operator": "Contains",
-          "TargetValue": "The Spiffing Brit",
+          "TargetValue": "$(DirectorNames)",
           "InvertResult": false,
           "StringComparison": 5
         }
       ]
     }
   ],
+  "ExpressionVars": {
+    "DirectorNames": [
+      "The Spiffing Brit",
+      "CGP Grey",
+      "RTGame"
+    ]
+  },
   "MaxItems": 0,
   "Order": {
     "Name": "ReleaseDate",
@@ -22,12 +29,13 @@
     "ThenBy": [
       {
         "Name": "OriginalTitle",
-        "Ascending": true
-      }
+        "Ascending": false
+      },
+      {
+        "Name": "ReleaseDate",
+        "Ascending": false
+      },
+      "ReleaseDate"
     ]
-  },
-  "SupportedItems": [
-    "Episode",
-    "Movie"
-  ]
+  }
 }

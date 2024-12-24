@@ -19,6 +19,7 @@ public sealed class SmartPlaylistDto
     public string? User { get; set; }
 
     public List<ExpressionSet>? ExpressionSets { get; set; }
+    public Dictionary<string, ExpressionValue>? ExpressionVars { get; set; }
 
     public MatchMode Match { get; set; } = MatchMode.Any;
 

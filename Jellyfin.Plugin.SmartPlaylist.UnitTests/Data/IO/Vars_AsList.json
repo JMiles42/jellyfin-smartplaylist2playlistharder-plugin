@@ -8,13 +8,19 @@
         {
           "MemberName": "Directors",
           "Operator": "Contains",
-          "TargetValue": "The Spiffing Brit",
+          "TargetValue": "$(DirectorNames)",
           "InvertResult": false,
           "StringComparison": 5
         }
       ]
     }
   ],
+  "ExpressionVars": {
+    "DirectorNames": [
+      "The Spiffing Brit",
+      "CGP Grey"
+    ]
+  },
   "MaxItems": 0,
   "Order": {
     "Name": "ReleaseDate",
@@ -25,9 +31,5 @@
         "Ascending": true
       }
     ]
-  },
-  "SupportedItems": [
-    "Episode",
-    "Movie"
-  ]
+  }
 }

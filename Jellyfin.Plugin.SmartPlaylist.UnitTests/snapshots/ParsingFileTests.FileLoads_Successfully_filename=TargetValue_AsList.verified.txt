@@ -1,0 +1,44 @@
+﻿{
+  SmartPlaylist: {
+    Name: OP Strats,
+    FileName: {CurrentDirectory}Data\IO\TargetValue_AsList.json,
+    User: UnitTest,
+    ExpressionSets: [
+      {
+        Expressions: [
+          {
+            MemberName: Directors,
+            Operator: Contains,
+            TargetValue: {
+              Value: [
+                The Spiffing Brit,
+                CGP Grey
+              ],
+              Count: 2,
+              SingleValue: The Spiffing Brit,
+              SingleValueT: The Spiffing Brit,
+              IsSingleValue: false
+            },
+            InvertResult: false,
+            StringComparison: OrdinalIgnoreCase
+          }
+        ],
+        Match: All
+      }
+    ],
+    Order: [
+      {
+        Name: OriginalTitle,
+        Ascending: true,
+        IsInValid: false
+      }
+    ],
+    SupportedItems: [
+      Audio,
+      Episode,
+      Movie
+    ],
+    IsReadonly: false
+  },
+  FileId: TargetValue_AsList.json
+}

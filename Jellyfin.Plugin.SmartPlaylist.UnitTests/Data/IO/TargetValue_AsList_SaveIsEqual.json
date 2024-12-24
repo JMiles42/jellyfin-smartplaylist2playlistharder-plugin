@@ -1,38 +1,38 @@
 {
-    "Name": "OP Strats",
-    "FileName": "op_strats",
-    "User": "UnitTest",
-    "ExpressionSets": [
+  "Name": "OP Strats",
+  "FileName": "op_strats",
+  "User": "UnitTest",
+  "ExpressionSets": [
+    {
+      "Expressions": [
         {
-            "Expressions": [
-                {
-                    "MemberName": "Directors",
-                    "Operator": "Contains",
-                    "TargetValue": [
-                        "The Spiffing Brit",
-                        "CGP Grey",
-                        "RTGame"
-                    ],
-                    "InvertResult": false,
-                    "StringComparison": 5
-                }
-            ]
+          "MemberName": "Directors",
+          "Operator": "Contains",
+          "TargetValue": [
+            "The Spiffing Brit",
+            "CGP Grey",
+            "RTGame"
+          ],
+          "InvertResult": false,
+          "StringComparison": 5
         }
-    ],
-    "MaxItems": 0,
-    "Order": {
-        "Name": "ReleaseDate",
-        "Ascending": true,
-        "ThenBy": [
-            {
-                "Name": "OriginalTitle",
-                "Ascending": false
-            },
-            {
-                "Name": "ReleaseDate",
-                "Ascending": false
-            },
-            "ReleaseDate"
-        ]
+      ]
     }
+  ],
+  "MaxItems": 0,
+  "Order": {
+    "Name": "ReleaseDate",
+    "Ascending": true,
+    "ThenBy": [
+      {
+        "Name": "OriginalTitle",
+        "Ascending": false
+      },
+      {
+        "Name": "ReleaseDate",
+        "Ascending": false
+      },
+      "ReleaseDate"
+    ]
+  }
 }
