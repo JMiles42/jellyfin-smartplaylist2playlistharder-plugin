@@ -7,7 +7,7 @@
   "name": "SmartPlaylist2PlaylistHarder",
   "overview": "Smart Playlist 2 Playlist Harder! Is a system to automatically generate playlists based on a set of rules\nBuilt off of the base of SmartPlaylist by ankenyr",
   "owner": "JMiles42",
-  "targetAbi": "10.9.0.0",
+  "targetAbi": "10.11.0.0",
   "timestamp": "2024-05-16T10:03:03Z",
-  "version": "2.2.0.0"
+  "version": "2.4.0.1"
 }
