@@ -4,7 +4,7 @@
 public record Operand
 {
     private readonly ILibraryManager _libraryManager;
-    private readonly object _locker = new();
+    private readonly Lock _locker = new();
 
     private List<string>? _actors;
     private List<string>? _artists;
@@ -18,7 +18,7 @@ public record Operand
     private List<string>? _tags;
     private List<string>? _pathSegment;
 
-    private List<PersonInfo>? _people;
+    private IReadOnlyList<PersonInfo>? _people;
 
     private string? _allText;
 
@@ -599,7 +599,7 @@ public record Operand
 
     public static int GetDaysAgo(DateTime currentDate, DateTime now) => (int)(now - currentDate).TotalDays;
 
-    private List<PersonInfo> GetPeople()
+    private IReadOnlyList<PersonInfo> GetPeople()
     {
         if (_people is not null)
         {

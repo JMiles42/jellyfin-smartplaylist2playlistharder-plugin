@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Version>2.2.0.0</Version>
+    <TargetFramework>net9.0</TargetFramework>
+    <Version>2.3.0.0</Version>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <Nullable>enable</Nullable>
@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Jellyfin.Controller" Version="10.*-*" />
-    <PackageReference Include="Jellyfin.Data" Version="10.*-*" />
+    <PackageReference Include="Jellyfin.Controller" Version="10.11.0" />
+    <PackageReference Include="Jellyfin.Data" Version="10.11.0" />
   </ItemGroup>
 
   <ItemGroup>
