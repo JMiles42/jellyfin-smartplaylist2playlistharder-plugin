@@ -1,13 +1,13 @@
 {
   "category": "Playlist",
-  "changelog": "v2.2 Adds new functionality ExpressionVars, now along side the ExpressionSets there is a dictionary, of a string key and ExpressionValue values.\nThis is used to share the same ExpressionValue across multiple Expressions, useful when repeating large lists etc.\nPlease see the readme.md for more detail",
+  "changelog": "v2.3 Update to jellyfin 10.11.0 \nAdd SkipItems, the MaxItems existed allowing you to limit/Take a set number of items, you can now Skip, in a pagination style.",
   "description": "Smart Playlist 2 Playlist Harder!.\nIs a system to automatically generate playlists based on a set of rules.\nBuilt off of the base of SmartPlaylist by ankenyr.\n",
   "guid": "5a63fe63-765f-43f7-a129-661e839f83d5",
   "imageUrl": "",
   "name": "SmartPlaylist2PlaylistHarder",
   "overview": "Smart Playlist 2 Playlist Harder! Is a system to automatically generate playlists based on a set of rules\nBuilt off of the base of SmartPlaylist by ankenyr",
   "owner": "JMiles42",
-  "targetAbi": "10.9.0.0",
+  "targetAbi": "10.11.0.0",
   "timestamp": "2024-05-16T10:03:03Z",
-  "version": "2.2.0.0"
+  "version": "2.4.0.1"
 }

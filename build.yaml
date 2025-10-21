@@ -1,7 +1,7 @@
 name: "SmartPlaylist2PlaylistHarder"
 guid: "5A63FE63-765F-43F7-A129-661E839F83D5"
 imageUrl: ""
-version: "2.3.0.0"
+version: "2.3.0.1"
 targetAbi: "10.11.0.0"
 framework: "net9.0"
 owner: "JMiles42"
