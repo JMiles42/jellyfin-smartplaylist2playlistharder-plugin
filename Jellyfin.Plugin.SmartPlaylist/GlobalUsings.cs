@@ -1,6 +1,6 @@
 // Global using directives
 
-global using Jellyfin.Data.Entities;
+global using Jellyfin.Database.Implementations.Entities;
 global using Jellyfin.Data.Enums;
 global using Jellyfin.Plugin.SmartPlaylist.Configuration;
 global using Jellyfin.Plugin.SmartPlaylist.Extensions;

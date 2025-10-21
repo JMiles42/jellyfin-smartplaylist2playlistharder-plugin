@@ -215,15 +215,19 @@ public sealed class SmartPlaylistsRefreshJob
                 return [];
             }
 
-            if (SmartPlaylistDto?.MaxItems > 0)
+			var rsts = Sorter.GetResults();
+
+			if (SmartPlaylistDto?.SkipItems > 0)
             {
-                return Sorter.GetResults()
-                             .Take(SmartPlaylistDto.MaxItems)
-                             .ToArray();
+				rsts = rsts.Skip(SmartPlaylistDto.SkipItems);
             }
 
-            return Sorter.GetResults()
-                         .ToArray();
+			if (SmartPlaylistDto?.MaxItems > 0)
+            {
+				rsts = rsts.Take(SmartPlaylistDto.MaxItems);
+            }
+
+            return rsts.ToArray();
         }
         catch (Exception e)
         {

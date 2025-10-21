@@ -25,6 +25,8 @@ public sealed class SmartPlaylistDto
 
     public int MaxItems { get; set; }
 
+    public int SkipItems { get; set; }
+
     [JsonConverter(typeof(OrderByDtoJsonConverter))]
     public OrderByDto? Order { get; set; }
 

@@ -33,7 +33,7 @@ public sealed class RefreshAllSmartPlaylistsScheduledTask : IScheduledTask, ICon
     [
         new TaskTriggerInfo
                 {
-                    IntervalTicks = TimeSpan.FromHours(6).Ticks, Type = TaskTriggerInfo.TriggerInterval,
+                    IntervalTicks = TimeSpan.FromHours(6).Ticks, Type = TaskTriggerInfoType.IntervalTrigger,
                 }
     ];
 

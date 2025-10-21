@@ -1,6 +1,6 @@
-﻿using FluentAssertions;
-using Jellyfin.Plugin.SmartPlaylist.Extensions;
+﻿using Jellyfin.Plugin.SmartPlaylist.Extensions;
 using Jellyfin.Plugin.SmartPlaylist.Infrastructure.QueryEngine;
+using Shouldly;
 using Xunit.Abstractions;
 
 namespace Jellyfin.Plugin.SmartPlaylist.UnitTests;
@@ -56,8 +56,8 @@ public class MatchModeTests
     [InlineData(1000, 5, false)]
     public void MatchOne(int totalChecks, int matchCount, bool shouldPass)
     {
-        MatchMode.OnlyOne.DoesMatch(matchCount, totalChecks).Should().Be(shouldPass);
-        MatchMode.One.DoesMatch(matchCount, totalChecks).Should().Be(shouldPass);
+        MatchMode.OnlyOne.DoesMatch(matchCount, totalChecks).ShouldBe(shouldPass);
+        MatchMode.One.DoesMatch(matchCount, totalChecks).ShouldBe(shouldPass);
     }
 
     [Theory]
@@ -101,7 +101,7 @@ public class MatchModeTests
     [InlineData(100, 0, false)]
     [InlineData(1000, 0, false)]
     public void MatchAny(int totalChecks, int matchCount, bool shouldPass) =>
-            MatchMode.Any.DoesMatch(matchCount, totalChecks).Should().Be(shouldPass);
+            MatchMode.Any.DoesMatch(matchCount, totalChecks).ShouldBe(shouldPass);
 
     [Theory]
     [InlineData(1, 0, false)]
@@ -142,7 +142,7 @@ public class MatchModeTests
     [InlineData(100, 99, true)]
     [InlineData(1000, 999, true)]
     public void MatchAllButOne(int totalChecks, int matchCount, bool shouldPass) =>
-            MatchMode.AllButOne.DoesMatch(matchCount, totalChecks).Should().Be(shouldPass);
+            MatchMode.AllButOne.DoesMatch(matchCount, totalChecks).ShouldBe(shouldPass);
 
     [Theory]
     [InlineData(1, 0, true)]
@@ -196,8 +196,8 @@ public class MatchModeTests
     [InlineData(1000, 999, false)]
     public void MatchNone(int totalChecks, int matchCount, bool shouldPass)
     {
-        MatchMode.Zero.DoesMatch(matchCount, totalChecks).Should().Be(shouldPass);
-        MatchMode.None.DoesMatch(matchCount, totalChecks).Should().Be(shouldPass);
+        MatchMode.Zero.DoesMatch(matchCount, totalChecks).ShouldBe(shouldPass);
+        MatchMode.None.DoesMatch(matchCount, totalChecks).ShouldBe(shouldPass);
     }
 
     [Theory]
@@ -252,7 +252,7 @@ public class MatchModeTests
     [InlineData(100, 99, false)]
     [InlineData(1000, 999, false)]
     public void MatchAll(int totalChecks, int matchCount, bool shouldPass) =>
-            MatchMode.All.DoesMatch(matchCount, totalChecks).Should().Be(shouldPass);
+            MatchMode.All.DoesMatch(matchCount, totalChecks).ShouldBe(shouldPass);
 
     [Theory]
     [InlineData(0, 0, false)]
@@ -296,7 +296,7 @@ public class MatchModeTests
     [InlineData(100, 50, true)]
     [InlineData(1000, 500, true)]
     public void MatchHalf(int totalChecks, int matchCount, bool shouldPass) =>
-            MatchMode.Half.DoesMatch(matchCount, totalChecks).Should().Be(shouldPass);
+            MatchMode.Half.DoesMatch(matchCount, totalChecks).ShouldBe(shouldPass);
 
     [Theory]
     [InlineData(0, 0, false)]
@@ -340,7 +340,7 @@ public class MatchModeTests
     [InlineData(100, 50, true)]
     [InlineData(1000, 500, true)]
     public void MatchHalfOrMore(int totalChecks, int matchCount, bool shouldPass) =>
-            MatchMode.HalfOrMore.DoesMatch(matchCount, totalChecks).Should().Be(shouldPass);
+            MatchMode.HalfOrMore.DoesMatch(matchCount, totalChecks).ShouldBe(shouldPass);
 
     [Theory]
     [InlineData(0, 0, false)]
@@ -384,5 +384,5 @@ public class MatchModeTests
     [InlineData(100, 50, true)]
     [InlineData(1000, 500, true)]
     public void MatchHalfOrLess(int totalChecks, int matchCount, bool shouldPass) =>
-            MatchMode.HalfOrLess.DoesMatch(matchCount, totalChecks).Should().Be(shouldPass);
+            MatchMode.HalfOrLess.DoesMatch(matchCount, totalChecks).ShouldBe(shouldPass);
 }
