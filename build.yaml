@@ -3,7 +3,7 @@ guid: "5A63FE63-765F-43F7-A129-661E839F83D5"
 imageUrl: ""
 version: "2.3.0.0"
 targetAbi: "10.11.0.0"
-framework: "net8.0"
+framework: "net9.0"
 owner: "JMiles42"
 overview: "Smart Playlist 2 Playlist Harder! Is a system to automatically generate playlists based on a set of rules\nBuilt off of the base of SmartPlaylist by ankenyr"
 description: |
