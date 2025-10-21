@@ -13,6 +13,7 @@ public sealed class SmartPlaylist
     public IReadOnlyList<ExpressionSet> ExpressionSets { get; set; }
 
     public int MaxItems { get; set; }
+    public int SkipItems { get; set; }
 
     public bool IsReadonly { get; set; }
 

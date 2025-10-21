@@ -15,6 +15,7 @@ artifacts:
   - "Jellyfin.Plugin.SmartPlaylist.dll"
 changelog: |
   v2.3 Update to jellyfin 10.11.0
+    Add SkipItems, the MaxItems existed allowing you to limit/Take a set number of items, you can now Skip, in a pagination style.
 
   v2.2 Added new functionality ExpressionVars, now along side the ExpressionSets there is a dictionary, of a string key and ExpressionValue value,
   This is used to share the same ExpressionValue across multiple Expressions, useful when repeating large lists etc.
